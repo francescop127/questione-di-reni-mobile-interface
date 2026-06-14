@@ -1,0 +1,8 @@
+{
+  "name": "EcoLife - Questione di Reni",
+  "description": "EcoLife is an immersive web interface designed for the movie 'Questione di Reni', portraying social profiles, chat timelines, phone calls, and interactive flashmob event details.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

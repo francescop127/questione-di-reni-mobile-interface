@@ -1,0 +1,2054 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Menu, Search, User, MessageSquare, Phone, PhoneOff, Play, Pause, 
+  MapPin, Heart, CheckCheck, Send, Calendar, Bookmark, Clock, 
+  Volume2, VolumeX, Sliders, X, Check, Smartphone, ChevronLeft, ChevronRight, 
+  Eye, Sparkles, BookOpen, Clock4, Bell, HelpCircle, Flame, Layers, Camera,
+  Lock, Battery, Wifi
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+
+// Custom subcomponents
+import NewspaperView from './components/NewspaperView';
+import CalendarView from './components/CalendarView';
+import SvevaGalleryView from './components/SvevaGalleryView';
+import DirectorDrawer from './components/DirectorDrawer';
+
+// State and types
+import { INITIAL_DATA, AppData, Post, Contact, Message, ChatThread } from './data';
+
+export default function App() {
+  // 1. Centralized Persisted Data State
+  const [appData, setAppData] = useState<AppData>(() => {
+    const cached = localStorage.getItem('ecolife_sim_app_data');
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch (err) {
+        // Fallback
+      }
+    }
+    return INITIAL_DATA;
+  });
+
+  // Save changes to cache so film operators can persist edited texts/images
+  useEffect(() => {
+    localStorage.setItem('ecolife_sim_app_data', JSON.stringify(appData));
+  }, [appData]);
+
+  // 2. Active Screen Routing
+  // Options: 'feed' | 'search' | 'profile' | 'chat' | 'contacts' | 'newspaper' | 'calendar' | 'gallery_sveva'
+  const [activeScreen, setActiveScreen] = useState<string>('profile');
+  const [phoneOwner, setPhoneOwner] = useState<'Aldo' | 'Anna'>('Anna');
+  const [adminDrawerOpen, setAdminDrawerOpen] = useState<boolean>(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+
+  // Search & Profile states
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [profileViewMode, setProfileViewMode] = useState<'grid' | 'feed'>('grid');
+  const [focusedPostId, setFocusedPostId] = useState<string | null>(null);
+
+  // Direct DM state
+  const [activeChatId, setActiveChatId] = useState<string>('chat_anna');
+  const [typedMessage, setTypedMessage] = useState<string>('');
+  const [keyboardOpen, setKeyboardOpen] = useState<boolean>(false);
+  const [mobileShowActiveChat, setMobileShowActiveChat] = useState<boolean>(false);
+
+  // Screen-wake notification standby scene configuration
+  const [standbyActive, setStandbyActive] = useState<boolean>(false);
+  const [standbyTimerRunning, setStandbyTimerRunning] = useState<boolean>(false);
+  const [standbySecondsLeft, setStandbySecondsLeft] = useState<number>(10);
+  const [standbyTotalSeconds, setStandbyTotalSeconds] = useState<number>(10);
+  const [standbyPulseActive, setStandbyPulseActive] = useState<boolean>(false);
+  const [lockScreenActive, setLockScreenActive] = useState<boolean>(false);
+  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&q=80&w=1000');
+
+  const [wakeConfig, setWakeConfig] = useState({
+    senderName: 'Anna',
+    messagePreview: '🎤 Messaggio Vocale (0:42)',
+    timestamp: 'Adesso',
+    voiceDuration: '0:42',
+    useVibratingPulse: true,
+    notificationBehavior: 'lockscreen' as 'lockscreen' | 'inapp'
+  });
+
+  // Call simulation overlay state
+  const [callState, setCallState] = useState<{
+    callerName: string;
+    callerNumber: string;
+    callerAvatar: string;
+    type: 'incoming' | 'outgoing' | 'connected' | null;
+    phoneOwnerTarget: 'Aldo' | 'Anna';
+    timeElapsed: number;
+  }>({
+    callerName: '',
+    callerNumber: '',
+    callerAvatar: '',
+    type: null,
+    phoneOwnerTarget: 'Anna',
+    timeElapsed: 0
+  });
+
+  // Call simulation countdown and configurations
+  const [callTimerRunning, setCallTimerRunning] = useState<boolean>(false);
+  const [callSecondsLeft, setCallSecondsLeft] = useState<number>(5);
+  const [callTotalSeconds, setCallTotalSeconds] = useState<number>(5);
+  const [callAutoAnswerDelayLeft, setCallAutoAnswerDelayLeft] = useState<number>(5);
+
+  const [callConfig, setCallConfig] = useState({
+    callerName: 'Anna Calligaris',
+    callerNumber: '+39 347 129 8834',
+    callerAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
+    phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
+    autoAnswerEnabled: true,
+    autoAnswerDelay: 5
+  });
+
+  // Notifications Pop Down
+  const [bannerNotificationActive, setBannerNotificationActive] = useState<boolean>(false);
+
+  // Audio & Synthesizer State
+  const [ringerEnabled, setRingerEnabled] = useState<boolean>(true);
+  const [currentTime, setCurrentTime] = useState<string>('15:10');
+
+  // Voice message player simulated progression
+  const [voiceIsPlaying, setVoiceIsPlaying] = useState<boolean>(false);
+  const [voiceProgress, setVoiceProgress] = useState<number>(0);
+  const voiceProgressIntervalRef = useRef<number | null>(null);
+
+  // Audio Context for beeps and simulated dial rings
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const ringIntervalRef = useRef<number | null>(null);
+
+  // Live timer for calls
+  const callDurationIntervalRef = useRef<number | null>(null);
+
+  // Sync clock time live if wanted, or let it be static for shooting continuity
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // Do not auto-update unless specified, to maintain film scene visual matching
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Handle call timer ticks
+  useEffect(() => {
+    if (callState.type === 'connected') {
+      callDurationIntervalRef.current = window.setInterval(() => {
+        setCallState(prev => ({ ...prev, timeElapsed: prev.timeElapsed + 1 }));
+      }, 1000);
+    } else {
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current);
+        callDurationIntervalRef.current = null;
+      }
+    }
+    return () => {
+      if (callDurationIntervalRef.current) clearInterval(callDurationIntervalRef.current);
+    };
+  }, [callState.type]);
+
+  // Audio Synthesizer Cadences (Safe fallback)
+  const startSynthRingtone = () => {
+    if (!ringerEnabled) return;
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      audioCtxRef.current = new AudioCtx();
+
+      const playBeepPair = () => {
+        if (!audioCtxRef.current) return;
+        
+        // Custom double cadence ringtone (Italian telecom standard)
+        const osc1 = audioCtxRef.current.createOscillator();
+        const osc2 = audioCtxRef.current.createOscillator();
+        const gainNode = audioCtxRef.current.createGain();
+
+        osc1.frequency.setValueAtTime(425, audioCtxRef.current.currentTime);
+        osc2.frequency.setValueAtTime(400, audioCtxRef.current.currentTime);
+
+        gainNode.gain.setValueAtTime(0, audioCtxRef.current.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.12, audioCtxRef.current.currentTime + 0.05);
+        gainNode.gain.setValueAtTime(0.12, audioCtxRef.current.currentTime + 0.9);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtxRef.current.currentTime + 1.0);
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(audioCtxRef.current.destination);
+
+        osc1.start();
+        osc2.start();
+
+        // Stop oscillator
+        setTimeout(() => {
+          try {
+            osc1.stop();
+            osc2.stop();
+          } catch(err) {}
+        }, 1100);
+      };
+
+      // Play initially and then set interval
+      playBeepPair();
+      ringIntervalRef.current = window.setInterval(playBeepPair, 3000);
+
+    } catch (e) {
+      console.warn("Audio Context blocked by policy", e);
+    }
+  };
+
+  const stopSynthRingtone = () => {
+    if (ringIntervalRef.current) {
+      clearInterval(ringIntervalRef.current);
+      ringIntervalRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      try {
+        audioCtxRef.current.close();
+      } catch (e) {}
+      audioCtxRef.current = null;
+    }
+  };
+
+  // Sound beep when playing simulated voice or answering
+  const playInteractionBeep = (freq = 600, duration = 0.15) => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    } catch(e) {}
+  };
+
+  // Sound triggers based on callState transitions
+  useEffect(() => {
+    if (callState.type === 'incoming' || callState.type === 'outgoing') {
+      startSynthRingtone();
+    } else {
+      stopSynthRingtone();
+    }
+    return () => stopSynthRingtone();
+  }, [callState.type, ringerEnabled]);
+
+  const triggerWakeNotification = () => {
+    playInteractionBeep(880, 0.4);
+    if (wakeConfig.notificationBehavior === 'lockscreen') {
+      setLockScreenActive(true);
+      setBannerNotificationActive(false);
+    } else {
+      setLockScreenActive(false);
+      setBannerNotificationActive(true);
+    }
+    if (wakeConfig.useVibratingPulse) {
+      setStandbyPulseActive(true);
+      setTimeout(() => {
+        setStandbyPulseActive(false);
+      }, 2500);
+    }
+  };
+
+  useEffect(() => {
+    let interval: number | undefined;
+    if (standbyTimerRunning && standbyActive) {
+      interval = window.setInterval(() => {
+        setStandbySecondsLeft(prev => {
+          if (prev <= 1) {
+            setStandbyTimerRunning(false);
+            setStandbyActive(false);
+            // Wake Up and Trigger
+            triggerWakeNotification();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [standbyTimerRunning, standbyActive, wakeConfig]);
+
+  // Countdown for pre-call delay
+  useEffect(() => {
+    let interval: number | undefined;
+    if (callTimerRunning) {
+      // Automatically turn standby screen off immediately for realism
+      setStandbyActive(true);
+      interval = window.setInterval(() => {
+        setCallSecondsLeft(prev => {
+          if (prev <= 1) {
+            setCallTimerRunning(false);
+            // Turn standby screen off (wake up) when the call arrives
+            setStandbyActive(false);
+            // Trigger call
+            setPhoneOwner(callConfig.phoneOwnerTarget);
+            setCallState({
+              callerName: callConfig.callerName,
+              callerNumber: callConfig.callerNumber,
+              callerAvatar: callConfig.callerAvatar,
+              type: 'incoming',
+              phoneOwnerTarget: callConfig.phoneOwnerTarget,
+              timeElapsed: 0
+            });
+            // Prepare auto-answer countdown from config
+            setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [callTimerRunning, callConfig]);
+
+  // Countdown for auto-answering active ringing calls
+  useEffect(() => {
+    let interval: number | undefined;
+    if (callState.type === 'incoming' && callConfig.autoAnswerEnabled && !callTimerRunning) {
+      interval = window.setInterval(() => {
+        setCallAutoAnswerDelayLeft(prev => {
+          if (prev <= 1) {
+            // Auto Answer!
+            playInteractionBeep(925, 0.15);
+            stopSynthRingtone();
+            setCallState(cs => ({ ...cs, type: 'connected', timeElapsed: 0 }));
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [callState.type, callConfig.autoAnswerEnabled, callTimerRunning]);
+
+  // Reset auto-answer timer whenever any incoming call starts
+  useEffect(() => {
+    if (callState.type === 'incoming') {
+      setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
+    }
+  }, [callState.type, callConfig.autoAnswerDelay]);
+
+  // Prevent visual leak of director's settings panel underneath black or locked screen by closing it automatically
+  useEffect(() => {
+    if (standbyActive || lockScreenActive) {
+      setAdminDrawerOpen(false);
+    }
+  }, [standbyActive, lockScreenActive]);
+
+  // Voice message simulation progression
+  const handlePlayVoiceSimulated = () => {
+    if (voiceIsPlaying) {
+      // Pause
+      setVoiceIsPlaying(false);
+      if (voiceProgressIntervalRef.current) {
+        clearInterval(voiceProgressIntervalRef.current);
+        voiceProgressIntervalRef.current = null;
+      }
+    } else {
+      // Play
+      setVoiceIsPlaying(true);
+      playInteractionBeep(850, 0.2);
+      
+      voiceProgressIntervalRef.current = window.setInterval(() => {
+        setVoiceProgress(prev => {
+          if (prev >= 100) {
+            setVoiceIsPlaying(false);
+            if (voiceProgressIntervalRef.current) clearInterval(voiceProgressIntervalRef.current);
+            voiceProgressIntervalRef.current = null;
+            playInteractionBeep(1200, 0.45); // complete sound
+            return 100;
+          }
+          return prev + 1.2;
+        });
+      }, 100);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (voiceProgressIntervalRef.current) clearInterval(voiceProgressIntervalRef.current);
+    };
+  }, []);
+
+  // Predefined lists swaps
+  const imagePresets = [
+    { label: 'Anna Provetta Laboratorio', url: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600' },
+    { label: 'Serraglio Clinica Protesta', url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=800' },
+    { label: 'Autoscatto / Selfie Anna', url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600' },
+    { label: 'Biciclette Sentiero Bosco', url: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=800' }
+  ];
+
+  // CENTRALIZED ACCELERATOR PRESETS TRIGGERS
+  const triggerScenePreset = (presetKey: string) => {
+    playInteractionBeep(980, 0.25);
+    switch (presetKey) {
+      case 'scena_aldo_ricerca':
+        setPhoneOwner('Aldo');
+        setActiveScreen('search');
+        setSearchQuery('');
+        break;
+
+      case 'scena_profilo_anna':
+        setPhoneOwner('Aldo');
+        setActiveScreen('profile');
+        setFocusedPostId(null);
+        break;
+
+      case 'scena_post_flashmob':
+        setActiveScreen('feed');
+        setPhoneOwner('Aldo');
+        // Scroll target or focus can be simulated by focused modal
+        setFocusedPostId('post_flashmob');
+        break;
+
+      case 'scena_rubrica_aldo':
+        setPhoneOwner('Aldo');
+        setActiveScreen('contacts');
+        setSearchQuery('');
+        break;
+
+      case 'scena_rubrica_anna':
+        setPhoneOwner('Anna');
+        setActiveScreen('contacts');
+        setSearchQuery('');
+        break;
+
+      case 'scena_chat_messaggi':
+        setPhoneOwner('Aldo');
+        setActiveScreen('chat');
+        setActiveChatId('chat_anna');
+        setFocusedPostId(null);
+        break;
+
+      case 'scena_chat_selfie_ingrandito':
+        setPhoneOwner('Aldo');
+        setActiveScreen('chat');
+        setActiveChatId('chat_anna');
+        setFocusedPostId('selfie_zoom');
+        break;
+
+      case 'scena_riproduci_vocale':
+        setPhoneOwner('Aldo');
+        setActiveScreen('chat');
+        setActiveChatId('chat_anna');
+        setVoiceProgress(0);
+        setVoiceIsPlaying(false);
+        // Instant play trigger
+        setTimeout(() => {
+          handlePlayVoiceSimulated();
+        }, 500);
+        break;
+
+      case 'scena_chiama_aldo_da_anna':
+        // Incoming on Aldo's phone from Anna Calligaris
+        setPhoneOwner('Aldo');
+        setCallState({
+          callerName: appData.aldoContacts.find(c => c.id === 'contact_anna')?.name || 'Anna Calligaris',
+          callerNumber: '+39 347 129 8834',
+          callerAvatar: appData.annaProfile.avatar,
+          type: 'incoming',
+          phoneOwnerTarget: 'Aldo',
+          timeElapsed: 0
+        });
+        break;
+
+      case 'scena_chiama_anna_da_aldo':
+        // Outgoing from Anna's phone to Aldo
+        setPhoneOwner('Anna');
+        setCallState({
+          callerName: appData.annaContacts.find(c => c.id === 'contact_aldo')?.name || 'Aldo Reni',
+          callerNumber: '+39 328 110 4492',
+          callerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+          type: 'outgoing',
+          phoneOwnerTarget: 'Anna',
+          timeElapsed: 0
+        });
+        break;
+
+      case 'scena_negroni_chiama_anna':
+        // Incoming on Anna from "Conte Negroni"
+        setPhoneOwner('Anna');
+        setCallState({
+          callerName: appData.annaContacts.find(c => c.id === 'contact_conte_negroni')?.name || 'Conte Negroni',
+          callerNumber: '+39 335 881 7711',
+          callerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
+          type: 'incoming',
+          phoneOwnerTarget: 'Anna',
+          timeElapsed: 0
+        });
+        break;
+
+      case 'scena_anna_chiama_negroni':
+        // Outgoing from Anna's phone to Conte Negroni
+        setPhoneOwner('Anna');
+        setCallState({
+          callerName: appData.annaContacts.find(c => c.id === 'contact_conte_negroni')?.name || 'Conte Negroni',
+          callerNumber: '+39 335 881 7711',
+          callerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
+          type: 'outgoing',
+          phoneOwnerTarget: 'Anna',
+          timeElapsed: 0
+        });
+        break;
+
+      default:
+        console.log("No custom preset matched", presetKey);
+    }
+  };
+
+  // Senders/Send Logic inside text input
+  const handleSendDirectMessage = () => {
+    if (!typedMessage.trim()) return;
+    playInteractionBeep(1100, 0.1);
+    
+    // Add msg to list based on device owner
+    const newMsg: Message = {
+      id: `m_user_${Date.now()}`,
+      sender: 'me',
+      text: typedMessage,
+      timestamp: currentTime
+    };
+
+    setAppData(prev => {
+      const isAldo = phoneOwner === 'Aldo';
+      const targetListKey = isAldo ? 'chatsAldo' : 'chatsAnna';
+      
+      return {
+        ...prev,
+        [targetListKey]: prev[targetListKey].map(thread => {
+          if (thread.id === activeChatId) {
+            return {
+              ...thread,
+              messages: [...thread.messages, newMsg]
+            };
+          }
+          return thread;
+        })
+      };
+    });
+
+    setTypedMessage('');
+  };
+
+  // Contacts dataset filtering resolver
+  const activeContacts = phoneOwner === 'Aldo' ? appData.aldoContacts : appData.annaContacts;
+  const filteredContacts = activeContacts.filter(contact => {
+    const q = searchQuery.toLowerCase();
+    return contact.name.toLowerCase().includes(q) || contact.phone.includes(q);
+  });
+
+  // Hot simulated triggers
+  const handleTriggerPopNotification = () => {
+    playInteractionBeep(880, 0.35); // simulated chime
+    setBannerNotificationActive(true);
+    // automatic dismissal
+    setTimeout(() => {
+      // do not auto dismiss on movie set unless targeted, so actors can read it.
+    }, 8000);
+  };
+
+  const handleApplyAddShift = (newShift: any) => {
+    const shiftWithId = { ...newShift, id: `shift_user_${Date.now()}` };
+    setAppData(prev => ({
+      ...prev,
+      mauroCalendar: [...prev.mauroCalendar, shiftWithId]
+    }));
+    playInteractionBeep(1000, 0.2);
+  };
+
+  return (
+    <div className={`min-h-screen bg-zinc-50 flex flex-col justify-between text-zinc-900 select-none ${standbyPulseActive ? 'animate-pulse border-4 border-red-500/20' : ''}`}>
+      
+      {/* IMMERSIVE BLACK STANDBY SCREEN FOR ALDO'S MESSAGE SCENE */}
+      {standbyActive && (
+        <div 
+          onClick={() => {
+            setStandbyActive(false);
+            setStandbyTimerRunning(false);
+            triggerWakeNotification();
+          }}
+          className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center cursor-pointer"
+        >
+          {/* Extremely faint standby marker for tech crew */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-mono text-zinc-900 select-none pointer-events-none text-center">
+            SCHERMO IN STANDBY DI ALDO<br/>
+            {standbyTimerRunning ? `RILASCIO IN CORSO... -${standbySecondsLeft} SECONDI` : 'SVEGLIA MANUALE DISPONIBILE'}<br/>
+            <span className="text-zinc-950">(TOCCA LO SCHERMO PER RISVEGLIO RAPIDO)</span>
+          </div>
+        </div>
+      )}
+
+      {/* IMMERSIVE SMARTPHONE LOCK SCREEN WITH THE DECLARED BACKEND WALLPAPER FIELD */}
+      <AnimatePresence>
+        {lockScreenActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -800 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 180 }}
+            className="fixed inset-0 z-[99990] flex flex-col justify-between p-6 select-none text-white font-sans overflow-hidden"
+            style={{
+              backgroundImage: `url(${lockScreenWallpaper})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            {/* Elegant dark frosted aesthetic glass overlay */}
+            <div className="absolute inset-0 bg-black/35 backdrop-blur-[1px] pointer-events-none" />
+
+            {/* Status bar top */}
+            <div className="relative z-10 flex justify-between items-center text-[11px] font-semibold tracking-wider text-zinc-100 px-2 pt-1 select-none">
+              <div className="flex items-center gap-1.5 font-mono">
+                <span>LTE</span>
+                <Wifi className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex items-center gap-1 bg-white/10 px-2.5 py-0.5 rounded-full backdrop-blur-md border border-white/10">
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[9px]">BLOCCATO</span>
+              </div>
+              <div className="flex items-center gap-1 font-mono">
+                <span>84%</span>
+                <Battery className="w-4 h-4 text-white rotate-0" />
+              </div>
+            </div>
+
+            {/* Large Cinematic Clock and Date */}
+            <div className="relative z-10 flex flex-col items-center mt-12 text-center">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#e4e4e7] drop-shadow-md font-mono">
+                {new Date().toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase()}
+              </span>
+              <h2 className="text-7xl font-display font-light tracking-tight mt-1 mb-0.5 select-none text-white drop-shadow-xl">
+                {currentTime}
+              </h2>
+              <span className="text-[14px] font-medium tracking-wide text-zinc-200 opacity-90 drop-shadow-sm font-sans">
+                {new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+
+            {/* Middle part - Interactive Notifications Area */}
+            <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[420px] mx-auto w-full pt-1">
+              <motion.div
+                initial={{ transform: 'scale(0.92)', opacity: 0, y: 30 }}
+                animate={{ transform: 'scale(1)', opacity: 1, y: 0 }}
+                transition={{ type: 'spring', damping: 20, delay: 0.15 }}
+                onClick={() => {
+                  // Direct unlock and navigate straight to chat message thread
+                  playInteractionBeep(1100, 0.15);
+                  setLockScreenActive(false);
+                  setBannerNotificationActive(false);
+                  setPhoneOwner('Aldo');
+                  setActiveScreen('chat');
+                  setActiveChatId('chat_anna');
+                  setMobileShowActiveChat(true); // Open details panel on mobile reactively
+                }}
+                className="bg-white/15 backdrop-blur-[24px] border border-white/20 rounded-2xl p-4 shadow-2xl hover:scale-102 hover:bg-white/20 transition duration-300 cursor-pointer active:scale-98 relative overflow-hidden group select-none"
+              >
+                {/* Shiny highlight overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition duration-300" />
+                
+                <div className="flex gap-3 relative z-10">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600/95 flex items-center justify-center text-white shrink-0 shadow-lg shadow-emerald-950/20">
+                    <MessageSquare className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 space-y-0.5 text-left">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] font-black tracking-widest text-emerald-400 font-mono uppercase leading-none">WHATSAPP</span>
+                      <span className="text-[9px] text-zinc-300 font-medium font-mono lowercase">{wakeConfig.timestamp}</span>
+                    </div>
+                    <h4 className="text-sm font-extrabold text-white leading-tight">{wakeConfig.senderName}</h4>
+                    <p className="text-[11px] text-zinc-200 line-clamp-2 leading-snug tracking-wide font-sans mt-0.5">
+                      {wakeConfig.messagePreview}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3.5 pt-2.5 border-t border-white/10 flex items-center justify-between text-[9px] font-bold text-zinc-300 uppercase tracking-widest">
+                  <span className="text-emerald-400 flex items-center gap-1 font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" /> Messaggio urgente
+                  </span>
+                  <span className="opacity-80 group-hover:translate-x-1 transition-transform cursor-pointer">TOCCA PER ASCOLTARE ➔</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Bottom Panel controls for natural film handling */}
+            <div className="relative z-10 max-w-[420px] mx-auto w-full flex flex-col items-center gap-4 select-none pb-4">
+              
+              {/* Quick bypass unlock button */}
+              <button
+                onClick={() => {
+                  playInteractionBeep(980, 0.1);
+                  setLockScreenActive(false);
+                }}
+                className="px-5 py-2.5 bg-black/40 hover:bg-black/60 border border-white/15 text-white text-[10px] font-black uppercase tracking-widest rounded-full transition cursor-pointer flex items-center gap-2 backdrop-blur-md"
+              >
+                <span>🔓 TOCCA PER SBLOCCARE IL TELEFONO</span>
+              </button>
+
+              {/* Torch & Camera standard lock screen quick launches */}
+              <div className="w-full flex justify-between px-6 select-none opacity-80">
+                <button 
+                  onClick={() => playInteractionBeep(700, 0.08)}
+                  className="w-11 h-11 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/65 transition backdrop-blur-md cursor-pointer"
+                  title="Torcia"
+                >
+                  <Flame className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => playInteractionBeep(750, 0.08)}
+                  className="w-11 h-11 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/65 transition backdrop-blur-md cursor-pointer"
+                  title="Fotocamera"
+                >
+                  <Camera className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* IMMERSIVE WHATSAPP SLIDE-DOWN NOTIFICATION */}
+      <AnimatePresence>
+        {bannerNotificationActive && !lockScreenActive && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={standbyPulseActive ? {
+              y: 12,
+              opacity: 1,
+              x: [-4, 4, -4, 4, -2, 2, -1, 1, 0],
+              transition: { x: { repeat: Infinity, duration: 0.22 } }
+            } : { y: 12, x: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            onClick={() => {
+              // Clicking the WhatsApp banner automatically routes to Aldo's chat with Anna
+              setPhoneOwner('Aldo');
+              setActiveScreen('chat');
+              setActiveChatId('chat_anna');
+              setMobileShowActiveChat(true); // show the chat thread on mobile
+              setBannerNotificationActive(false);
+              playInteractionBeep(1000, 0.15);
+            }}
+            className={`fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border border-zinc-200/90 rounded-2xl p-4 shadow-xl z-[999] cursor-pointer ${
+              standbyPulseActive ? 'ring-4 ring-emerald-500/40 shadow-emerald-500/20' : ''
+            }`}
+          >
+            <div className="flex gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0">
+                <Bell className="w-5 h-5" />
+              </div>
+              <div className="flex-1 space-y-0.5">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[11px] font-black tracking-wider text-emerald-800 uppercase font-mono">Messaggio Vocale</span>
+                  <span className="text-[9px] text-zinc-400 font-bold font-mono">{wakeConfig.timestamp}</span>
+                </div>
+                <h4 className="text-xs font-black text-zinc-900">{wakeConfig.senderName}</h4>
+                <p className="text-[11px] text-zinc-500 font-medium truncate">{wakeConfig.messagePreview}</p>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setBannerNotificationActive(false);
+                }}
+                className="p-1 text-zinc-400 hover:text-zinc-650"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* GLOWING CALL PILL FOR USER SHIFT NOTIFICATION WHEN VIEWING OTHER PHONE */}
+      <AnimatePresence>
+        {callState.type !== null && callState.phoneOwnerTarget !== phoneOwner && (
+          <motion.div
+            initial={{ y: -50, x: '-50%', opacity: 0 }}
+            animate={{ y: 20, x: '-50%', opacity: 1 }}
+            exit={{ y: -50, x: '-50%', opacity: 0 }}
+            onClick={() => {
+              playInteractionBeep(900, 0.15);
+              setPhoneOwner(callState.phoneOwnerTarget);
+            }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[9990] bg-zinc-900 border border-emerald-500/40 text-white rounded-full px-5 py-2.5 shadow-2xl hover:bg-zinc-850 transition duration-300 cursor-pointer active:scale-95 flex items-center gap-3 select-none"
+          >
+            <div className="relative flex items-center justify-center">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping absolute" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 relative" />
+            </div>
+            <div className="text-left font-sans">
+              <p className="text-[9px] font-mono font-black text-emerald-400 uppercase tracking-widest leading-none">Chiamata per {callState.phoneOwnerTarget.toUpperCase()}</p>
+              <p className="text-[10px] font-medium text-zinc-350 leading-tight">
+                {callState.type === 'incoming' ? 'Squillo in arrivo' : callState.type === 'outgoing' ? 'Chiamata in corso' : 'Chiamata attiva'}: <strong className="text-white">{callState.callerName}</strong>
+              </p>
+            </div>
+            <span className="text-[9px] bg-emerald-600 px-2.5 py-0.5 rounded-full text-white font-mono uppercase font-black tracking-wider shadow-sm ml-1 select-none animate-pulse">
+              PASSA A {callState.phoneOwnerTarget.toUpperCase()}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FULL-SCREEN IMMERSIVE CALL INCOMING/OUTGOING EMULATOR */}
+      <AnimatePresence>
+        {callState.type !== null && callState.phoneOwnerTarget === phoneOwner && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col justify-between py-16 px-6 text-white select-none text-center"
+          >
+            {/* Visual background blurred circle decor */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-emerald-800/10 blur-[80px] pointer-events-none" />
+
+            {/* Calling Status Details */}
+            <div className="space-y-4">
+              <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase font-extrabold flex items-center justify-center gap-1.5">
+                <Smartphone className="w-4 h-4" />
+                SIMULAZIONE TELEFONICA ({phoneOwner.toUpperCase()} OWNER)
+              </span>
+              
+              <div className="flex flex-col items-center pt-8 space-y-4">
+                {/* Caller Huge Rounded Photo */}
+                <div className="relative">
+                  <div className={`w-28 h-28 rounded-full overflow-hidden border-2 border-white/90 shadow-2xl relative ${
+                    callState.type === 'incoming' ? 'animate-pulse' : ''
+                  }`}>
+                    <img 
+                      src={callState.callerAvatar} 
+                      alt="Avatar Chiamata" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  {callState.type === 'connected' && (
+                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[8px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                      ATTIVA
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <h2 className="text-2xl font-black tracking-tight text-white">{callState.callerName}</h2>
+                  <p className="text-xs font-mono text-zinc-400">{callState.callerNumber}</p>
+                </div>
+
+                <div className="pt-2 text-xs font-bold uppercase tracking-wider text-emerald-450">
+                  {callState.type === 'incoming' && 'Chiamata in arrivo...'}
+                  {callState.type === 'outgoing' && 'Chiamata in corso...'}
+                  {callState.type === 'connected' && (
+                    <div className="flex items-center justify-center gap-2 font-mono font-black text-rose-500 bg-white/5 py-1 px-4 rounded-full border border-white/10">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
+                      <span>
+                        {Math.floor(callState.timeElapsed / 60).toString().padStart(2, '0')}:
+                        {(callState.timeElapsed % 60).toString().padStart(2, '0')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Immersive Sound waves representation */}
+            <div className="h-10 flex items-center justify-center gap-1.5 max-w-[200px] mx-auto w-full">
+              {callState.type === 'connected' ? (
+                Array.from({ length: 12 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="w-1 bg-emerald-500 rounded-full animate-pulse"
+                    style={{
+                      height: `${Math.floor(Math.random() * 32) + 6}px`,
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  />
+                ))
+              ) : (
+                <p className="text-[10px] text-zinc-500 font-mono italic">In attesa di connessione...</p>
+              )}
+            </div>
+
+            {/* Calling action buttons */}
+            <div className="flex justify-center items-center gap-16">
+              {/* Decline Call (Red Dial) */}
+              <button
+                onClick={() => {
+                  playInteractionBeep(350, 0.25);
+                  setCallState(prev => ({ ...prev, type: null }));
+                  stopSynthRingtone();
+                }}
+                className="w-16 h-16 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-xl transition transform hover:scale-105 active:scale-95 cursor-pointer"
+                title="Rifiuta o Termina"
+              >
+                <PhoneOff className="w-7 h-7" />
+              </button>
+
+              {/* Accept Call (Green Dial, only on incoming) */}
+              {callState.type === 'incoming' && (
+                <button
+                  onClick={() => {
+                    playInteractionBeep(920, 0.15);
+                    stopSynthRingtone();
+                    setCallState(prev => ({ ...prev, type: 'connected', timeElapsed: 0 }));
+                  }}
+                  className="w-16 h-16 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-xl transition transform hover:scale-105 active:scale-95 cursor-pointer"
+                  title="Rispondi"
+                >
+                  <Phone className="w-7 h-7 animate-bounce" />
+                </button>
+              )}
+            </div>
+
+            <div className="text-[9px] font-mono text-zinc-650 uppercase tracking-widest">
+              Dispositivo di {phoneOwner.toUpperCase()} • Alta fedeltà prop cinematografica
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FULL-SCREEN PUBLIC WEB APPLICATION CONTENT FRAME */}
+      <div className="flex-1 flex flex-col md:flex-row relative">
+
+        {/* DESKTOP SIDEBAR - Mimes Instagram's verified web client perfectly */}
+        <aside className={`hidden md:flex flex-col justify-between transition-all duration-300 ${sidebarCollapsed ? 'w-20 px-3 py-6' : 'w-64 p-6'} border-r border-zinc-250 bg-white shrink-0 relative select-none`}>
+          {/* Collapse Toggle Button */}
+          <button
+            onClick={() => {
+              setSidebarCollapsed(!sidebarCollapsed);
+              playInteractionBeep(850, 0.08);
+            }}
+            className="absolute -right-3 top-7 w-6 h-6 rounded-full bg-white border border-zinc-200 shadow-sm flex items-center justify-center text-zinc-500 hover:text-zinc-950 transition z-50 hover:bg-zinc-50 cursor-pointer"
+            title={sidebarCollapsed ? "Espandi Sidebar" : "Riduci Sidebar"}
+          >
+            {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+          </button>
+
+          <div className="space-y-8">
+            {/* Social custom scripted logo brand */}
+            <div className={`px-2 transition-all ${sidebarCollapsed ? 'text-center' : ''}`}>
+              <h1 className="text-xl font-display font-black tracking-tight text-zinc-950 flex items-center gap-2 justify-center md:justify-start">
+                <Camera className="w-6 h-6 text-emerald-600 shrink-0" />
+                {!sidebarCollapsed && <span>Social</span>}
+              </h1>
+              {!sidebarCollapsed && (
+                <p className="text-[9px] text-zinc-500 font-mono tracking-wide uppercase mt-1">
+                  Dispositivo: {phoneOwner.toUpperCase()}
+                </p>
+              )}
+            </div>
+
+            {/* Navigation links - Web interface styling */}
+            <nav className="space-y-1 text-xs font-semibold">
+              {[
+                { id: 'feed', icon: Camera, label: 'Feed Sociale' },
+                { id: 'search', icon: Search, label: 'Cerca Attivisti' },
+                { id: 'profile', icon: User, label: 'Anna Profilo' },
+                { id: 'chat', icon: MessageSquare, label: 'Direct Messaggi', badge: 1 },
+                { id: 'contacts', icon: BookOpen, label: 'Rubrica Contatti' },
+                { id: 'newspaper', icon: Layers, label: 'Leggi Giornale' },
+                { id: 'calendar', icon: Calendar, label: 'Turni Clinica Mauro' },
+                { id: 'gallery_sveva', icon: Heart, label: 'Sofia Album (Sveva)' }
+              ].map(item => {
+                const IconComp = item.icon;
+                const isActive = activeScreen === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveScreen(item.id);
+                      setFocusedPostId(null);
+                      setSearchQuery('');
+                      playInteractionBeep(1200, 0.05);
+                    }}
+                    className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center py-3.5' : 'justify-between p-3.5'} rounded-xl transition relative group ${
+                      isActive 
+                        ? 'bg-zinc-100 text-zinc-950 font-black' 
+                        : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                    }`}
+                    title={sidebarCollapsed ? item.label : undefined}
+                  >
+                    <div className="flex items-center gap-3">
+                      <IconComp className={`w-4 h-4 shrink-0 ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`} />
+                      {!sidebarCollapsed && <span>{item.label}</span>}
+                    </div>
+
+                    {item.badge && (
+                      <span className={`${sidebarCollapsed ? 'absolute top-1 left-1 bg-red-500 text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center p-0.5 border border-white' : 'bg-red-500 text-white font-mono font-black text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+
+                    {/* Desktop Hover Tooltip when collapsed */}
+                    {sidebarCollapsed && (
+                      <div className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-950 text-white text-[10px] font-bold rounded-lg shadow-2xl z-50 whitespace-nowrap pointer-events-none">
+                        {item.label}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Bottom Rail holding the hidden functional burger menu trigger */}
+          <div className="space-y-4 pt-4 border-t border-zinc-200">
+            <button
+              onClick={() => setAdminDrawerOpen(true)}
+              className={`flex items-center ${sidebarCollapsed ? 'justify-center p-3' : 'gap-3 w-full p-3'} bg-zinc-50 hover:bg-zinc-100 rounded-xl transition text-zinc-500 font-bold hover:text-zinc-900 relative group cursor-pointer`}
+              title={sidebarCollapsed ? "Strumenti Regia" : undefined}
+            >
+              <Menu className="w-5 h-5 text-zinc-700 shrink-0" />
+              {!sidebarCollapsed && <span>Strumenti Regia</span>}
+
+              {sidebarCollapsed && (
+                <div className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-950 text-white text-[10px] font-bold rounded-lg shadow-2xl z-50 whitespace-nowrap pointer-events-none">
+                  Strumenti Regia
+                </div>
+              )}
+            </button>
+          </div>
+        </aside>
+
+        {/* IMMERSIVE HEADER FOR MOBILE/TABLET VIEWPORT */}
+        <header className="md:hidden flex justify-between items-center px-4 py-3 border-b border-zinc-200 bg-white sticky top-0 z-40 select-none">
+          <h1 className="text-lg font-display font-black tracking-tight text-zinc-950 flex items-center gap-1.5">
+            <Camera className="w-5 h-5 text-emerald-600" />
+            <span>Social</span>
+          </h1>
+
+          {/* Header Controls for actor interaction */}
+          <div className="flex items-center gap-3">
+            {/* Burger menu trigger icon: clean, minimal, looks completely standard */}
+            <button
+              onClick={() => setAdminDrawerOpen(true)}
+              className="p-1.5 hover:bg-zinc-100 rounded-lg text-zinc-755 transition"
+              title="Impostazioni Regia"
+            >
+              <Menu className="w-[20px] h-[20px]" />
+            </button>
+          </div>
+        </header>
+
+        {/* CONTAINER VIEW FOR ALL PUBLIC SCREENS */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-[#fafafa]">
+          
+          {/* SCREEN: HOME SOCIAL FEED */}
+          {activeScreen === 'feed' && (
+            <div className="max-w-[480px] mx-auto space-y-6">
+              
+              {/* Stories row slider */}
+              <div className="bg-white border border-zinc-250 p-4 rounded-2xl flex gap-4 overflow-x-auto no-scrollbar">
+                {[
+                  { username: 'anna_calligaris_eco', avatar: appData.annaProfile.avatar, active: true },
+                  { username: 'green_margherita', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200' },
+                  { username: 'eco_brian', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200' },
+                  { username: 'sveva', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', trigger: () => setActiveScreen('gallery_sveva') }
+                ].map((st, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      if (st.trigger) {
+                        st.trigger();
+                      } else {
+                        setActiveScreen('profile');
+                        setFocusedPostId(null);
+                      }
+                      playInteractionBeep(1200, 0.05);
+                    }}
+                    className="flex flex-col items-center gap-1 shrink-0 cursor-pointer"
+                  >
+                    <div className="w-14 h-14 rounded-full p-[2px] bg-linear-to-tr from-pink-500 to-rose-400">
+                      <div className="w-full h-full rounded-full border border-white overflow-hidden bg-white">
+                        <img src={st.avatar} alt="Story visual" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-zinc-500 truncate max-w-[55px] font-mono">{st.username}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Feed items */}
+              {appData.posts.map(post => (
+                <div key={post.id} className="bg-white border border-zinc-250 rounded-3xl overflow-hidden shadow-2xs">
+                  {/* Item Header */}
+                  <div className="p-4 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={appData.annaProfile.avatar} 
+                        alt="Profile Post" 
+                        className="w-9 h-9 rounded-full object-cover border border-zinc-100" 
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-black text-zinc-900">{appData.annaProfile.username}</h4>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        </div>
+                        <p className="text-[10px] text-zinc-400 font-bold">{post.location || 'Parco Naturale'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Photo content */}
+                  <div 
+                    onClick={() => setFocusedPostId(post.id)}
+                    className="aspect-square bg-zinc-50 border-y border-zinc-150 relative cursor-pointer group"
+                  >
+                    <img src={post.image} alt="Feed Post visual" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    {post.isEvent && (
+                      <span className="absolute top-4 left-4 bg-red-650 text-white font-mono font-black uppercase text-[9px] px-3 py-1.5 rounded-full tracking-wider shadow-md">
+                        📅 FLASHMOB ATTIVO
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Interactions area */}
+                  <div className="p-4 space-y-2 text-xs font-medium">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <button className="p-1 text-zinc-700 hover:text-red-500 transition">
+                          <Heart className="w-5 h-5" />
+                        </button>
+                        <button className="p-1 text-zinc-700 hover:text-emerald-600 transition">
+                          <MessageSquare className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <button className="p-1 text-zinc-700 hover:text-zinc-900 transition">
+                        <Bookmark className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-black text-zinc-900">{post.likes} Mi piace</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="leading-relaxed">
+                        <strong className="text-zinc-900 mr-1.5 font-bold">{appData.annaProfile.username}</strong>
+                        {post.caption}
+                      </p>
+                    </div>
+
+                    {/* Comments preview */}
+                    <div className="pt-2 border-t border-zinc-100 space-y-1 text-[11px] text-zinc-500">
+                      {post.comments.slice(0, 2).map((comment, index) => (
+                        <p key={index}>
+                          <strong className="text-zinc-950 font-bold mr-1.5 font-mono">{comment.user}</strong>
+                          {comment.text}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* SCREEN: SEARCH / DISCOVER INTERACTIVE DIRECTORY */}
+          {activeScreen === 'search' && (
+            <div className="max-w-[500px] mx-auto space-y-6 select-none">
+              <h2 className="text-xl font-display font-black text-zinc-900 tracking-tight">Esplora Attivisti & Movimento</h2>
+              
+              <div className="relative">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-400" />
+                <input 
+                  type="text" 
+                  placeholder="Digita per cercare (es. Anna Calligaris)..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    playInteractionBeep(1400, 0.05);
+                  }}
+                  className="w-full bg-white border border-zinc-250 rounded-2xl pl-10 pr-4 py-2.5 text-xs focus:outline-hidden focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition"
+                />
+              </div>
+
+              {/* Dynamic search suggested listings */}
+              {(searchQuery.toLowerCase().includes('anna') || searchQuery === '') ? (
+                <div className="bg-white border border-zinc-250 rounded-2xl overflow-hidden divide-y divide-zinc-150">
+                  <div 
+                    onClick={() => {
+                      setActiveScreen('profile');
+                      setSearchQuery('');
+                      playInteractionBeep(1000, 0.1);
+                    }}
+                    className="p-4 flex justify-between items-center hover:bg-zinc-50 cursor-pointer transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={appData.annaProfile.avatar} 
+                        alt="Search suggest" 
+                        className="w-11 h-11 rounded-full object-cover border border-zinc-200" 
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-xs font-black text-zinc-900">{appData.annaProfile.fullName}</h3>
+                          <span className="w-3.5 h-3.5 rounded-full bg-cyan-500 flex items-center justify-center text-[7px] text-white font-extrabold font-mono font-sans font-black">
+                            ✓
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 font-mono">@{appData.annaProfile.username}</p>
+                      </div>
+                    </div>
+
+                    <button className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase">
+                      Vedi Profilo
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 text-center text-xs italic text-zinc-400">
+                  Nessun attivista con prefisso "{searchQuery}" trovato. Svuota la ricerca per riprovare.
+                </div>
+              )}
+
+              {/* Explore grid placeholder */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-black tracking-wider text-zinc-400 uppercase font-mono">In Evidenza nella Rete</span>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="aspect-square bg-zinc-200 rounded-xl overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="aspect-square bg-zinc-200 rounded-xl overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="aspect-square bg-zinc-200 rounded-xl overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1500485035595-cbe6f645feb1?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SCREEN: ANNA'S PROFILE & VERIFIED LAYOUT */}
+          {activeScreen === 'profile' && (
+            <div className="max-w-[650px] mx-auto space-y-8 select-none">
+              
+              {/* Profile Head Grid */}
+              <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 sm:items-center bg-white border border-zinc-250 p-6 sm:p-8 rounded-3xl">
+                {/* Pro Photo circle */}
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-[3px] bg-linear-to-tr from-emerald-500 to-cyan-400 shrink-0 mx-auto sm:mx-0">
+                  <div className="w-full h-full bg-white rounded-full p-[2px]">
+                    <img 
+                      src={appData.annaProfile.avatar} 
+                      alt="Anna Verified avatar" 
+                      className="w-full h-full object-cover rounded-full"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 space-y-4 text-center sm:text-left">
+                  {/* Verified username section */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-center sm:justify-start">
+                    <h2 className="text-lg font-black tracking-tight text-neutral-900 font-mono">
+                      {appData.annaProfile.username}
+                    </h2>
+                    
+                    {appData.annaProfile.isVerified && (
+                      <span className="inline-flex self-center bg-cyan-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full font-sans uppercase tracking-widest">
+                        ✓ VERIFICATO
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Core stats block */}
+                  <div className="flex justify-center sm:justify-start gap-8 text-xs font-semibold text-zinc-550">
+                    <div>
+                      <strong className="text-zinc-900 text-sm block font-black">{appData.annaProfile.postsCount}</strong> post
+                    </div>
+                    <div>
+                      <strong className="text-zinc-900 text-sm block font-black">{appData.annaProfile.followers}</strong> follower
+                    </div>
+                    <div>
+                      <strong className="text-zinc-900 text-sm block font-black">{appData.annaProfile.following}</strong> seguiti
+                    </div>
+                  </div>
+
+                  {/* Bio descriptions */}
+                  <div className="text-xs leading-relaxed text-zinc-800 text-justify">
+                    <h4 className="font-bold text-zinc-900 text-xs mb-1">{appData.annaProfile.fullName}</h4>
+                    <p className="whitespace-pre-line font-medium text-zinc-600">{appData.annaProfile.bio}</p>
+                    
+                    {/* Fake Bio Web Link */}
+                    <button
+                      onClick={() => setActiveScreen('newspaper')}
+                      className="text-emerald-700 font-bold hover:underline mt-2.5 block text-left"
+                    >
+                      🔗 leggi_giornata_piazza_celli_news.it
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Story Highlights simulated badges */}
+              <div className="flex gap-4 overflow-x-auto no-scrollbar py-1">
+                {[
+                  { label: "Bici Libere", icon: "🚴‍♀️", color: "from-amber-100 to-amber-200" },
+                  { label: "FlashMob", icon: "📢", color: "from-zinc-100 to-zinc-200" },
+                  { label: "Amici Coda", icon: "🐾", color: "from-emerald-100 to-emerald-200" }
+                ].map((high, i) => (
+                  <div 
+                    key={i} 
+                    onClick={() => {
+                      if (high.label === "FlashMob") setActiveScreen('feed');
+                      playInteractionBeep(800, 0.1);
+                    }}
+                    className="flex flex-col items-center gap-1 cursor-pointer"
+                  >
+                    <div className="w-12 h-12 rounded-full border border-zinc-200 flex items-center justify-center text-lg bg-white shadow-3xs">
+                      {high.icon}
+                    </div>
+                    <span className="text-[10px] font-bold text-zinc-500 font-mono">{high.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Profile Posts continuous or Grid trigger deck */}
+              <div className="space-y-4">
+                {profileViewMode === 'feed' && (
+                  <button 
+                    onClick={() => {
+                      setProfileViewMode('grid');
+                      playInteractionBeep(900, 0.1);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-wider transition w-fit mb-4 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5 inline align-middle" /> Torna alla griglia
+                  </button>
+                )}
+
+                {/* Content selector */}
+                {profileViewMode === 'grid' ? (
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                    {appData.posts.map(post => (
+                      <div
+                        key={post.id}
+                        onClick={() => {
+                          setProfileViewMode('feed');
+                          playInteractionBeep(1100, 0.1);
+                        }}
+                        className="aspect-square bg-zinc-100 rounded-2xl overflow-hidden cursor-pointer border border-zinc-200 hover:border-emerald-600 transition group relative"
+                      >
+                        <img 
+                          src={post.image} 
+                          alt="Thumbnail Profile" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition"
+                          referrerPolicy="no-referrer"
+                        />
+                        {post.isEvent && (
+                          <span className="absolute top-2 left-2 bg-red-600 text-white font-mono font-black uppercase text-[8px] px-2 py-0.5 rounded">
+                            EVENTO
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-6 max-w-[480px] mx-auto">
+                    {appData.posts.map(post => (
+                      <div key={post.id} className="bg-white border border-zinc-250 rounded-2xl overflow-hidden">
+                        <div className="p-3 bg-zinc-50/50 border-b border-zinc-100 flex items-center gap-2">
+                          <img src={appData.annaProfile.avatar} className="w-6 h-6 rounded-full object-cover" />
+                          <span className="text-[11px] font-extrabold text-zinc-800">{appData.annaProfile.username}</span>
+                        </div>
+                        <img src={post.image} className="w-full h-64 object-cover" />
+                        <div className="p-4 text-xs">
+                          <p>{post.caption}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* SCREEN: DIRECT PRIVATE MESSAGES */}
+          {activeScreen === 'chat' && (
+            <div className="max-w-[750px] mx-auto bg-white border border-zinc-250 rounded-3xl shadow-xs overflow-hidden flex h-[580px] select-none relative">
+              
+              {/* Left Column: Chats list (on-the-fly toggled by who owns the active phone) */}
+              <div className={`w-full md:w-1/3 border-r border-zinc-200 flex flex-col justify-between ${mobileShowActiveChat ? 'hidden md:flex' : 'flex'}`}>
+                <div>
+                  <div className="p-4 border-b border-zinc-200 bg-zinc-50/50">
+                    <h3 className="text-sm font-black text-zinc-900 flex items-center gap-1.5 leading-none">
+                      <MessageSquare className="w-4.5 h-4.5 text-zinc-500" />
+                      <span>Cassetta Posta</span>
+                    </h3>
+                    <p className="text-[9px] text-zinc-400 font-bold uppercase mt-1 leading-none">Owner: {phoneOwner.toUpperCase()}</p>
+                  </div>
+
+                  <div className="divide-y divide-zinc-100 max-h-[480px] overflow-y-auto no-scrollbar">
+                    {(phoneOwner === 'Aldo' ? appData.chatsAldo : appData.chatsAnna).map(thread => {
+                      const isSelected = activeChatId === thread.id;
+                      
+                      return (
+                        <div
+                          key={thread.id}
+                          onClick={() => {
+                            setActiveChatId(thread.id);
+                            setMobileShowActiveChat(true); // Open details panel on mobile
+                            playInteractionBeep(1100, 0.08);
+                          }}
+                          className={`p-3 flex items-center gap-3 cursor-pointer transition ${
+                            isSelected ? 'bg-zinc-100' : 'hover:bg-zinc-50/50'
+                          }`}
+                        >
+                          <img 
+                            src={thread.avatar} 
+                            alt={thread.name} 
+                            className="w-10 h-10 rounded-full object-cover border border-zinc-200"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-black text-zinc-900 truncate">{thread.name}</h4>
+                            <p className="text-[10px] text-zinc-400 font-mono truncate">@{thread.username}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Active Conversation viewport */}
+              {(() => {
+                const activeThread = (phoneOwner === 'Aldo' ? appData.chatsAldo : appData.chatsAnna)
+                  .find(t => t.id === activeChatId);
+
+                return (
+                  <div className={`w-full md:flex-1 flex flex-col justify-between bg-[#fafafa] ${mobileShowActiveChat ? 'flex' : 'hidden md:flex'}`}>
+                    {activeThread ? (
+                      <>
+                        {/* Conversation Header */}
+                        <div className="p-4 bg-white border-b border-zinc-200 flex justify-between items-center shrink-0">
+                          <div className="flex items-center gap-3">
+                            {/* Back arrow on mobile */}
+                            <button
+                              onClick={() => {
+                                setMobileShowActiveChat(false);
+                                playInteractionBeep(920, 0.1);
+                              }}
+                              className="md:hidden p-1.5 text-zinc-650 hover:text-zinc-950 -ml-1 rounded-lg hover:bg-zinc-100 transition mr-1 cursor-pointer"
+                              title="Indietro alla lista"
+                            >
+                              <ChevronLeft className="w-5 h-5 align-middle" />
+                            </button>
+
+                            <img 
+                              src={activeThread.avatar} 
+                              alt={activeThread.name} 
+                              className="w-9 h-9 rounded-full object-cover border border-zinc-200"
+                              referrerPolicy="no-referrer"
+                            />
+                            <div>
+                              <h4 className="text-xs font-black text-zinc-900">{activeThread.name}</h4>
+                              <p className="text-[9px] text-emerald-600 font-semibold uppercase">{activeThread.status}</p>
+                            </div>
+                          </div>
+
+                          {/* Dial output button */}
+                          <button
+                            onClick={() => {
+                              setCallState({
+                                callerName: activeThread.name,
+                                callerNumber: activeThread.name === 'Aldo Reni' || activeThread.name === 'Aldo' ? '+39 328 110 4492' : '+39 335 881 7711',
+                                callerAvatar: activeThread.avatar,
+                                type: 'outgoing',
+                                phoneOwnerTarget: phoneOwner,
+                                timeElapsed: 0
+                              });
+                            }}
+                            className="p-2 bg-zinc-100 hover:bg-emerald-100 text-zinc-650 hover:text-emerald-800 rounded-xl transition cursor-pointer"
+                            title="Avvia Chiamata Outgoing"
+                          >
+                            <Phone className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Message log items area */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar">
+                          {activeThread.messages.map((msg, i) => {
+                            const isMe = msg.sender === 'me';
+                            
+                            return (
+                              <div
+                                key={msg.id || i}
+                                className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div className={`max-w-[70%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed space-y-1 shadow-3xs ${
+                                  isMe 
+                                    ? 'bg-emerald-600 text-white rounded-br-none' 
+                                    : 'bg-white text-zinc-900 border border-zinc-150 rounded-bl-none'
+                                }`}>
+                                  
+                                  {/* Text content if present */}
+                                  {msg.text && <p className="font-medium">{msg.text}</p>}
+
+                                  {/* Image attachments selfie / photos preview */}
+                                  {msg.image && (
+                                    <div 
+                                      onClick={() => setFocusedPostId('selfie_zoom')}
+                                      className="relative aspect-square max-w-[160px] rounded-xl overflow-hidden cursor-zoom-in border border-zinc-100/30"
+                                    >
+                                      <img 
+                                        src={msg.image} 
+                                        alt="Chat received attachment" 
+                                        className="w-full h-full object-cover"
+                                        referrerPolicy="no-referrer"
+                                      />
+                                      <span className="absolute bottom-1 right-1 bg-black/60 text-white font-mono text-[8px] px-1.5 py-0.5 rounded font-bold">
+                                        Zoom 🔍
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {/* Simulated Voice Message waveform */}
+                                  {msg.voiceDuration && (
+                                    <div className="flex items-center gap-2.5 py-1 min-w-[200px]">
+                                      <button
+                                        onClick={handlePlayVoiceSimulated}
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition ${
+                                          isMe 
+                                            ? 'bg-white text-emerald-800 hover:bg-zinc-100' 
+                                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
+                                        }`}
+                                      >
+                                        {voiceIsPlaying ? (
+                                          <Pause className="w-3.5 h-3.5 fill-current" />
+                                        ) : (
+                                          <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />
+                                        )}
+                                      </button>
+
+                                      <div className="flex-1 space-y-1">
+                                        {/* Wave ticks */}
+                                        <div className="h-6 flex items-center gap-0.5">
+                                          {Array.from({ length: 18 }).map((_, waveIdx) => {
+                                            const activeFillColors = voiceProgress > (waveIdx * 5.5);
+                                            return (
+                                              <span
+                                                key={waveIdx}
+                                                className={`w-[2.5px] rounded-full transition-all duration-100`}
+                                                style={{
+                                                  height: `${Math.floor(Math.sin((waveIdx + 1) * 0.5) * 14) + 6}px`,
+                                                  backgroundColor: activeFillColors
+                                                    ? (isMe ? '#ffffff' : '#047857') // full emerald
+                                                    : (isMe ? '#a7f3d0' : '#d1d5db') // faded
+                                                }}
+                                              />
+                                            );
+                                          })}
+                                        </div>
+
+                                        <div className="flex justify-between text-[8px] font-mono tracking-wider">
+                                          <span>0:42</span>
+                                          <span className="font-extrabold uppercase uppercase">Vocale Anna</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  <div className="flex justify-end gap-1 items-center text-[8px] opacity-80 font-mono">
+                                    <span>{msg.timestamp}</span>
+                                    {isMe && <CheckCheck className="w-3 h-3" />}
+                                  </div>
+
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Live input text messaging bar */}
+                        <div className="p-4 bg-white border-t border-zinc-200 shrink-0">
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="Scrivi un messaggio in italiano..."
+                              value={typedMessage}
+                              onChange={(e) => setTypedMessage(e.target.value)}
+                              onFocus={() => {
+                                playInteractionBeep(1000, 0.05);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleSendDirectMessage();
+                                }
+                              }}
+                              className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-hidden focus:border-emerald-600 focus:bg-white transition font-medium"
+                            />
+                            <button 
+                              onClick={handleSendDirectMessage}
+                              className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition cursor-pointer"
+                            >
+                              <Send className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-8 text-center text-xs italic text-zinc-400">
+                        Nessun thread selezionato. Clicca su un contatto a sinistra.
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* SCREEN: CONTACTS / PHONEBOOK */}
+          {activeScreen === 'contacts' && (
+            <div className="max-w-[500px] mx-auto space-y-6 select-none">
+              <div className="flex justify-between items-baseline">
+                <div>
+                  <h2 className="text-xl font-display font-black text-zinc-900 tracking-tight">Rubrica Contatti</h2>
+                  <p className="text-[10px] text-zinc-400 font-mono mt-0.5">OWNER DISPOSITIVO: {phoneOwner.toUpperCase()}</p>
+                </div>
+                <span className="text-[9px] font-mono px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full font-bold text-zinc-500 uppercase">
+                  {filteredContacts.length} record
+                </span>
+              </div>
+
+              {/* Filtering prefisso or search name inputs */}
+              <div className="relative">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-400" />
+                <input 
+                  type="text" 
+                  placeholder="Filtra contatti per nome o prefisso..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    playInteractionBeep(1400, 0.05);
+                  }}
+                  className="w-full bg-white border border-zinc-250 rounded-2xl pl-10 pr-4 py-2.5 text-xs focus:outline-hidden focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition"
+                />
+              </div>
+
+              {/* Scrollable contact card blocks */}
+              <div className="bg-white border border-zinc-200 rounded-3xl overflow-hidden divide-y divide-zinc-100 shadow-2xs">
+                {filteredContacts.length > 0 ? (
+                  filteredContacts.map(contact => (
+                    <div key={contact.id} className="p-4 flex justify-between items-center hover:bg-zinc-50/50 transition duration-150">
+                      
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={contact.avatar} 
+                          alt={contact.name} 
+                          className="w-10 h-10 rounded-full object-cover border border-zinc-200"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div>
+                          <h3 className="text-xs font-black text-zinc-950 font-sans">{contact.name}</h3>
+                          <p className="text-[10px] text-zinc-400 font-mono tracking-wide mt-0.5">{contact.phone}</p>
+                          {contact.recentCallDate && (
+                            <p className="text-[8.5px] text-zinc-400 mt-1 font-sans">
+                              Chiamata: <span className="text-zinc-650 font-semibold">{contact.recentCallDate}</span> (
+                              <span className={contact.recentCallType === 'missed' ? 'text-rose-500 font-bold' : 'text-zinc-500 font-medium'}>
+                                {contact.recentCallType === 'incoming' ? 'entrante' : contact.recentCallType === 'outgoing' ? 'uscito' : 'persa'}
+                              </span>
+                              )
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Messaging or Calling triggers */}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            if (contact.name === 'Anna' || contact.name === 'Aldo') {
+                              setActiveScreen('chat');
+                              setActiveChatId('chat_anna');
+                            } else {
+                              setActiveScreen('chat');
+                              setActiveChatId('chat_negroni');
+                            }
+                            playInteractionBeep(1100, 0.08);
+                          }}
+                          className="p-2 transition bg-zinc-50 hover:bg-zinc-100 text-zinc-500 hover:text-emerald-700 rounded-lg"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setCallState({
+                              callerName: contact.name,
+                              callerNumber: contact.phone,
+                              callerAvatar: contact.avatar,
+                              type: 'outgoing',
+                              phoneOwnerTarget: phoneOwner,
+                              timeElapsed: 0
+                            });
+                          }}
+                          className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg transition"
+                          title="Dial Call Outgoing"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-xs italic text-zinc-400">
+                    Nessun contatto corrispondente trovato.
+                  </div>
+                )}
+              </div>
+
+              {/* Scene helper narrative guidelines */}
+              <div className="p-4 bg-amber-55 bg-amber-50 rounded-2xl border border-amber-200 text-[10px] leading-relaxed text-amber-900 font-medium whitespace-pre-line">
+                <strong>💡 SUGGERIMENTO GUIDA DI SCENA FOR CREW:</strong>
+                {"\n"}Seleziona la rubrica di Aldo per simularne lo scorrimento verso Anna. Oppure usa la rubrica di Anna per inquadrare "Conte Negroni". Cliccando l'icona cornetta verde partiranno i toni realistici e il prompt a tutto schermo per l'attore!
+              </div>
+            </div>
+          )}
+
+          {/* SCREEN: DIGITAL NEWSPAPER (TABLET PORTAL) */}
+          {activeScreen === 'newspaper' && (
+            <NewspaperView 
+              newspaper={appData.newspaper} 
+              onBackFeed={() => setActiveScreen('profile')}
+            />
+          )}
+
+          {/* SCREEN: CLINIC CALENDAR PLANNER (MAURO'S COMPUTER WORKSTATION) */}
+          {activeScreen === 'calendar' && (
+            <CalendarView 
+              shifts={appData.mauroCalendar}
+              onBackFeed={() => setActiveScreen('feed')}
+              onAddShift={handleApplyAddShift}
+            />
+          )}
+
+          {/* SCREEN: SVEVA ALBUUM / DAUGHTER SOFIA CHILHOOD VISUALS */}
+          {activeScreen === 'gallery_sveva' && (
+            <SvevaGalleryView 
+              photos={appData.svevaGallery}
+              onBackFeed={() => setActiveScreen('feed')}
+            />
+          )}
+
+        </main>
+      </div>
+
+      {/* MOBILE BOTTOM TABS BAR - Visible only on mobile viewport */}
+      <nav className="md:hidden sticky bottom-0 bg-white border-t border-zinc-200 py-2 px-1 flex justify-around items-center z-40 bg-white/95 backdrop-blur-md select-none shrink-0">
+        {[
+          { id: 'feed', icon: Camera, label: 'Feed' },
+          { id: 'search', icon: Search, label: 'Cerca' },
+          { id: 'chat', icon: MessageSquare, label: 'Direct', badge: 1 },
+          { id: 'contacts', icon: BookOpen, label: 'Rubrica' },
+          { id: 'profile', icon: User, label: 'Profilo' }
+        ].map(item => {
+          const IconComp = item.icon;
+          const isActive = activeScreen === item.id;
+
+          return (
+            <button
+              key={item.id}
+              onClick={() => {
+                setActiveScreen(item.id);
+                setFocusedPostId(null);
+                setSearchQuery('');
+                playInteractionBeep(1200, 0.05);
+              }}
+              className="flex flex-col items-center gap-1 py-1 shrink-0 px-2 relative"
+            >
+              <div className="relative">
+                <IconComp className={`w-[21px] h-[21px] ${isActive ? 'text-zinc-950 scale-105' : 'text-zinc-400'}`} />
+                {item.badge && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 w-3.5 h-3.5 rounded-full text-[8.5px] text-white flex items-center justify-center font-bold">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              <span className={`text-[9px] tracking-tight font-extrabold ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`}>
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* HIDDEN MODAL FOR ENVELOPE FULLSCREEN VIEWER / SELFIE OR OTHER LIGHTBOX IMAGES */}
+      <AnimatePresence>
+        {focusedPostId !== null && focusedPostId !== 'selfie_zoom' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 p-4 z-[9999] flex flex-col justify-between items-center text-white"
+          >
+            <div className="w-full flex justify-between items-center max-w-[600px] text-zinc-400 text-xs py-2 font-mono uppercase tracking-widest">
+              <span>ALBUM SOCIAL ANNA CONTRO VIVISEZIONE</span>
+              <button
+                onClick={() => setFocusedPostId(null)}
+                className="p-2 bg-zinc-800 text-white rounded-full transition hover:bg-zinc-750"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            </div>
+
+            {/* Focused Item Block */}
+            {(() => {
+              const activePost = appData.posts.find(p => p.id === focusedPostId);
+              if (!activePost) return null;
+
+              return (
+                <div className="max-w-[500px] w-full bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-2xl relative border border-zinc-200">
+                  <img src={activePost.image} className="w-full aspect-video object-cover" />
+                  
+                  <div className="p-5 space-y-4">
+                    {/* Location Badge */}
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-mono text-zinc-400 uppercase tracking-widest">Località:</span>
+                      <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full font-bold">
+                        {activePost.location || 'Piazza Celli, Roma'}
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm font-semibold leading-relaxed">
+                      {activePost.caption}
+                    </h3>
+
+                    {/* Flyer specifications detail row in case of active flyer */}
+                    {activePost.isEvent && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-2xl font-mono text-xs text-red-950 whitespace-pre-line leading-relaxed font-semibold">
+                        {activePost.eventDetails}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="text-[10px] text-zinc-550 uppercase tracking-widest font-mono p-2">
+              ECO LIFE — ZOOM FOTO ATTIVISTA
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FULLSCREEN LIGHTBOX FOR ALDO'S RECEIVED SELFIE */}
+      <AnimatePresence>
+        {focusedPostId === 'selfie_zoom' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setFocusedPostId(null)}
+            className="fixed inset-0 bg-black/95 p-4 z-[9999] flex flex-col justify-between items-center text-white cursor-zoom-out"
+          >
+            <div className="w-full flex justify-between items-center max-w-[600px] text-zinc-450 text-[10px] py-1 select-none font-mono tracking-widest">
+              <span>AUTOSCATTO DI ANNA COSTRUZIONE LOGO</span>
+              <button
+                onClick={() => setFocusedPostId(null)}
+                className="p-2.5 bg-zinc-805 bg-zinc-800 text-white rounded-full transition hover:bg-zinc-700"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            </div>
+
+            <div className="max-w-[400px] w-full aspect-square overflow-hidden rounded-2xl border-2 border-white/10 bg-zinc-950 relative">
+              <img 
+                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400" 
+                alt="Zoomed Anna Selfie Photo" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3 text-center text-xs font-sans">
+                "Pronta per domani a Piazza Celli. Mandami i tuoi feedback!"
+              </div>
+            </div>
+
+            <div className="text-[9px] text-zinc-450 font-mono tracking-widest text-center select-none">
+              RICEVUTO VIA DIRECT INSTAGRAM • IMPIANTO LUCI ALTA PRECISIONE
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* REGIA DRAWER COMPONENT - TRIGGERED VIA INVISIBLE SETTINGS BURGER */}
+      <DirectorDrawer
+        isOpen={adminDrawerOpen}
+        onClose={() => setAdminDrawerOpen(false)}
+        appData={appData}
+        setAppData={setAppData}
+        currentTime={currentTime}
+        setCurrentTime={setCurrentTime}
+        ringerEnabled={ringerEnabled}
+        setRingerEnabled={setRingerEnabled}
+        phoneOwner={phoneOwner}
+        setPhoneOwner={setPhoneOwner}
+        triggerScenePreset={triggerScenePreset}
+        imagePresets={imagePresets}
+        standbyActive={standbyActive}
+        setStandbyActive={setStandbyActive}
+        standbyTimerRunning={standbyTimerRunning}
+        setStandbyTimerRunning={setStandbyTimerRunning}
+        standbySecondsLeft={standbySecondsLeft}
+        setStandbySecondsLeft={setStandbySecondsLeft}
+        standbyTotalSeconds={standbyTotalSeconds}
+        setStandbyTotalSeconds={setStandbyTotalSeconds}
+        wakeConfig={wakeConfig}
+        setWakeConfig={setWakeConfig}
+        triggerWakeNotification={triggerWakeNotification}
+        lockScreenActive={lockScreenActive}
+        setLockScreenActive={setLockScreenActive}
+        lockScreenWallpaper={lockScreenWallpaper}
+        setLockScreenWallpaper={setLockScreenWallpaper}
+        callTimerRunning={callTimerRunning}
+        setCallTimerRunning={setCallTimerRunning}
+        callSecondsLeft={callSecondsLeft}
+        setCallSecondsLeft={setCallSecondsLeft}
+        callTotalSeconds={callTotalSeconds}
+        setCallTotalSeconds={setCallTotalSeconds}
+        callConfig={callConfig}
+        setCallConfig={setCallConfig}
+        callState={callState}
+        setCallState={setCallState}
+      />
+
+      {/* SIMULATED SYSTEM KEYBOARD PANEL */}
+      <AnimatePresence>
+        {keyboardOpen && (
+          <motion.div
+            initial={{ y: 350 }}
+            animate={{ y: 0 }}
+            exit={{ y: 350 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+            className="fixed bottom-0 left-0 right-0 md:left-auto md:right-auto md:w-[450px] md:left-1/2 md:-translate-x-1/2 bg-zinc-100 border-t border-zinc-300 p-2 pb-5 z-55 select-none shadow-2xl rounded-t-2xl"
+          >
+            {/* Keyboard utility bar */}
+            <div className="flex justify-between items-center px-2 py-1 mb-1.5 text-zinc-500 font-bold border-b border-zinc-200">
+              <span className="text-[9px] font-mono tracking-wider uppercase text-zinc-400">Tastiera Social (Prop Cinematografico)</span>
+              <button 
+                onClick={() => {
+                  setKeyboardOpen(false);
+                  playInteractionBeep(855, 0.08);
+                }}
+                className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-800 rounded-md text-[9px] font-black uppercase transition cursor-pointer"
+              >
+                Chiudi ✕
+              </button>
+            </div>
+
+            {/* QWERTY matrix */}
+            <div className="space-y-1">
+              {/* Row 1 */}
+              <div className="flex justify-center gap-1">
+                {["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"].map(key => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setTypedMessage(prev => prev + key);
+                      playInteractionBeep(1000, 0.04);
+                    }}
+                    className="flex-1 max-w-[38px] aspect-square rounded-md bg-white hover:bg-zinc-50 border border-zinc-250 text-xs font-bold text-zinc-850 shadow-3xs uppercase flex items-center justify-center cursor-pointer active:scale-95 transition"
+                  >
+                    {key}
+                  </button>
+                ))}
+              </div>
+
+              {/* Row 2 */}
+              <div className="flex justify-center gap-1 px-2.5">
+                {["a", "s", "d", "f", "g", "h", "j", "k", "l"].map(key => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setTypedMessage(prev => prev + key);
+                      playInteractionBeep(1000, 0.04);
+                    }}
+                    className="flex-1 max-w-[38px] aspect-square rounded-md bg-white hover:bg-zinc-50 border border-zinc-250 text-xs font-bold text-zinc-850 shadow-3xs uppercase flex items-center justify-center cursor-pointer active:scale-95 transition"
+                  >
+                    {key}
+                  </button>
+                ))}
+              </div>
+
+              {/* Row 3 */}
+              <div className="flex justify-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playInteractionBeep(1100, 0.05);
+                  }}
+                  className="px-2.5 rounded-md bg-zinc-200 border border-zinc-250 text-xs font-bold text-zinc-800 cursor-pointer active:scale-95 transition"
+                >
+                  ⇧
+                </button>
+                {["z", "x", "c", "v", "b", "n", "m"].map(key => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setTypedMessage(prev => prev + key);
+                      playInteractionBeep(1000, 0.04);
+                    }}
+                    className="flex-1 max-w-[38px] aspect-square rounded-md bg-white hover:bg-zinc-50 border border-zinc-250 text-xs font-bold text-zinc-850 shadow-3xs uppercase flex items-center justify-center cursor-pointer active:scale-95 transition"
+                  >
+                    {key}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTypedMessage(prev => prev.slice(0, -1));
+                    playInteractionBeep(700, 0.06);
+                  }}
+                  className="px-2.5 rounded-md bg-zinc-200 border border-zinc-250 text-[10px] font-bold text-zinc-800 cursor-pointer active:scale-95 transition"
+                >
+                  ⌫
+                </button>
+              </div>
+
+              {/* Row 4 (Space bar & Invio) */}
+              <div className="flex gap-1.5 px-4 mt-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTypedMessage(prev => prev + " ");
+                    playInteractionBeep(920, 0.04);
+                  }}
+                  className="flex-1 py-2.5 rounded-md bg-white hover:bg-zinc-50 border border-zinc-250 text-xs font-bold text-zinc-850 shadow-3xs cursor-pointer active:scale-95 transition"
+                >
+                  Spazio
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSendDirectMessage();
+                    setKeyboardOpen(false);
+                  }}
+                  className="px-4 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 border border-emerald-700 text-xs font-black text-white shadow-3xs uppercase cursor-pointer"
+                >
+                  Invia
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}
