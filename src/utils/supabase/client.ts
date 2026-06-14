@@ -3,8 +3,13 @@ import { createBrowserClient } from "@supabase/ssr";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-export const createClient = () =>
-  createBrowserClient(
-    supabaseUrl!,
-    supabaseKey!,
+export const hasSupabaseConfig = Boolean(supabaseUrl && supabaseKey);
+
+export const createClient = () => {
+  if (!hasSupabaseConfig) return null;
+
+  return createBrowserClient(
+    supabaseUrl,
+    supabaseKey,
   );
+};

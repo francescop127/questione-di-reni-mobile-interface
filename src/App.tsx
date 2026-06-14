@@ -15,7 +15,8 @@ import SvevaGalleryView from './components/SvevaGalleryView';
 import DirectorDrawer from './components/DirectorDrawer';
 
 // State and types
-import { INITIAL_DATA, AppData, Post, Contact, Message, ChatThread } from './data';
+import { INITIAL_DATA, AppData, Post, Contact, Message, ChatThread, hydrateAppData } from './data';
+import { useSupabaseAppData } from './hooks/useSupabaseAppData';
 
 export default function App() {
   // 1. Centralized Persisted Data State
@@ -23,7 +24,7 @@ export default function App() {
     const cached = localStorage.getItem('ecolife_sim_app_data');
     if (cached) {
       try {
-        return JSON.parse(cached);
+        return hydrateAppData(JSON.parse(cached));
       } catch (err) {
         // Fallback
       }
@@ -36,6 +37,8 @@ export default function App() {
     localStorage.setItem('ecolife_sim_app_data', JSON.stringify(appData));
   }, [appData]);
 
+  const supabaseSync = useSupabaseAppData(appData, setAppData);
+
   // 2. Active Screen Routing
   // Options: 'feed' | 'search' | 'profile' | 'chat' | 'contacts' | 'newspaper' | 'calendar' | 'gallery_sveva'
   const [activeScreen, setActiveScreen] = useState<string>('profile');
@@ -47,6 +50,13 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [profileViewMode, setProfileViewMode] = useState<'grid' | 'feed'>('grid');
   const [focusedPostId, setFocusedPostId] = useState<string | null>(null);
+
+  const getPostAuthor = (post: Post) => ({
+    name: post.authorName || appData.annaProfile.fullName,
+    username: post.authorUsername || appData.annaProfile.username,
+    avatar: post.authorAvatar || appData.annaProfile.avatar
+  });
+  const annaProfilePosts = appData.posts.filter(post => !post.authorUsername || post.authorUsername === appData.annaProfile.username);
 
   // Direct DM state
   const [activeChatId, setActiveChatId] = useState<string>('chat_anna');
@@ -1070,23 +1080,26 @@ export default function App() {
               </div>
 
               {/* Feed items */}
-              {appData.posts.map(post => (
+              {appData.posts.map(post => {
+                const author = getPostAuthor(post);
+
+                return (
                 <div key={post.id} className="bg-white border border-zinc-250 rounded-3xl overflow-hidden shadow-2xs">
                   {/* Item Header */}
                   <div className="p-4 flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                      <img 
-                        src={appData.annaProfile.avatar} 
+                      <img
+                        src={author.avatar}
                         alt="Profile Post" 
-                        className="w-9 h-9 rounded-full object-cover border border-zinc-100" 
+                        className="w-9 h-9 rounded-full object-cover border border-zinc-100 bg-zinc-100"
                         referrerPolicy="no-referrer"
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-black text-zinc-900">{appData.annaProfile.username}</h4>
+                          <h4 className="text-xs font-black text-zinc-900">{author.username}</h4>
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         </div>
-                        <p className="text-[10px] text-zinc-400 font-bold">{post.location || 'Parco Naturale'}</p>
+                        <p className="text-[10px] text-zinc-400 font-bold">{post.location || author.name}</p>
                       </div>
                     </div>
                   </div>
@@ -1096,7 +1109,14 @@ export default function App() {
                     onClick={() => setFocusedPostId(post.id)}
                     className="aspect-square bg-zinc-50 border-y border-zinc-150 relative cursor-pointer group"
                   >
-                    <img src={post.image} alt="Feed Post visual" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    {post.image ? (
+                      <img src={post.image} alt="Feed Post visual" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-zinc-100 text-zinc-400">
+                        <Camera className="w-8 h-8" />
+                        <span className="text-[10px] font-mono uppercase tracking-widest">Post vuoto</span>
+                      </div>
+                    )}
                     {post.isEvent && (
                       <span className="absolute top-4 left-4 bg-red-650 text-white font-mono font-black uppercase text-[9px] px-3 py-1.5 rounded-full tracking-wider shadow-md">
                         📅 FLASHMOB ATTIVO
@@ -1127,8 +1147,8 @@ export default function App() {
 
                     <div className="space-y-1">
                       <p className="leading-relaxed">
-                        <strong className="text-zinc-900 mr-1.5 font-bold">{appData.annaProfile.username}</strong>
-                        {post.caption}
+                        <strong className="text-zinc-900 mr-1.5 font-bold">{author.username}</strong>
+                        {post.caption || 'Descrizione da inserire'}
                       </p>
                     </div>
 
@@ -1143,7 +1163,8 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -1325,7 +1346,7 @@ export default function App() {
                 {/* Content selector */}
                 {profileViewMode === 'grid' ? (
                   <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                    {appData.posts.map(post => (
+                    {annaProfilePosts.map(post => (
                       <div
                         key={post.id}
                         onClick={() => {
@@ -1334,12 +1355,18 @@ export default function App() {
                         }}
                         className="aspect-square bg-zinc-100 rounded-2xl overflow-hidden cursor-pointer border border-zinc-200 hover:border-emerald-600 transition group relative"
                       >
-                        <img 
-                          src={post.image} 
-                          alt="Thumbnail Profile" 
-                          className="w-full h-full object-cover group-hover:scale-105 transition"
-                          referrerPolicy="no-referrer"
-                        />
+                        {post.image ? (
+                          <img
+                            src={post.image}
+                            alt="Thumbnail Profile"
+                            className="w-full h-full object-cover group-hover:scale-105 transition"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-zinc-100 text-zinc-400">
+                            <Camera className="w-5 h-5" />
+                          </div>
+                        )}
                         {post.isEvent && (
                           <span className="absolute top-2 left-2 bg-red-600 text-white font-mono font-black uppercase text-[8px] px-2 py-0.5 rounded">
                             EVENTO
@@ -1350,18 +1377,28 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="space-y-6 max-w-[480px] mx-auto">
-                    {appData.posts.map(post => (
+                    {annaProfilePosts.map(post => {
+                      const author = getPostAuthor(post);
+
+                      return (
                       <div key={post.id} className="bg-white border border-zinc-250 rounded-2xl overflow-hidden">
                         <div className="p-3 bg-zinc-50/50 border-b border-zinc-100 flex items-center gap-2">
-                          <img src={appData.annaProfile.avatar} className="w-6 h-6 rounded-full object-cover" />
-                          <span className="text-[11px] font-extrabold text-zinc-800">{appData.annaProfile.username}</span>
+                          <img src={author.avatar} className="w-6 h-6 rounded-full object-cover bg-zinc-100" />
+                          <span className="text-[11px] font-extrabold text-zinc-800">{author.username}</span>
                         </div>
-                        <img src={post.image} className="w-full h-64 object-cover" />
+                        {post.image ? (
+                          <img src={post.image} className="w-full h-64 object-cover" />
+                        ) : (
+                          <div className="w-full h-64 flex items-center justify-center bg-zinc-100 text-zinc-400">
+                            <Camera className="w-6 h-6" />
+                          </div>
+                        )}
                         <div className="p-4 text-xs">
-                          <p>{post.caption}</p>
+                          <p>{post.caption || 'Descrizione da inserire'}</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1801,22 +1838,35 @@ export default function App() {
             {(() => {
               const activePost = appData.posts.find(p => p.id === focusedPostId);
               if (!activePost) return null;
+              const author = getPostAuthor(activePost);
 
               return (
                 <div className="max-w-[500px] w-full bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-2xl relative border border-zinc-200">
-                  <img src={activePost.image} className="w-full aspect-video object-cover" />
+                  {activePost.image ? (
+                    <img src={activePost.image} className="w-full aspect-video object-cover" />
+                  ) : (
+                    <div className="w-full aspect-video flex flex-col items-center justify-center gap-2 bg-zinc-100 text-zinc-400">
+                      <Camera className="w-8 h-8" />
+                      <span className="text-[10px] font-mono uppercase tracking-widest">Post vuoto</span>
+                    </div>
+                  )}
                   
                   <div className="p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-xs">
+                      <img src={author.avatar} className="w-7 h-7 rounded-full object-cover bg-zinc-100" />
+                      <span className="font-extrabold text-zinc-900">{author.username}</span>
+                    </div>
+
                     {/* Location Badge */}
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-mono text-zinc-400 uppercase tracking-widest">Località:</span>
                       <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full font-bold">
-                        {activePost.location || 'Piazza Celli, Roma'}
+                        {activePost.location || author.name}
                       </span>
                     </div>
 
                     <h3 className="text-sm font-semibold leading-relaxed">
-                      {activePost.caption}
+                      {activePost.caption || 'Descrizione da inserire'}
                     </h3>
 
                     {/* Flyer specifications detail row in case of active flyer */}
@@ -1915,6 +1965,7 @@ export default function App() {
         setCallConfig={setCallConfig}
         callState={callState}
         setCallState={setCallState}
+        supabaseSync={supabaseSync}
       />
 
       {/* SIMULATED SYSTEM KEYBOARD PANEL */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit } from 'lucide-react';
+import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud } from 'lucide-react';
 import { AppData, Post, Contact, Message, INITIAL_DATA } from '../data';
 
 interface DirectorDrawerProps {
@@ -82,6 +82,13 @@ interface DirectorDrawerProps {
     phoneOwnerTarget: 'Aldo' | 'Anna';
     timeElapsed: number;
   }>>;
+  supabaseSync: {
+    enabled: boolean;
+    status: 'disabled' | 'loading' | 'synced' | 'saving' | 'error';
+    error: string | null;
+    lastSyncedAt: string | null;
+    uploadImage: (file: File, folder?: string) => Promise<string>;
+  };
 }
 
 export default function DirectorDrawer({
@@ -121,10 +128,13 @@ export default function DirectorDrawer({
   callConfig,
   setCallConfig,
   callState,
-  setCallState
+  setCallState,
+  supabaseSync
 }: DirectorDrawerProps) {
   const [selectedPostId, setSelectedPostId] = useState('post_flashmob');
   const [activeTab, setActiveTab] = useState<'standby' | 'presets' | 'profile' | 'posts' | 'chats' | 'contacts' | 'media'>('standby');
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Fast edits states
   const selectedPost = appData.posts.find(p => p.id === selectedPostId);
@@ -146,6 +156,100 @@ export default function DirectorDrawer({
       ...prev,
       posts: prev.posts.map(p => p.id === postId ? { ...p, [key]: val } : p)
     }));
+  };
+
+  const handlePostImageUpload = async (file: File | undefined, key: 'image' | 'authorAvatar') => {
+    if (!file || !selectedPost) return;
+
+    const fieldId = `${selectedPost.id}-${key}`;
+    setUploadingField(fieldId);
+    setUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, key === 'authorAvatar' ? 'avatars' : 'posts');
+      handlePostChange(selectedPost.id, key, url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const handleProfileImageUpload = async (file: File | undefined) => {
+    if (!file) return;
+
+    setUploadingField('anna-profile-avatar');
+    setUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'profiles');
+      handleProfileChange('avatar', url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const handleMessageImageUpload = async (owner: 'Aldo' | 'Anna', threadId: string, messageId: string, file: File | undefined) => {
+    if (!file) return;
+
+    const fieldId = `${threadId}-${messageId}-image`;
+    setUploadingField(fieldId);
+    setUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'messages');
+      const listKey = owner === 'Aldo' ? 'chatsAldo' : 'chatsAnna';
+      setAppData(prev => ({
+        ...prev,
+        [listKey]: prev[listKey].map(t => t.id === threadId ? {
+          ...t,
+          messages: t.messages.map(msg => msg.id === messageId ? { ...msg, image: url } : msg)
+        } : t)
+      }));
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const handleNewspaperImageUpload = async (file: File | undefined) => {
+    if (!file) return;
+
+    setUploadingField('newspaper-main-image');
+    setUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'newspaper');
+      handleNewspaperChange('mainImage', url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const handleContactAvatarUpload = async (owner: 'Aldo' | 'Anna', contactId: string, file: File | undefined) => {
+    if (!file) return;
+
+    const fieldId = `${owner}-${contactId}-avatar`;
+    setUploadingField(fieldId);
+    setUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'contacts');
+      const listKey = owner === 'Aldo' ? 'aldoContacts' : 'annaContacts';
+      setAppData(prev => ({
+        ...prev,
+        [listKey]: (prev[listKey] as Contact[]).map(c => c.id === contactId ? { ...c, avatar: url } : c)
+      }));
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setUploadingField(null);
+    }
   };
 
   // Contacts edits
@@ -207,7 +311,33 @@ export default function DirectorDrawer({
               <Sliders className="w-5 h-5 text-emerald-400" />
               <h3 className="font-extrabold uppercase tracking-tight text-white text-sm">PANNELLO DI REGIA CINEMATOGRAFICA</h3>
             </div>
-            <span className="text-[10px] text-zinc-400 block font-mono mt-0.5">ECO LIFE DISPOSITIVO • COD: REM-PRO-026</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[10px] text-zinc-400 block font-mono">ECO LIFE DISPOSITIVO • COD: REM-PRO-026</span>
+              <span className={`text-[8px] font-black uppercase font-mono px-1.5 py-0.5 rounded border ${
+                supabaseSync.status === 'synced'
+                  ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                  : supabaseSync.status === 'saving' || supabaseSync.status === 'loading'
+                    ? 'bg-amber-950 text-amber-300 border-amber-800'
+                    : supabaseSync.status === 'error'
+                      ? 'bg-red-950 text-red-300 border-red-800'
+                      : 'bg-slate-950 text-slate-400 border-slate-800'
+              }`}>
+                {supabaseSync.status === 'disabled'
+                  ? 'Locale'
+                  : supabaseSync.status === 'loading'
+                    ? 'Carico cloud'
+                    : supabaseSync.status === 'saving'
+                      ? 'Salvo cloud'
+                      : supabaseSync.status === 'error'
+                        ? 'Errore cloud'
+                        : 'Cloud sync'}
+              </span>
+            </div>
+            {(supabaseSync.error || uploadError) && (
+              <span className="text-[9px] text-red-300 block font-mono mt-1 max-w-[360px] truncate">
+                {uploadError || supabaseSync.error}
+              </span>
+            )}
           </div>
           <button 
             onClick={onClose}
@@ -958,6 +1088,41 @@ export default function DirectorDrawer({
                 </div>
               </div>
 
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-400 block font-bold">URL Avatar Profilo Anna</label>
+                <div className="flex gap-2 items-center">
+                  <img
+                    src={appData.annaProfile.avatar}
+                    alt="Avatar Anna preview"
+                    className="w-10 h-10 rounded-full object-cover border border-slate-800 bg-slate-950 shrink-0"
+                  />
+                  <input
+                    type="text"
+                    value={appData.annaProfile.avatar}
+                    onChange={(e) => handleProfileChange('avatar', e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-[10px] text-cyan-300"
+                  />
+                </div>
+                <label className={`flex items-center justify-center gap-2 w-full py-2 rounded-lg border text-[9px] font-black uppercase tracking-wider font-mono transition ${
+                  supabaseSync.enabled
+                    ? 'bg-slate-950 border-slate-800 text-emerald-300 hover:border-emerald-600 cursor-pointer'
+                    : 'bg-slate-950 border-slate-850 text-slate-600 cursor-not-allowed'
+                }`}>
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  {uploadingField === 'anna-profile-avatar' ? 'Caricamento avatar...' : 'Carica avatar Anna su Supabase'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={!supabaseSync.enabled || uploadingField !== null}
+                    onChange={(e) => {
+                      handleProfileImageUpload(e.target.files?.[0]);
+                      e.currentTarget.value = '';
+                    }}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1">
                   <label className="text-[10px] text-slate-400 block font-bold">Posts</label>
@@ -1028,6 +1193,7 @@ export default function DirectorDrawer({
                   {appData.posts.map(p => {
                     let typeLabel = 'VIAGGIO/NEWS';
                     if (p.isEvent) typeLabel = 'VOLANTINO EVENTO';
+                    else if (p.id.includes('_empty')) typeLabel = 'POST VUOTO EDITABILE';
                     else if (p.id.includes('bee')) typeLabel = 'BENE COMUNE';
                     else if (p.id.includes('hiking')) typeLabel = 'MONTAGNA / OUTDOOR';
                     else if (p.id.includes('wind')) typeLabel = 'ENERGIA PULITA';
@@ -1036,7 +1202,7 @@ export default function DirectorDrawer({
 
                     return (
                       <option key={p.id} value={p.id}>
-                        {p.id.substring(5).toUpperCase()} ({typeLabel})
+                        {(p.authorName || p.id.substring(5)).toUpperCase()} ({typeLabel})
                       </option>
                     );
                   })}
@@ -1062,10 +1228,63 @@ export default function DirectorDrawer({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-tighter">Anteprima Foto Attiva:</span>
+                      <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-tighter">Anteprima Post Attivo:</span>
+                      <p className="text-[10px] text-white font-black truncate">{selectedPost.authorName || appData.annaProfile.fullName}</p>
+                      <p className="text-[9px] text-cyan-300 font-mono truncate">@{selectedPost.authorUsername || appData.annaProfile.username}</p>
                       <p className="text-[10px] text-zinc-350 font-bold truncate">{selectedPost.location || 'Nessun Luogo'}</p>
                       <p className="text-[9px] text-slate-400 truncate leading-snug">{selectedPost.caption || 'Nessuna didascalia'}</p>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 block font-bold font-sans">Nome Autore</label>
+                      <input
+                        type="text"
+                        value={selectedPost.authorName || appData.annaProfile.fullName}
+                        onChange={(e) => handlePostChange(selectedPostId, 'authorName', e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-medium text-white text-xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 block font-bold font-sans">Username Autore</label>
+                      <input
+                        type="text"
+                        value={selectedPost.authorUsername || appData.annaProfile.username}
+                        onChange={(e) => handlePostChange(selectedPostId, 'authorUsername', e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-[10px] text-cyan-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-slate-400 block font-bold">URL Immagine Profilo Autore</label>
+                    <input
+                      type="text"
+                      value={selectedPost.authorAvatar || appData.annaProfile.avatar}
+                      onChange={(e) => handlePostChange(selectedPostId, 'authorAvatar', e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-[10px] text-cyan-300"
+                      placeholder="Incolla URL o percorso locale dell'avatar..."
+                    />
+                    <label className={`flex items-center justify-center gap-2 w-full py-2 rounded-lg border text-[9px] font-black uppercase tracking-wider font-mono transition ${
+                      supabaseSync.enabled
+                        ? 'bg-slate-950 border-slate-800 text-emerald-300 hover:border-emerald-600 cursor-pointer'
+                        : 'bg-slate-950 border-slate-850 text-slate-600 cursor-not-allowed'
+                    }`}>
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      {uploadingField === `${selectedPost.id}-authorAvatar` ? 'Caricamento avatar...' : 'Carica avatar su Supabase'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={!supabaseSync.enabled || uploadingField !== null}
+                        onChange={(e) => {
+                          handlePostImageUpload(e.target.files?.[0], 'authorAvatar');
+                          e.currentTarget.value = '';
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
 
                   {/* Preset alternative pictures library */}
@@ -1118,6 +1337,24 @@ export default function DirectorDrawer({
                       className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 font-mono text-[10px] text-cyan-300"
                       placeholder="Incolla l'indirizzo di un'immagine online..."
                     />
+                    <label className={`flex items-center justify-center gap-2 w-full py-2 rounded-lg border text-[9px] font-black uppercase tracking-wider font-mono transition ${
+                      supabaseSync.enabled
+                        ? 'bg-slate-950 border-slate-800 text-emerald-300 hover:border-emerald-600 cursor-pointer'
+                        : 'bg-slate-950 border-slate-850 text-slate-600 cursor-not-allowed'
+                    }`}>
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      {uploadingField === `${selectedPost.id}-image` ? 'Caricamento foto...' : 'Carica foto post su Supabase'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={!supabaseSync.enabled || uploadingField !== null}
+                        onChange={(e) => {
+                          handlePostImageUpload(e.target.files?.[0], 'image');
+                          e.currentTarget.value = '';
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
 
                   <div className="space-y-1">
@@ -1204,6 +1441,24 @@ export default function DirectorDrawer({
                             }}
                             className="w-full bg-slate-900 border border-slate-800 rounded p-1"
                           />
+                          <label className={`flex items-center justify-center gap-1.5 w-full py-1.5 rounded border text-[8px] font-black uppercase tracking-wider transition ${
+                            supabaseSync.enabled
+                              ? 'bg-slate-900 border-slate-800 text-emerald-300 hover:border-emerald-600 cursor-pointer'
+                              : 'bg-slate-900 border-slate-850 text-slate-600 cursor-not-allowed'
+                          }`}>
+                            <UploadCloud className="w-3 h-3" />
+                            {uploadingField === `chat_anna-${m.id}-image` ? 'Caricamento...' : 'Carica immagine messaggio'}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={!supabaseSync.enabled || uploadingField !== null}
+                              onChange={(e) => {
+                                handleMessageImageUpload('Aldo', 'chat_anna', m.id, e.target.files?.[0]);
+                                e.currentTarget.value = '';
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       )}
 
@@ -1249,21 +1504,38 @@ export default function DirectorDrawer({
                   <div className="space-y-2 border-b border-slate-800 pb-3">
                     <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-pink-400 block">📞 Nella Rubrica di Aldo</span>
                     {appData.aldoContacts.slice(0, 3).map(contact => (
-                      <div key={contact.id} className="grid grid-cols-2 gap-2 bg-slate-950 p-2 rounded">
-                        <input
-                          type="text"
-                          value={contact.name}
-                          onChange={(e) => handleContactChange('Aldo', contact.id, e.target.value, contact.phone)}
-                          className="bg-slate-900 p-1.5 rounded font-bold border border-slate-850"
-                          title="Nome Contatto"
-                        />
-                        <input
-                          type="text"
-                          value={contact.phone}
-                          onChange={(e) => handleContactChange('Aldo', contact.id, contact.name, e.target.value)}
-                          className="bg-slate-900 p-1.5 rounded font-mono border border-slate-850"
-                          title="Prefisso e Numero"
-                        />
+                      <div key={contact.id} className="grid grid-cols-[36px_1fr] gap-2 bg-slate-950 p-2 rounded">
+                        <label className={`w-9 h-9 rounded-full overflow-hidden border border-slate-800 bg-slate-900 cursor-pointer ${
+                          supabaseSync.enabled ? 'hover:border-emerald-500' : 'opacity-60 cursor-not-allowed'
+                        }`}>
+                          <img src={contact.avatar} alt="" className="w-full h-full object-cover" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={!supabaseSync.enabled || uploadingField !== null}
+                            onChange={(e) => {
+                              handleContactAvatarUpload('Aldo', contact.id, e.target.files?.[0]);
+                              e.currentTarget.value = '';
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={contact.name}
+                            onChange={(e) => handleContactChange('Aldo', contact.id, e.target.value, contact.phone)}
+                            className="bg-slate-900 p-1.5 rounded font-bold border border-slate-850"
+                            title="Nome Contatto"
+                          />
+                          <input
+                            type="text"
+                            value={contact.phone}
+                            onChange={(e) => handleContactChange('Aldo', contact.id, contact.name, e.target.value)}
+                            className="bg-slate-900 p-1.5 rounded font-mono border border-slate-850"
+                            title="Prefisso e Numero"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1272,19 +1544,36 @@ export default function DirectorDrawer({
                   <div className="space-y-2">
                     <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-pink-400 block">📞 Nella Rubrica di Anna</span>
                     {appData.annaContacts.slice(0, 3).map(contact => (
-                      <div key={contact.id} className="grid grid-cols-2 gap-2 bg-slate-950 p-2 rounded">
-                        <input
-                          type="text"
-                          value={contact.name}
-                          onChange={(e) => handleContactChange('Anna', contact.id, contact.name, contact.phone)}
-                          className="bg-slate-900 p-1.5 rounded font-bold border border-slate-850"
-                        />
-                        <input
-                          type="text"
-                          value={contact.phone}
-                          onChange={(e) => handleContactChange('Anna', contact.id, contact.name, e.target.value)}
-                          className="bg-slate-900 p-1.5 rounded font-mono border border-slate-850"
-                        />
+                      <div key={contact.id} className="grid grid-cols-[36px_1fr] gap-2 bg-slate-950 p-2 rounded">
+                        <label className={`w-9 h-9 rounded-full overflow-hidden border border-slate-800 bg-slate-900 cursor-pointer ${
+                          supabaseSync.enabled ? 'hover:border-emerald-500' : 'opacity-60 cursor-not-allowed'
+                        }`}>
+                          <img src={contact.avatar} alt="" className="w-full h-full object-cover" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={!supabaseSync.enabled || uploadingField !== null}
+                            onChange={(e) => {
+                              handleContactAvatarUpload('Anna', contact.id, e.target.files?.[0]);
+                              e.currentTarget.value = '';
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={contact.name}
+                            onChange={(e) => handleContactChange('Anna', contact.id, e.target.value, contact.phone)}
+                            className="bg-slate-900 p-1.5 rounded font-bold border border-slate-850"
+                          />
+                          <input
+                            type="text"
+                            value={contact.phone}
+                            onChange={(e) => handleContactChange('Anna', contact.id, contact.name, e.target.value)}
+                            className="bg-slate-900 p-1.5 rounded font-mono border border-slate-850"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1328,6 +1617,24 @@ export default function DirectorDrawer({
                       onChange={(e) => handleNewspaperChange('mainImage', e.target.value)}
                       className="w-full bg-slate-950 border border-slate-800 rounded p-2 font-mono text-[10px]"
                     />
+                    <label className={`flex items-center justify-center gap-2 w-full py-2 rounded-lg border text-[9px] font-black uppercase tracking-wider font-mono transition ${
+                      supabaseSync.enabled
+                        ? 'bg-slate-950 border-slate-800 text-emerald-300 hover:border-emerald-600 cursor-pointer'
+                        : 'bg-slate-950 border-slate-850 text-slate-600 cursor-not-allowed'
+                    }`}>
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      {uploadingField === 'newspaper-main-image' ? 'Caricamento immagine...' : 'Carica immagine articolo su Supabase'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={!supabaseSync.enabled || uploadingField !== null}
+                        onChange={(e) => {
+                          handleNewspaperImageUpload(e.target.files?.[0]);
+                          e.currentTarget.value = '';
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
 
                   <div className="space-y-1">
@@ -1368,7 +1675,7 @@ export default function DirectorDrawer({
         <div className="p-4 bg-slate-900 border-t border-slate-800 text-center space-y-2 shrink-0 font-sans">
           <p className="text-[9px] text-zinc-500 font-mono leading-normal">
             "QUESTIONE DI RENI" PORTALE TECNICO • COD: PRO-INSTA-2026<br />
-            Salvataggio in Cache Locale automatico garantito ad ogni modifica.
+            Salvataggio automatico locale e cloud quando Supabase è configurato.
           </p>
           <button 
             onClick={onClose}

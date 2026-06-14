@@ -1,5 +1,8 @@
 export interface Post {
   id: string;
+  authorName?: string;
+  authorUsername?: string;
+  authorAvatar?: string;
   image: string;
   caption: string;
   date: string;
@@ -109,6 +112,71 @@ export const INITIAL_DATA: AppData = {
     isVerified: true
   },
   posts: [
+    {
+      id: "post_contact_conte_negroni_empty",
+      authorName: "Conte Negroni",
+      authorUsername: "conte_negroni",
+      authorAvatar: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_contact_aldo_empty",
+      authorName: "Aldo",
+      authorUsername: "aldo_reni",
+      authorAvatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_contact_mamma_empty",
+      authorName: "Mamma",
+      authorUsername: "mamma_anna",
+      authorAvatar: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_contact_enpa_empty",
+      authorName: "ENPA Sede Centrale",
+      authorUsername: "enpa_sede",
+      authorAvatar: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_contact_tommaso_empty",
+      authorName: "Tommaso (Attivista Milano)",
+      authorUsername: "tommaso_attivista",
+      authorAvatar: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
     {
       id: "post_flashmob",
       image: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg",
@@ -787,4 +855,16 @@ export const INITIAL_DATA: AppData = {
     timeStr: "Adesso",
     durationStr: "0:42"
   }
+};
+
+export const hydrateAppData = (data: AppData): AppData => {
+  const existingPostIds = new Set(data.posts.map(post => post.id));
+  const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
+
+  if (!missingInitialPosts.length) return data;
+
+  return {
+    ...data,
+    posts: [...missingInitialPosts, ...data.posts]
+  };
 };
