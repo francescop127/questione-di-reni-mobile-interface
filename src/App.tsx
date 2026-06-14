@@ -815,10 +815,6 @@ export default function App() {
 
             {/* Calling Status Details */}
             <div className="space-y-4">
-              <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase font-extrabold flex items-center justify-center gap-1.5">
-                <Smartphone className="w-4 h-4" />
-                SIMULAZIONE TELEFONICA ({phoneOwner.toUpperCase()} OWNER)
-              </span>
               
               <div className="flex flex-col items-center pt-8 space-y-4">
                 {/* Caller Huge Rounded Photo */}
@@ -910,9 +906,7 @@ export default function App() {
               )}
             </div>
 
-            <div className="text-[9px] font-mono text-zinc-650 uppercase tracking-widest">
-              Dispositivo di {phoneOwner.toUpperCase()} • Alta fedeltà prop cinematografica
-            </div>
+
           </motion.div>
         )}
       </AnimatePresence>
@@ -941,11 +935,7 @@ export default function App() {
                 <Camera className="w-6 h-6 text-emerald-600 shrink-0" />
                 {!sidebarCollapsed && <span>Social</span>}
               </h1>
-              {!sidebarCollapsed && (
-                <p className="text-[9px] text-zinc-500 font-mono tracking-wide uppercase mt-1">
-                  Dispositivo: {phoneOwner.toUpperCase()}
-                </p>
-              )}
+
             </div>
 
             {/* Navigation links - Web interface styling */}
@@ -1619,7 +1609,6 @@ export default function App() {
               <div className="flex justify-between items-baseline">
                 <div>
                   <h2 className="text-xl font-display font-black text-zinc-900 tracking-tight">Rubrica Contatti</h2>
-                  <p className="text-[10px] text-zinc-400 font-mono mt-0.5">OWNER DISPOSITIVO: {phoneOwner.toUpperCase()}</p>
                 </div>
                 <span className="text-[9px] font-mono px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full font-bold text-zinc-500 uppercase">
                   {filteredContacts.length} record

@@ -117,8 +117,6 @@ export const INITIAL_DATA: AppData = {
       likes: 47,
       commentsCount: 9,
       location: "Piazza Celli, Roma",
-      isEvent: true,
-      eventDetails: "FLASHMOB CONTRO LA VIVISEZIONE\n📍 Piazza Celli\n📅 Domani\n⏰ Ore 18:00",
       comments: [
         { user: "eco_brian", text: "Presente! Condivido subito nei gruppi universitari." },
         { user: "green_margherita", text: "Porto altri 3 amici con me. Fermiamo questo scempio!" },
@@ -132,7 +130,7 @@ export const INITIAL_DATA: AppData = {
       date: "2 giorni fa",
       likes: 38,
       commentsCount: 4,
-      location: "Parco dell'Appia Antica",
+      location: "Aniene Trail, Tivoli",
       comments: [
         { user: "stefano_run", text: "Splendido posto Anna! Che itinerario hai seguito?" },
         { user: "bici_lifestyle", text: "Grande! Bellissima foto e bellissima filosofia di vita." }
@@ -145,7 +143,7 @@ export const INITIAL_DATA: AppData = {
       date: "5 giorni fa",
       likes: 51,
       commentsCount: 2,
-      location: "Val d'Orcia",
+      location: "Vigneti di Montefiascone",
       comments: [
         { user: "lucia_nature", text: "Concordo pienamente. Viaggiare a chilometro zero apre gli occhi." }
       ]
@@ -157,7 +155,7 @@ export const INITIAL_DATA: AppData = {
       date: "1 settimana fa",
       likes: 64,
       commentsCount: 6,
-      location: "Rifugio Code Felici",
+      location: "Santuario Animali Selci",
       comments: [
         { user: "amici_animali", text: "Lavoro straordinario Anna! Quel cucciolo ha degli occhi dolcissimi." },
         { user: "martina_p", text: "Ci passerò questo weekend per dare una mano!" }
@@ -170,7 +168,7 @@ export const INITIAL_DATA: AppData = {
       date: "10 giorni fa",
       likes: 42,
       commentsCount: 3,
-      location: "Bosco di Castel Fusano",
+      location: "Macchia Grande di Focene",
       comments: [
         { user: "eco_brian", text: "Grazie a tutti per la straordinaria partecipazione attiva!" }
       ]
@@ -182,7 +180,7 @@ export const INITIAL_DATA: AppData = {
       date: "2 settimane fa",
       likes: 59,
       commentsCount: 5,
-      location: "Prati della Costiera",
+      location: "Ulivi Secolari di Sabina",
       comments: [
         { user: "green_margherita", text: "La torta salata con le zucchine biologiche era favolosa!" },
         { user: "claudio_valle", text: "Ricetta subito! Dobbiamo fare più eventi così." }
@@ -195,7 +193,7 @@ export const INITIAL_DATA: AppData = {
       date: "2 settimane fa",
       likes: 72,
       commentsCount: 4,
-      location: "Bottega Sotto Casa",
+      location: "Mercato Biologico Trullo",
       comments: [
         { user: "eco_brian", text: "Bellissima iniziativa! Dove si trova esattamente questo negozio sfuso?" },
         { user: "lucia_nature", text: "Anch'io compro solo sfuso ormai! È liberatorio." }
@@ -208,7 +206,7 @@ export const INITIAL_DATA: AppData = {
       date: "3 settimane fa",
       likes: 85,
       commentsCount: 7,
-      location: "Sede Nazionale del Movimento",
+      location: "Centro Studi Ambiente Latina",
       comments: [
         { user: "claudio_valle", text: "Un passo concreto gigantesco! Congratulazioni team!" },
         { user: "amici_animali", text: "Potere al sole! Che meraviglia di installazione." }
@@ -221,7 +219,7 @@ export const INITIAL_DATA: AppData = {
       date: "1 mese fa",
       likes: 93,
       commentsCount: 11,
-      location: "Orto Urbano Condiviso",
+      location: "Orti Didattici San Lorenzo",
       comments: [
         { user: "green_margherita", text: "Che colori splendidi! La permacultura rigenera davvero il terreno." },
         { user: "martina_p", text: "Ci organizzate un workshop? Vorrei imparare le basi." }
@@ -234,7 +232,7 @@ export const INITIAL_DATA: AppData = {
       date: "1 mese fa",
       likes: 110,
       commentsCount: 8,
-      location: "Area Verde ex-Scalo",
+      location: "Parco Lineare Ostia",
       comments: [
         { user: "eco_brian", text: "Se manca l'ape alla terra, all'uomo resterebbero quattro anni di vita." },
         { user: "stefano_run", text: "Verrò ad aiutarvi alla prossima semina!" }
@@ -247,7 +245,7 @@ export const INITIAL_DATA: AppData = {
       date: "1 mese fa",
       likes: 125,
       commentsCount: 5,
-      location: "Cresta del Gran Sasso",
+      location: "Vetta Monte Terminillo",
       comments: [
         { user: "lucia_nature", text: "Che vista pazzesca! Ti fa sentire così piccola ed grata." },
         { user: "stefano_run", text: "La montagna insegna la fatica e regala il silenzio." }
@@ -260,7 +258,7 @@ export const INITIAL_DATA: AppData = {
       date: "2 mesi fa",
       likes: 98,
       commentsCount: 3,
-      location: "Parco Eolico del Vento",
+      location: "Colline Eoliche di Frosinone",
       comments: [
         { user: "claudio_valle", text: "Efficienza e intelligenza. Avanti tutta!" }
       ]
@@ -272,7 +270,7 @@ export const INITIAL_DATA: AppData = {
       date: "2 mesi fa",
       likes: 142,
       commentsCount: 9,
-      location: "Argine del Fiume Tevere",
+      location: "Isola Tiberina, Roma",
       comments: [
         { user: "eco_brian", text: "Orgoglioso di aver fatto parte di questa squadra pazzesca!" },
         { user: "green_margherita", text: "Siete degli eroi silenziosi! Grazie di cuore per quello che fate." }
@@ -285,130 +283,60 @@ export const INITIAL_DATA: AppData = {
       date: "3 mesi fa",
       likes: 79,
       commentsCount: 4,
-      location: "Mercato Contadino del Sabato",
+      location: "Fattoria Biologica Valle Verde",
       comments: [
         { user: "lucia_nature", text: "Il sapore di quelle mele è indescrivibile, un altro pianeta!" }
       ]
     },
     {
-      id: "post_electric_car",
-      image: "/img/post_electric_car",
-      caption: "In viaggio verso la mobilità del futuro! ⚡ Oggi carichiamo la citycar del collettivo con la nostra pensilina fotovoltaica. Muoversi a impatto zero è un'emozione pulita e silenziosa.",
+      id: "post_marco_bici",
+      image: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
+      caption: "In giro per la città con la mia single speed. Non c'è niente di meglio che pedalare sotto il sole! 🚴‍♂️ #fixedgear #urbancycling",
       date: "3 mesi fa",
-      likes: 112,
-      commentsCount: 3,
-      location: "Stazione Ricarica Green",
+      likes: 203,
+      commentsCount: 12,
+      location: "Testaccio, Roma",
       comments: [
-        { user: "stefano_run", text: "Finalmente le colonnine comunitarie funzionano a dovere!" }
+        { user: "anna_calligaris_eco", text: "Bella Marco! Anch'io domani faccio un giro sui Castelli." },
+        { user: "lucia_nature", text: "Che scatto perfetto! La luce è incredibile." }
       ]
     },
     {
-      id: "post_lake_paddle",
-      image: "/img/post_lake_paddle",
-      caption: "Un'alba lucente sul lago di Bracciano. 🌅 Pagaiando dolcemente sul SUP per misurare la limpidezza delle nostre acque protette. Preserviamo i bacini lacustri dall'inquinamento da idrocarburi e plastiche.",
+      id: "post_sara_yoga",
+      image: "/img/Foto Anna (Ronchi)/post_hiking.jpeg",
+      caption: "Meditazione mattutina in montagna. Lasciare andare tutto per trovare se stessi. 🧘‍♀️🌄 #mindfulness #naturelover",
       date: "4 mesi fa",
-      likes: 135,
-      commentsCount: 2,
-      location: "Lago di Bracciano",
-      comments: [
-        { user: "lucia_nature", text: "Che foto pazzesca Anna! La quiete pura incarnata." }
-      ]
-    },
-    {
-      id: "post_composting",
-      image: "/img/post_composting",
-      caption: "Nulla si distrugge, tutto si trasforma! 🍂 Oggi laboratorio di compostaggio domestico per trasformare gli scarti organici della cucina in fertile humus per le piantine. La terra ringrazia!",
-      date: "4 mesi fa",
-      likes: 67,
-      commentsCount: 4,
-      location: "Orto Condiviso Sotto Casa",
-      comments: [
-        { user: "eco_brian", text: "Laboratorio utilissimo, non compro più terriccio industriale!" }
-      ]
-    },
-    {
-      id: "post_plastic_free_school",
-      image: "/img/post_plastic_free_school",
-      caption: "Borracce ecologiche distribuite in tutte le classi delle elementari! 🎒 Un'iniziativa dal basso per ridurre migliaia di bottigliette di plastica monouso ogni mese. Educare al futuro parte da qui.",
-      date: "5 mesi fa",
-      likes: 189,
+      likes: 145,
       commentsCount: 8,
-      location: "Scuola Elementare Mazzini",
+      location: "Monti Lucretili",
       comments: [
-        { user: "green_margherita", text: "I bambini erano felicissimi delle loro nuove borracce colorate!" },
-        { user: "martina_p", text: "Esempio eccezionale da replicare in tutta la regione!" }
+        { user: "eco_brian", text: "Bellissimo video, mi hai ispirato!" }
       ]
     },
     {
-      id: "post_autumn_leaves",
-      image: "/img/post_autumn_leaves",
-      caption: "La magia d'autunno ci ricorda il ciclo vitale della foresta. 🍂 Camminiamo in punta di piedi rispettando il letargo della fauna selvatica. Ogni rametto e foglia ha un ruolo nell'ecosistema.",
+      id: "post_luigi_foto",
+      image: "/img/Foto Anna (Ronchi)/post_forest_cleanup.jpeg",
+      caption: "Reportage fotografico dal bosco sacro. Quando la natura parla, il fotografo ascolta. 📸🌲 #landscape #reportage",
       date: "5 mesi fa",
-      likes: 95,
-      commentsCount: 1,
-      location: "Parco Nazionale d'Abruzzo",
+      likes: 289,
+      commentsCount: 15,
+      location: "Foresta di Castelporziano",
       comments: [
-        { user: "stefano_run", text: "Colori meravigliosi che scaldano il cuore." }
+        { user: "green_margherita", text: "Composizione perfetta Luigi!" },
+        { user: "stefano_run", text: "Questi colori sono surreali, bravissimo!" }
       ]
     },
     {
-      id: "post_sustainable_fashion",
-      image: "/img/post_sustainable_fashion",
-      caption: "Armadio etico e circolare! 🏷️ Oggi scambiamo abiti vintage al mercatino del riuso. Scegliere tessuti naturali e riciclati combatte la sovrapproduzione selvaggia del fast fashion.",
+      id: "post_giancarlo_gastronomia",
+      image: "/img/Foto Anna (Ronchi)/post_vegan_picnic.jpeg",
+      caption: "Cucina consapevole: piatti a km zero con ingredienti bio dal nostro orto. La sostenibilità ha un sapore meraviglioso! 🍽️✨ #slowfood #biodinamico",
       date: "6 mesi fa",
-      likes: 121,
-      commentsCount: 5,
-      location: "Spazio Riuso Creativo",
+      likes: 156,
+      commentsCount: 9,
+      location: "Osteria del Sordo, Tivoli",
       comments: [
-        { user: "lucia_nature", text: "Ho trovato dei maglioni in lana rigenerata caldissimi!" }
-      ]
-    },
-    {
-      id: "post_green_roof",
-      image: "/img/post_green_roof",
-      caption: "Un tetto verde ed ecologico nel cuore del quartiere direzionale! 🏙️ Questi giardini pensili assorbono CO2, riducono le isole di calore estive e creano piccoli scrigni di biodiversità metropolitana.",
-      date: "6 mesi fa",
-      likes: 154,
-      commentsCount: 3,
-      location: "Skyline Green Hub",
-      comments: [
-        { user: "claudio_valle", text: "Architettura intelligente! Dovrebbe essere obbligatorio in pianificazione." }
-      ]
-    },
-    {
-      id: "post_reusable_bags",
-      image: "/img/post_reusable_bags",
-      caption: "Sacchetti di stoffa cuciti a mano riciclando vecchie lenzuola dismesse. 🧵🛍️ Un modo pratico ed elegante per fare la spesa senza sprecare mai più sacchetti monouso. Chi ne desidera uno?",
-      date: "7 mesi fa",
-      likes: 83,
-      commentsCount: 6,
-      location: "Bottega Popolare Re-Use",
-      comments: [
-        { user: "green_margherita", text: "Io ne prenoto tre per la spesa del sabato!" }
-      ]
-    },
-    {
-      id: "post_smart_irrigation",
-      image: "/img/post_smart_irrigation",
-      caption: "Acqua piovana è oro liquido. 💦 Installata la cisterna intelligente di recupero collegata ai sensori di umidità del terreno. Irrighiamo solo quando serve e solo quanto basta per evitare sprechi.",
-      date: "7 mesi fa",
-      likes: 104,
-      commentsCount: 2,
-      location: "Serra Didattica Condivisa",
-      comments: [
-        { user: "eco_brian", text: "Sana tecnologia applicata alla terra." }
-      ]
-    },
-    {
-      id: "post_wildflowers",
-      image: "/img/post_wildflowers",
-      caption: "Prato selvatico condominiale cresciuto! 🌸 Invece di tagliare l'erba ossessivamente, abbiamo lasciato fiorire i papaveri e la camomilla selvatica per far felici farfalle, bombi e biodiversità urbana.",
-      date: "8 mesi fa",
-      likes: 118,
-      commentsCount: 4,
-      location: "Retro Condominio Verde",
-      comments: [
-        { user: "stefano_run", text: "L'effetto visivo è stupendo e gli impollinatori ringraziano di cuore." }
+        { user: "anna_calligaris_eco", text: "Giancarlo, questa è arte! Vengo subito." },
+        { user: "lucia_nature", text: "Finalmente qualcuno che capisce il legame tra cibo e territorio." }
       ]
     }
   ],
@@ -426,7 +354,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte",
       name: "Conte Negroni",
       phone: "+39 335 881 7711",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
       recentCallDate: "Ieri, 18:40",
       recentCallType: "outgoing",
       recentCallDuration: "45 s"
@@ -435,7 +363,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_barto",
       name: "Bartolomeo Reni",
       phone: "+39 348 711 0291",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
       recentCallDate: "3 giorni fa",
       recentCallType: "missed"
     },
@@ -443,7 +371,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_dottore",
       name: "Dott. De Santis",
       phone: "+39 339 444 8920",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
       recentCallDate: "4 giorni fa",
       recentCallType: "incoming",
       recentCallDuration: "8 min 12 s"
@@ -452,49 +380,49 @@ export const INITIAL_DATA: AppData = {
       id: "contact_avvocato",
       name: "Avvocato Moretti",
       phone: "+39 333 111 2233",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg"
     },
     {
       id: "contact_clinica",
       name: "Clinica San Raffaele",
       phone: "+39 06 5509 0110",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg"
     },
     {
       id: "contact_valerio",
       name: "Ing. Valerio Marini (Efficienza)",
       phone: "+39 349 881 2200",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_organic_orchard.jpeg"
     },
     {
       id: "contact_sergio",
       name: "Sergio (Gommista Eco)",
       phone: "+39 347 555 9011",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_bee_rescue.jpeg"
     },
     {
       id: "contact_monica",
       name: "Monica (Fotografa Set)",
       phone: "+39 329 123 4567",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_hiking.jpeg"
     },
     {
       id: "contact_beatrice",
       name: "Beatrice Reni (Cugina)",
       phone: "+39 345 999 1111",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_wind_energy.jpeg"
     },
     {
       id: "contact_riccardo",
       name: "Riccardo (Climatizzazione)",
       phone: "+39 334 777 8888",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_river_clean.jpeg"
     },
     {
       id: "contact_barbieri",
       name: "Dott.ssa Barbieri (Ricerca)",
       phone: "+39 320 333 4444",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_organic_market.jpeg"
     }
   ],
   annaContacts: [
@@ -502,7 +430,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte_negroni",
       name: "Conte Negroni",
       phone: "+39 335 881 7711",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
       recentCallDate: "Oggi, 12:45",
       recentCallType: "outgoing",
       recentCallDuration: "1 min 05 s"
@@ -511,7 +439,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_aldo",
       name: "Aldo",
       phone: "+39 328 110 4492",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
       recentCallDate: "Oggi, 11:15",
       recentCallType: "outgoing",
       recentCallDuration: "2 min 14 s"
@@ -520,7 +448,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_mamme",
       name: "Mamma",
       phone: "+39 338 900 1122",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
       recentCallDate: "Ieri, 15:30",
       recentCallType: "incoming",
       recentCallDuration: "10 min 40 s"
@@ -529,43 +457,43 @@ export const INITIAL_DATA: AppData = {
       id: "contact_enpa",
       name: "ENPA Sede Centrale",
       phone: "+39 06 3242 0011",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg"
     },
     {
       id: "contact_tommaso",
       name: "Tommaso (Attivista Milano)",
       phone: "+39 333 888 9999",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg"
     },
     {
       id: "contact_chiara",
       name: "Chiara (Grafica Volantini)",
       phone: "+39 346 111 2222",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_organic_orchard.jpeg"
     },
     {
       id: "contact_barbara_gatti",
       name: "Barbara (Rifugio Gatti)",
       phone: "+39 328 333 4444",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_bee_rescue.jpeg"
     },
     {
       id: "contact_stefano_coord",
       name: "Stefano (Coordinamento Bici)",
       phone: "+39 345 555 6666",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_hiking.jpeg"
     },
     {
       id: "contact_federica",
       name: "Federica (Permacultura RM)",
       phone: "+39 331 444 5555",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_wind_energy.jpeg"
     },
     {
       id: "contact_salvaterra",
       name: "Associazione Salvaterra",
       phone: "+39 06 999 888",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
+      avatar: "/img/Foto Anna (Ronchi)/post_river_clean.jpeg"
     }
   ],
   chatHistory: [
