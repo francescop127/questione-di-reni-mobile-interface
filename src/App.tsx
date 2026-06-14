@@ -61,7 +61,7 @@ export default function App() {
   const [standbyTotalSeconds, setStandbyTotalSeconds] = useState<number>(10);
   const [standbyPulseActive, setStandbyPulseActive] = useState<boolean>(false);
   const [lockScreenActive, setLockScreenActive] = useState<boolean>(false);
-  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>('/img/profilo');
+  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>('/img/Foto Anna (Ronchi)/profilo.jpeg');
 
   const [wakeConfig, setWakeConfig] = useState({
     senderName: 'Anna',

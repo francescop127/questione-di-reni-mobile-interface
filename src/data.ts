@@ -101,7 +101,7 @@ export const INITIAL_DATA: AppData = {
   annaProfile: {
     username: "anna_calligaris_eco",
     fullName: "Anna Calligaris",
-    avatar: "/img/profilo",
+    avatar: "/img/Foto Anna (Ronchi)/profilo.jpeg",
     bio: "🚴‍♀️ In sella alla mia bici verso un futuro sostenibile.\n🌿 Attivista per la difesa degli animali e dell'ambiente.\n📍 Spostarsi senza inquinare è una scelta quotidiana.",
     followers: 124,
     following: 89,
@@ -111,7 +111,7 @@ export const INITIAL_DATA: AppData = {
   posts: [
     {
       id: "post_flashmob",
-      image: "/img/post_flashmob",
+      image: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg",
       caption: "🔴 STOP VIVISEZIONE! Non possiamo più restare in silenzio di fronte a questa crudeltà. Domani scendiamo in piazza per dare voce a chi non ce l'ha. Vi aspetto numerosi, portate cartelli e tanta energia positiva. Condividete il più possibile!",
       date: "Oggi, 12:30",
       likes: 47,
@@ -127,7 +127,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_bicycle",
-      image: "/img/post_bicycle",
+      image: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
       caption: "Libertà è una strada sterrata, il vento in faccia e zero emissioni. 🚴‍♀️ Oggi ho fatto 45km scoprendo sentieri dimenticati. La terra non ci appartiene, ne siamo solo custodi temporanei.",
       date: "2 giorni fa",
       likes: 38,
@@ -140,7 +140,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_eco_quote",
-      image: "/img/post_eco_quote",
+      image: "/img/Foto Anna (Ronchi)/post_eco_quote.jpeg",
       caption: "Spesso camminiamo nella natura selvaggia sognando spiagge esotiche, ma dimentichiamo che la bellezza più pura è proprio dietro casa. Impariamo a viaggiare leggeri, a piedi o su due ruote. 🌍💚",
       date: "5 giorni fa",
       likes: 51,
@@ -152,7 +152,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_dog_rescue",
-      image: "/img/post_dog_rescue",
+      image: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
       caption: "Incontri speciali durante la ronda mattutina al rifugio locale. 🐾 Ogni sguardo recuperato dice più di mille parole. Adottate, non comprate, date a queste anime una seconda possibilità!",
       date: "1 settimana fa",
       likes: 64,
@@ -165,7 +165,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_forest_cleanup",
-      image: "/img/post_forest_cleanup",
+      image: "/img/Foto Anna (Ronchi)/post_forest_cleanup.jpeg",
       caption: "Oggi con il gruppo locale abbiamo riempito ben 15 sacchi di plastica abbandonata nei boschi della Costiera. Un piccolo gesto collettivo per guarire la nostra terra ferita. 🌳🎒",
       date: "10 giorni fa",
       likes: 42,
@@ -177,7 +177,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_vegan_picnic",
-      image: "/img/post_vegan_picnic",
+      image: "/img/Foto Anna (Ronchi)/post_vegan_picnic.jpeg",
       caption: "Alimentazione consapevole, cruelty-free e a impatto zero. Un delizioso picnic vegano autoprodotto all'ombra degli ulivi secolari. Mangiare sano fa bene a noi e al pianeta! 🍇🥗",
       date: "2 settimane fa",
       likes: 59,
@@ -190,7 +190,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_zerowaste",
-      image: "/img/post_zerowaste",
+      image: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg",
       caption: "Rispettare l'ambiente significa anche ridurre gli imballaggi al minimo. Oggi spesa sfusa e barattoli riutilizzabili per azzerare la plastica monouso. 🫙🌾 Ogni piccolo passo conta infinitamente!",
       date: "2 settimane fa",
       likes: 72,
@@ -203,7 +203,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_solar_panels",
-      image: "/img/post_solar_panels",
+      image: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
       caption: "Finalmente è arrivata l'energia pulita! ☀️ Installati i nuovi pannelli solari sul tetto della sede. Da oggi produciamo elettricità green al 100% per alimentare i nostri progetti e le assemblee.",
       date: "3 settimane fa",
       likes: 85,
@@ -216,7 +216,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_organic_orchard",
-      image: "/img/post_organic_orchard",
+      image: "/img/Foto Anna (Ronchi)/post_organic_orchard.jpeg",
       caption: "Raccolto del giorno dall'orto biologico comunitario coltivato a permacultura. 🌱 Pomodori profumatissimi, zucchine giganti e tanta soddisfazione di mangiare cibo vero, libero da pesticidi e chimica estrema.",
       date: "1 mese fa",
       likes: 93,
@@ -229,7 +229,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_bee_rescue",
-      image: "/img/post_bee_rescue",
+      image: "/img/Foto Anna (Ronchi)/post_bee_rescue.jpeg",
       caption: "Salviamo le api! Oggi abbiamo seminato fiori nettariferi biologici in tutta l'area urbana dismessa vicino alla ferrovia. Un corridoio ecologico fondamentale per preservare la biodiversità nel cemento. 🐝🌻",
       date: "1 mese fa",
       likes: 110,
@@ -242,7 +242,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_hiking",
-      image: "/img/post_hiking",
+      image: "/img/Foto Anna (Ronchi)/post_hiking.jpeg",
       caption: "Respirare a pieni polmoni quassù, sopra le nuvole e lontano dal baccano della città. 🏔️ Un cammino stancante ma che ti riconnette con la grandezza ancestrale della natura incontaminata. Rispettiamo i sentieri!",
       date: "1 mese fa",
       likes: 125,
@@ -255,7 +255,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_wind_energy",
-      image: "/img/post_wind_energy",
+      image: "/img/Foto Anna (Ronchi)/post_wind_energy.jpeg",
       caption: "Il vento del cambiamento profuma di aria pulita. 💨 Le nostre pale eoliche comunitarie producono energia sostenibile senza sosta. Questa è la vera transizione energetica dal basso!",
       date: "2 mesi fa",
       likes: 98,
@@ -267,7 +267,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_river_clean",
-      image: "/img/post_river_clean",
+      image: "/img/Foto Anna (Ronchi)/post_river_clean.jpeg",
       caption: "Operazione fiume pulito completata! Oggi con gli stivali nell'acqua abbiamo rimosso decine di pneumatici e plastica depositati dalle correnti. Un fiume sano è la sorgente della vita. 💧🐟",
       date: "2 mesi fa",
       likes: 142,
@@ -280,7 +280,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_organic_market",
-      image: "/img/post_organic_market",
+      image: "/img/Foto Anna (Ronchi)/post_organic_market.jpeg",
       caption: "Cibo vero, persone vere. 🍏 Sosteniamo i piccoli produttori locali della nostra terra. Comprare direttamente da chi coltiva rispetta il lavoro, riduce i trasporti km-zero e nutre la salute.",
       date: "3 mesi fa",
       likes: 79,
@@ -417,7 +417,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_anna",
       name: "Anna Calligaris",
       phone: "+39 347 129 8834",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "Oggi, 11:15",
       recentCallType: "incoming",
       recentCallDuration: "2 min 14 s"
@@ -426,7 +426,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte",
       name: "Conte Negroni",
       phone: "+39 335 881 7711",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "Ieri, 18:40",
       recentCallType: "outgoing",
       recentCallDuration: "45 s"
@@ -435,7 +435,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_barto",
       name: "Bartolomeo Reni",
       phone: "+39 348 711 0291",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "3 giorni fa",
       recentCallType: "missed"
     },
@@ -443,7 +443,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_dottore",
       name: "Dott. De Santis",
       phone: "+39 339 444 8920",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "4 giorni fa",
       recentCallType: "incoming",
       recentCallDuration: "8 min 12 s"
@@ -452,49 +452,49 @@ export const INITIAL_DATA: AppData = {
       id: "contact_avvocato",
       name: "Avvocato Moretti",
       phone: "+39 333 111 2233",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_clinica",
       name: "Clinica San Raffaele",
       phone: "+39 06 5509 0110",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_valerio",
       name: "Ing. Valerio Marini (Efficienza)",
       phone: "+39 349 881 2200",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_sergio",
       name: "Sergio (Gommista Eco)",
       phone: "+39 347 555 9011",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_monica",
       name: "Monica (Fotografa Set)",
       phone: "+39 329 123 4567",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_beatrice",
       name: "Beatrice Reni (Cugina)",
       phone: "+39 345 999 1111",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_riccardo",
       name: "Riccardo (Climatizzazione)",
       phone: "+39 334 777 8888",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_barbieri",
       name: "Dott.ssa Barbieri (Ricerca)",
       phone: "+39 320 333 4444",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     }
   ],
   annaContacts: [
@@ -502,7 +502,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte_negroni",
       name: "Conte Negroni",
       phone: "+39 335 881 7711",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "Oggi, 12:45",
       recentCallType: "outgoing",
       recentCallDuration: "1 min 05 s"
@@ -511,7 +511,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_aldo",
       name: "Aldo",
       phone: "+39 328 110 4492",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "Oggi, 11:15",
       recentCallType: "outgoing",
       recentCallDuration: "2 min 14 s"
@@ -520,7 +520,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_mamme",
       name: "Mamma",
       phone: "+39 338 900 1122",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       recentCallDate: "Ieri, 15:30",
       recentCallType: "incoming",
       recentCallDuration: "10 min 40 s"
@@ -529,43 +529,43 @@ export const INITIAL_DATA: AppData = {
       id: "contact_enpa",
       name: "ENPA Sede Centrale",
       phone: "+39 06 3242 0011",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_tommaso",
       name: "Tommaso (Attivista Milano)",
       phone: "+39 333 888 9999",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_chiara",
       name: "Chiara (Grafica Volantini)",
       phone: "+39 346 111 2222",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_barbara_gatti",
       name: "Barbara (Rifugio Gatti)",
       phone: "+39 328 333 4444",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_stefano_coord",
       name: "Stefano (Coordinamento Bici)",
       phone: "+39 345 555 6666",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_federica",
       name: "Federica (Permacultura RM)",
       phone: "+39 331 444 5555",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     },
     {
       id: "contact_salvaterra",
       name: "Associazione Salvaterra",
       phone: "+39 06 999 888",
-      avatar: "/img/chiamata"
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg"
     }
   ],
   chatHistory: [
@@ -596,7 +596,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "msg_5",
       sender: "other",
-          image: "/img/profilo",
+          image: "/img/Foto Anna (Ronchi)/profilo.jpeg",
       timestamp: "10:17"
     },
     {
@@ -624,7 +624,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_anna",
       name: "Anna Calligaris",
       username: "anna_calligaris_eco",
-      avatar: "/img/profilo",
+      avatar: "/img/Foto Anna (Ronchi)/profilo.jpeg",
       status: "attiva ora",
       messages: [
         {
@@ -648,7 +648,7 @@ export const INITIAL_DATA: AppData = {
         {
           id: "msg_4",
           sender: "other",
-          image: "/img/profilo",
+          image: "/img/Foto Anna (Ronchi)/profilo.jpeg",
           timestamp: "10:16"
         },
         {
@@ -676,7 +676,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_negroni",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       status: "attivo 2 ore fa",
       messages: [
         {
@@ -705,7 +705,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_aldo_anna",
       name: "Aldo Reni",
       username: "aldo_reni_real",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       status: "attivo ora",
       messages: [
         {
@@ -729,7 +729,7 @@ export const INITIAL_DATA: AppData = {
         {
           id: "msg_4_a",
           sender: "me",
-          image: "/img/profilo",
+          image: "/img/Foto Anna (Ronchi)/profilo.jpeg",
           timestamp: "10:16"
         },
         {
@@ -757,7 +757,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_negroni_anna",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
-      avatar: "/img/chiamata",
+      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
       status: "attivo ora",
       messages: [
         {
