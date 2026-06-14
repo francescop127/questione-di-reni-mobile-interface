@@ -15,6 +15,18 @@ const cleanFileName = (name: string) =>
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 
+const explainSupabaseError = (message: string) => {
+  if (message.includes("Could not find the table 'public.app_state'")) {
+    return "Tabella Supabase mancante: esegui supabase/regia_sync.sql nel SQL Editor.";
+  }
+
+  if (message.includes('Bucket not found')) {
+    return "Bucket Supabase mancante: esegui supabase/regia_sync.sql per creare regia-media.";
+  }
+
+  return message;
+};
+
 export const useSupabaseAppData = (
   appData: AppData,
   setAppData: Dispatch<SetStateAction<AppData>>
@@ -53,7 +65,7 @@ export const useSupabaseAppData = (
       if (cancelled) return;
 
       if (loadError) {
-        setError(loadError.message);
+        setError(explainSupabaseError(loadError.message));
         setStatus('error');
         remoteLoadedRef.current = true;
         return;
@@ -73,7 +85,7 @@ export const useSupabaseAppData = (
           });
 
         if (seedError) {
-          setError(seedError.message);
+          setError(explainSupabaseError(seedError.message));
           setStatus('error');
           remoteLoadedRef.current = true;
           return;
@@ -139,7 +151,7 @@ export const useSupabaseAppData = (
         });
 
       if (saveError) {
-        setError(saveError.message);
+        setError(explainSupabaseError(saveError.message));
         setStatus('error');
         return;
       }
@@ -157,7 +169,7 @@ export const useSupabaseAppData = (
   const uploadImage = useCallback(
     async (file: File, folder = 'posts') => {
       if (!supabase) {
-        throw new Error('Supabase non configurato: aggiungi VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.');
+        throw new Error('Supabase non configurato: aggiungi VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY oppure VITE_SUPABASE_ANON_KEY.');
       }
 
       const safeName = cleanFileName(file.name) || 'upload.jpg';
@@ -170,7 +182,7 @@ export const useSupabaseAppData = (
           contentType: file.type || undefined
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) throw new Error(explainSupabaseError(uploadError.message));
 
       const { data } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path);
       return data.publicUrl;
