@@ -98,7 +98,7 @@ export default function App() {
   const [callConfig, setCallConfig] = useState({
     callerName: 'Anna Calligaris',
     callerNumber: '+39 347 129 8834',
-    callerAvatar: '/img/profilo',
+    callerAvatar: '/img/Foto Anna (Ronchi)/profilo.jpeg',
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     autoAnswerEnabled: true,
     autoAnswerDelay: 5
@@ -384,10 +384,10 @@ export default function App() {
 
   // Predefined lists swaps
   const imagePresets = [
-    { label: 'Anna Provetta Laboratorio', url: '/img/post_eco_quote' },
-    { label: 'Serraglio Clinica Protesta', url: '/img/post_flashmob' },
-    { label: 'Autoscatto / Selfie Anna', url: '/img/profilo' },
-    { label: 'Biciclette Sentiero Bosco', url: '/img/post_bicycle' }
+    { label: 'Anna Provetta Laboratorio', url: '/img/Foto Anna (Ronchi)/post_eco_quote.jpeg' },
+    { label: 'Serraglio Clinica Protesta', url: '/img/Foto Anna (Ronchi)/post_flashmob.jpeg' },
+    { label: 'Autoscatto / Selfie Anna', url: '/img/Foto Anna (Ronchi)/profilo.jpeg' },
+    { label: 'Biciclette Sentiero Bosco', url: '/img/Foto Anna (Ronchi)/post_bicycle.jpeg' }
   ];
 
   // CENTRALIZED ACCELERATOR PRESETS TRIGGERS
