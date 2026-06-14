@@ -101,7 +101,7 @@ export const INITIAL_DATA: AppData = {
   annaProfile: {
     username: "anna_calligaris_eco",
     fullName: "Anna Calligaris",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+    avatar: "/img/profilo",
     bio: "🚴‍♀️ In sella alla mia bici verso un futuro sostenibile.\n🌿 Attivista per la difesa degli animali e dell'ambiente.\n📍 Spostarsi senza inquinare è una scelta quotidiana.",
     followers: 124,
     following: 89,
@@ -111,7 +111,7 @@ export const INITIAL_DATA: AppData = {
   posts: [
     {
       id: "post_flashmob",
-      image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_flashmob",
       caption: "🔴 STOP VIVISEZIONE! Non possiamo più restare in silenzio di fronte a questa crudeltà. Domani scendiamo in piazza per dare voce a chi non ce l'ha. Vi aspetto numerosi, portate cartelli e tanta energia positiva. Condividete il più possibile!",
       date: "Oggi, 12:30",
       likes: 47,
@@ -127,7 +127,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_bicycle",
-      image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_bicycle",
       caption: "Libertà è una strada sterrata, il vento in faccia e zero emissioni. 🚴‍♀️ Oggi ho fatto 45km scoprendo sentieri dimenticati. La terra non ci appartiene, ne siamo solo custodi temporanei.",
       date: "2 giorni fa",
       likes: 38,
@@ -140,7 +140,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_eco_quote",
-      image: "https://images.unsplash.com/photo-1500485035595-cbe6f645feb1?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_eco_quote",
       caption: "Spesso camminiamo nella natura selvaggia sognando spiagge esotiche, ma dimentichiamo che la bellezza più pura è proprio dietro casa. Impariamo a viaggiare leggeri, a piedi o su due ruote. 🌍💚",
       date: "5 giorni fa",
       likes: 51,
@@ -152,7 +152,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_dog_rescue",
-      image: "https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_dog_rescue",
       caption: "Incontri speciali durante la ronda mattutina al rifugio locale. 🐾 Ogni sguardo recuperato dice più di mille parole. Adottate, non comprate, date a queste anime una seconda possibilità!",
       date: "1 settimana fa",
       likes: 64,
@@ -165,7 +165,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_forest_cleanup",
-      image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_forest_cleanup",
       caption: "Oggi con il gruppo locale abbiamo riempito ben 15 sacchi di plastica abbandonata nei boschi della Costiera. Un piccolo gesto collettivo per guarire la nostra terra ferita. 🌳🎒",
       date: "10 giorni fa",
       likes: 42,
@@ -177,7 +177,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_vegan_picnic",
-      image: "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_vegan_picnic",
       caption: "Alimentazione consapevole, cruelty-free e a impatto zero. Un delizioso picnic vegano autoprodotto all'ombra degli ulivi secolari. Mangiare sano fa bene a noi e al pianeta! 🍇🥗",
       date: "2 settimane fa",
       likes: 59,
@@ -190,7 +190,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_zerowaste",
-      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_zerowaste",
       caption: "Rispettare l'ambiente significa anche ridurre gli imballaggi al minimo. Oggi spesa sfusa e barattoli riutilizzabili per azzerare la plastica monouso. 🫙🌾 Ogni piccolo passo conta infinitamente!",
       date: "2 settimane fa",
       likes: 72,
@@ -203,7 +203,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_solar_panels",
-      image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_solar_panels",
       caption: "Finalmente è arrivata l'energia pulita! ☀️ Installati i nuovi pannelli solari sul tetto della sede. Da oggi produciamo elettricità green al 100% per alimentare i nostri progetti e le assemblee.",
       date: "3 settimane fa",
       likes: 85,
@@ -216,7 +216,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_organic_orchard",
-      image: "https://images.unsplash.com/photo-1464241353294-0f3162391696?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_organic_orchard",
       caption: "Raccolto del giorno dall'orto biologico comunitario coltivato a permacultura. 🌱 Pomodori profumatissimi, zucchine giganti e tanta soddisfazione di mangiare cibo vero, libero da pesticidi e chimica estrema.",
       date: "1 mese fa",
       likes: 93,
@@ -229,7 +229,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_bee_rescue",
-      image: "https://images.unsplash.com/photo-1473081556163-2a17de81fc97?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_bee_rescue",
       caption: "Salviamo le api! Oggi abbiamo seminato fiori nettariferi biologici in tutta l'area urbana dismessa vicino alla ferrovia. Un corridoio ecologico fondamentale per preservare la biodiversità nel cemento. 🐝🌻",
       date: "1 mese fa",
       likes: 110,
@@ -242,7 +242,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_hiking",
-      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_hiking",
       caption: "Respirare a pieni polmoni quassù, sopra le nuvole e lontano dal baccano della città. 🏔️ Un cammino stancante ma che ti riconnette con la grandezza ancestrale della natura incontaminata. Rispettiamo i sentieri!",
       date: "1 mese fa",
       likes: 125,
@@ -255,7 +255,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_wind_energy",
-      image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_wind_energy",
       caption: "Il vento del cambiamento profuma di aria pulita. 💨 Le nostre pale eoliche comunitarie producono energia sostenibile senza sosta. Questa è la vera transizione energetica dal basso!",
       date: "2 mesi fa",
       likes: 98,
@@ -267,7 +267,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_river_clean",
-      image: "https://images.unsplash.com/photo-1532187863486-abf9d39d66e8?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_river_clean",
       caption: "Operazione fiume pulito completata! Oggi con gli stivali nell'acqua abbiamo rimosso decine di pneumatici e plastica depositati dalle correnti. Un fiume sano è la sorgente della vita. 💧🐟",
       date: "2 mesi fa",
       likes: 142,
@@ -280,7 +280,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_organic_market",
-      image: "https://images.unsplash.com/photo-1488459711435-0785907c6186?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_organic_market",
       caption: "Cibo vero, persone vere. 🍏 Sosteniamo i piccoli produttori locali della nostra terra. Comprare direttamente da chi coltiva rispetta il lavoro, riduce i trasporti km-zero e nutre la salute.",
       date: "3 mesi fa",
       likes: 79,
@@ -292,7 +292,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_electric_car",
-      image: "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_electric_car",
       caption: "In viaggio verso la mobilità del futuro! ⚡ Oggi carichiamo la citycar del collettivo con la nostra pensilina fotovoltaica. Muoversi a impatto zero è un'emozione pulita e silenziosa.",
       date: "3 mesi fa",
       likes: 112,
@@ -304,7 +304,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_lake_paddle",
-      image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_lake_paddle",
       caption: "Un'alba lucente sul lago di Bracciano. 🌅 Pagaiando dolcemente sul SUP per misurare la limpidezza delle nostre acque protette. Preserviamo i bacini lacustri dall'inquinamento da idrocarburi e plastiche.",
       date: "4 mesi fa",
       likes: 135,
@@ -316,7 +316,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_composting",
-      image: "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_composting",
       caption: "Nulla si distrugge, tutto si trasforma! 🍂 Oggi laboratorio di compostaggio domestico per trasformare gli scarti organici della cucina in fertile humus per le piantine. La terra ringrazia!",
       date: "4 mesi fa",
       likes: 67,
@@ -328,7 +328,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_plastic_free_school",
-      image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_plastic_free_school",
       caption: "Borracce ecologiche distribuite in tutte le classi delle elementari! 🎒 Un'iniziativa dal basso per ridurre migliaia di bottigliette di plastica monouso ogni mese. Educare al futuro parte da qui.",
       date: "5 mesi fa",
       likes: 189,
@@ -341,7 +341,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_autumn_leaves",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_autumn_leaves",
       caption: "La magia d'autunno ci ricorda il ciclo vitale della foresta. 🍂 Camminiamo in punta di piedi rispettando il letargo della fauna selvatica. Ogni rametto e foglia ha un ruolo nell'ecosistema.",
       date: "5 mesi fa",
       likes: 95,
@@ -353,7 +353,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_sustainable_fashion",
-      image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_sustainable_fashion",
       caption: "Armadio etico e circolare! 🏷️ Oggi scambiamo abiti vintage al mercatino del riuso. Scegliere tessuti naturali e riciclati combatte la sovrapproduzione selvaggia del fast fashion.",
       date: "6 mesi fa",
       likes: 121,
@@ -365,7 +365,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_green_roof",
-      image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_green_roof",
       caption: "Un tetto verde ed ecologico nel cuore del quartiere direzionale! 🏙️ Questi giardini pensili assorbono CO2, riducono le isole di calore estive e creano piccoli scrigni di biodiversità metropolitana.",
       date: "6 mesi fa",
       likes: 154,
@@ -377,7 +377,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_reusable_bags",
-      image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_reusable_bags",
       caption: "Sacchetti di stoffa cuciti a mano riciclando vecchie lenzuola dismesse. 🧵🛍️ Un modo pratico ed elegante per fare la spesa senza sprecare mai più sacchetti monouso. Chi ne desidera uno?",
       date: "7 mesi fa",
       likes: 83,
@@ -389,7 +389,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_smart_irrigation",
-      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_smart_irrigation",
       caption: "Acqua piovana è oro liquido. 💦 Installata la cisterna intelligente di recupero collegata ai sensori di umidità del terreno. Irrighiamo solo quando serve e solo quanto basta per evitare sprechi.",
       date: "7 mesi fa",
       likes: 104,
@@ -401,7 +401,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       id: "post_wildflowers",
-      image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&q=80&w=800",
+      image: "/img/post_wildflowers",
       caption: "Prato selvatico condominiale cresciuto! 🌸 Invece di tagliare l'erba ossessivamente, abbiamo lasciato fiorire i papaveri e la camomilla selvatica per far felici farfalle, bombi e biodiversità urbana.",
       date: "8 mesi fa",
       likes: 118,
@@ -417,7 +417,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_anna",
       name: "Anna Calligaris",
       phone: "+39 347 129 8834",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "Oggi, 11:15",
       recentCallType: "incoming",
       recentCallDuration: "2 min 14 s"
@@ -426,7 +426,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte",
       name: "Conte Negroni",
       phone: "+39 335 881 7711",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "Ieri, 18:40",
       recentCallType: "outgoing",
       recentCallDuration: "45 s"
@@ -435,7 +435,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_barto",
       name: "Bartolomeo Reni",
       phone: "+39 348 711 0291",
-      avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "3 giorni fa",
       recentCallType: "missed"
     },
@@ -443,7 +443,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_dottore",
       name: "Dott. De Santis",
       phone: "+39 339 444 8920",
-      avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "4 giorni fa",
       recentCallType: "incoming",
       recentCallDuration: "8 min 12 s"
@@ -452,49 +452,49 @@ export const INITIAL_DATA: AppData = {
       id: "contact_avvocato",
       name: "Avvocato Moretti",
       phone: "+39 333 111 2233",
-      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_clinica",
       name: "Clinica San Raffaele",
       phone: "+39 06 5509 0110",
-      avatar: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_valerio",
       name: "Ing. Valerio Marini (Efficienza)",
       phone: "+39 349 881 2200",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_sergio",
       name: "Sergio (Gommista Eco)",
       phone: "+39 347 555 9011",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_monica",
       name: "Monica (Fotografa Set)",
       phone: "+39 329 123 4567",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_beatrice",
       name: "Beatrice Reni (Cugina)",
       phone: "+39 345 999 1111",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_riccardo",
       name: "Riccardo (Climatizzazione)",
       phone: "+39 334 777 8888",
-      avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_barbieri",
       name: "Dott.ssa Barbieri (Ricerca)",
       phone: "+39 320 333 4444",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     }
   ],
   annaContacts: [
@@ -502,7 +502,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte_negroni",
       name: "Conte Negroni",
       phone: "+39 335 881 7711",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "Oggi, 12:45",
       recentCallType: "outgoing",
       recentCallDuration: "1 min 05 s"
@@ -511,7 +511,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_aldo",
       name: "Aldo",
       phone: "+39 328 110 4492",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "Oggi, 11:15",
       recentCallType: "outgoing",
       recentCallDuration: "2 min 14 s"
@@ -520,7 +520,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_mamme",
       name: "Mamma",
       phone: "+39 338 900 1122",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       recentCallDate: "Ieri, 15:30",
       recentCallType: "incoming",
       recentCallDuration: "10 min 40 s"
@@ -529,43 +529,43 @@ export const INITIAL_DATA: AppData = {
       id: "contact_enpa",
       name: "ENPA Sede Centrale",
       phone: "+39 06 3242 0011",
-      avatar: "https://images.unsplash.com/photo-1608096299210-db7e38487075?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_tommaso",
       name: "Tommaso (Attivista Milano)",
       phone: "+39 333 888 9999",
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_chiara",
       name: "Chiara (Grafica Volantini)",
       phone: "+39 346 111 2222",
-      avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_barbara_gatti",
       name: "Barbara (Rifugio Gatti)",
       phone: "+39 328 333 4444",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_stefano_coord",
       name: "Stefano (Coordinamento Bici)",
       phone: "+39 345 555 6666",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_federica",
       name: "Federica (Permacultura RM)",
       phone: "+39 331 444 5555",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     },
     {
       id: "contact_salvaterra",
       name: "Associazione Salvaterra",
       phone: "+39 06 999 888",
-      avatar: "https://images.unsplash.com/photo-1464241353294-0f3162391696?auto=format&fit=crop&q=80&w=200"
+      avatar: "/img/chiamata"
     }
   ],
   chatHistory: [
@@ -596,7 +596,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "msg_5",
       sender: "other",
-      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400", // Selfie ritratto di Anna
+          image: "/img/profilo",
       timestamp: "10:17"
     },
     {
@@ -624,7 +624,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_anna",
       name: "Anna Calligaris",
       username: "anna_calligaris_eco",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+      avatar: "/img/profilo",
       status: "attiva ora",
       messages: [
         {
@@ -648,7 +648,7 @@ export const INITIAL_DATA: AppData = {
         {
           id: "msg_4",
           sender: "other",
-          image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+          image: "/img/profilo",
           timestamp: "10:16"
         },
         {
@@ -676,7 +676,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_negroni",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       status: "attivo 2 ore fa",
       messages: [
         {
@@ -705,7 +705,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_aldo_anna",
       name: "Aldo Reni",
       username: "aldo_reni_real",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       status: "attivo ora",
       messages: [
         {
@@ -729,7 +729,7 @@ export const INITIAL_DATA: AppData = {
         {
           id: "msg_4_a",
           sender: "me",
-          image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+          image: "/img/profilo",
           timestamp: "10:16"
         },
         {
@@ -757,7 +757,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_negroni_anna",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      avatar: "/img/chiamata",
       status: "attivo ora",
       messages: [
         {

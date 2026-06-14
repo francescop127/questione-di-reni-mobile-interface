@@ -61,7 +61,7 @@ export default function App() {
   const [standbyTotalSeconds, setStandbyTotalSeconds] = useState<number>(10);
   const [standbyPulseActive, setStandbyPulseActive] = useState<boolean>(false);
   const [lockScreenActive, setLockScreenActive] = useState<boolean>(false);
-  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&q=80&w=1000');
+  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>('/img/profilo');
 
   const [wakeConfig, setWakeConfig] = useState({
     senderName: 'Anna',
@@ -98,7 +98,7 @@ export default function App() {
   const [callConfig, setCallConfig] = useState({
     callerName: 'Anna Calligaris',
     callerNumber: '+39 347 129 8834',
-    callerAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
+    callerAvatar: '/img/profilo',
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     autoAnswerEnabled: true,
     autoAnswerDelay: 5
@@ -384,10 +384,10 @@ export default function App() {
 
   // Predefined lists swaps
   const imagePresets = [
-    { label: 'Anna Provetta Laboratorio', url: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600' },
-    { label: 'Serraglio Clinica Protesta', url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=800' },
-    { label: 'Autoscatto / Selfie Anna', url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600' },
-    { label: 'Biciclette Sentiero Bosco', url: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=800' }
+    { label: 'Anna Provetta Laboratorio', url: '/img/post_eco_quote' },
+    { label: 'Serraglio Clinica Protesta', url: '/img/post_flashmob' },
+    { label: 'Autoscatto / Selfie Anna', url: '/img/profilo' },
+    { label: 'Biciclette Sentiero Bosco', url: '/img/post_bicycle' }
   ];
 
   // CENTRALIZED ACCELERATOR PRESETS TRIGGERS
