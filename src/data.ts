@@ -110,19 +110,6 @@ export const INITIAL_DATA: AppData = {
   },
   posts: [
     {
-      id: "post_contact_conte_negroni_empty",
-      authorName: "Conte Negroni",
-      authorUsername: "conte_negroni",
-      authorAvatar: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
-      image: "",
-      caption: "",
-      date: "Adesso",
-      likes: 0,
-      commentsCount: 0,
-      location: "",
-      comments: []
-    },
-    {
       id: "post_contact_aldo_empty",
       authorName: "Aldo",
       authorUsername: "aldo_reni",
@@ -494,15 +481,6 @@ export const INITIAL_DATA: AppData = {
     {
       id: "contact_conte_negroni",
       name: "Conte Negroni",
-      phone: "+39 335 881 7711",
-      avatar: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
-      recentCallDate: "Oggi, 12:45",
-      recentCallType: "outgoing",
-      recentCallDuration: "1 min 05 s"
-    },
-    {
-      id: "contact_aldo",
-      name: "Aldo",
       phone: "+39 328 110 4492",
       avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
       recentCallDate: "Oggi, 11:15",
@@ -840,8 +818,25 @@ export const INITIAL_DATA: AppData = {
 };
 
 export const hydrateAppData = (data: AppData): AppData => {
-  const existingPostIds = new Set(data.posts.map(post => post.id));
+  const socialPosts = data.posts.filter(post =>
+    post.id !== "post_contact_conte_negroni_empty" &&
+    post.authorUsername !== "conte_negroni" &&
+    post.authorName !== "Conte Negroni"
+  );
+  const existingPostIds = new Set(socialPosts.map(post => post.id));
   const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
+  const annaContacts = data.annaContacts
+    .filter(contact => contact.id !== "contact_aldo")
+    .map(contact => contact.id === "contact_conte_negroni"
+      ? {
+        ...contact,
+        name: "Conte Negroni",
+        phone: "+39 328 110 4492",
+        avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg"
+      }
+      : contact
+    );
+  const annaContactsChanged = JSON.stringify(annaContacts) !== JSON.stringify(data.annaContacts);
   const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
     const possibleRow = row as Partial<CalendarShift>;
     return typeof possibleRow.label === 'string' && Array.isArray(possibleRow.values);
@@ -852,11 +847,12 @@ export const hydrateAppData = (data: AppData): AppData => {
     }))
     : INITIAL_DATA.mauroCalendar;
 
-  if (!missingInitialPosts.length && mauroCalendar === data.mauroCalendar) return data;
+  if (!missingInitialPosts.length && mauroCalendar === data.mauroCalendar && socialPosts.length === data.posts.length && !annaContactsChanged) return data;
 
   return {
     ...data,
-    posts: [...missingInitialPosts, ...data.posts],
+    posts: [...missingInitialPosts, ...socialPosts],
+    annaContacts,
     mauroCalendar
   };
 };

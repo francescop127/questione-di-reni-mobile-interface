@@ -125,6 +125,7 @@ export default function App() {
   const [voiceIsPlaying, setVoiceIsPlaying] = useState<boolean>(false);
   const [voiceProgress, setVoiceProgress] = useState<number>(0);
   const voiceProgressIntervalRef = useRef<number | null>(null);
+  const voiceNotificationDelayRef = useRef<number | null>(null);
 
   // Audio Context for beeps and simulated dial rings
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -250,6 +251,8 @@ export default function App() {
 
   const triggerWakeNotification = () => {
     playInteractionBeep(880, 0.4);
+    setCallState(prev => ({ ...prev, type: null }));
+    setCallTimerRunning(false);
     if (wakeConfig.notificationBehavior === 'lockscreen') {
       setLockScreenActive(true);
       setBannerNotificationActive(false);
@@ -292,13 +295,14 @@ export default function App() {
     if (callTimerRunning) {
       // Automatically turn standby screen off immediately for realism
       setStandbyActive(true);
+      setLockScreenActive(false);
+      setBannerNotificationActive(false);
+      setAdminDrawerOpen(false);
       interval = window.setInterval(() => {
         setCallSecondsLeft(prev => {
           if (prev <= 1) {
             setCallTimerRunning(false);
-            // Turn standby screen off (wake up) when the call arrives
-            setStandbyActive(false);
-            // Trigger call
+            // Trigger the call before dropping the black cover, avoiding a home-screen flash.
             setPhoneOwner(callConfig.phoneOwnerTarget);
             setCallState({
               callerName: callConfig.callerName,
@@ -308,6 +312,8 @@ export default function App() {
               phoneOwnerTarget: callConfig.phoneOwnerTarget,
               timeElapsed: 0
             });
+            // Turn standby screen off after the call overlay is ready.
+            setStandbyActive(false);
             // Prepare auto-answer countdown from config
             setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
             return 0;
@@ -321,10 +327,10 @@ export default function App() {
     };
   }, [callTimerRunning, callConfig]);
 
-  // Countdown for auto-answering active ringing calls
+  // Countdown for auto-answering active ringing/outgoing calls
   useEffect(() => {
     let interval: number | undefined;
-    if (callState.type === 'incoming' && callConfig.autoAnswerEnabled && !callTimerRunning) {
+    if ((callState.type === 'incoming' || callState.type === 'outgoing') && callConfig.autoAnswerEnabled && !callTimerRunning) {
       interval = window.setInterval(() => {
         setCallAutoAnswerDelayLeft(prev => {
           if (prev <= 1) {
@@ -343,19 +349,52 @@ export default function App() {
     };
   }, [callState.type, callConfig.autoAnswerEnabled, callTimerRunning]);
 
-  // Reset auto-answer timer whenever any incoming call starts
+  // Reset auto-answer timer whenever any ringing/outgoing call starts
   useEffect(() => {
-    if (callState.type === 'incoming') {
+    if (callState.type === 'incoming' || callState.type === 'outgoing') {
       setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
     }
   }, [callState.type, callConfig.autoAnswerDelay]);
 
-  // Prevent visual leak of director's settings panel underneath black or locked screen by closing it automatically
+  // Prevent visual leak of director's settings panel underneath black, locked, or call screens.
   useEffect(() => {
-    if (standbyActive || lockScreenActive) {
+    if (standbyActive || lockScreenActive || callTimerRunning || callState.type !== null) {
       setAdminDrawerOpen(false);
     }
-  }, [standbyActive, lockScreenActive]);
+  }, [standbyActive, lockScreenActive, callTimerRunning, callState.type]);
+
+  const triggerVoiceMessageReceipt = () => {
+    if (voiceNotificationDelayRef.current) {
+      window.clearTimeout(voiceNotificationDelayRef.current);
+      voiceNotificationDelayRef.current = null;
+    }
+
+    setCallTimerRunning(false);
+    setCallState(prev => ({ ...prev, type: null }));
+    setPhoneOwner('Aldo');
+    setActiveScreen('chat');
+    setActiveChatId('chat_anna');
+    setMobileShowActiveChat(true);
+    setStandbyActive(false);
+    setStandbyTimerRunning(false);
+
+    if (wakeConfig.notificationBehavior === 'lockscreen') {
+      setLockScreenActive(false);
+      setBannerNotificationActive(false);
+      setStandbySecondsLeft(standbyTotalSeconds);
+      setStandbyActive(true);
+      setStandbyTimerRunning(true);
+      return;
+    }
+
+    setLockScreenActive(false);
+    setBannerNotificationActive(false);
+    setStandbySecondsLeft(standbyTotalSeconds);
+    voiceNotificationDelayRef.current = window.setTimeout(() => {
+      voiceNotificationDelayRef.current = null;
+      triggerWakeNotification();
+    }, standbyTotalSeconds * 1000);
+  };
 
   // Voice message simulation progression
   const handlePlayVoiceSimulated = () => {
@@ -389,6 +428,7 @@ export default function App() {
   useEffect(() => {
     return () => {
       if (voiceProgressIntervalRef.current) clearInterval(voiceProgressIntervalRef.current);
+      if (voiceNotificationDelayRef.current) clearTimeout(voiceNotificationDelayRef.current);
     };
   }, []);
 
@@ -475,25 +515,25 @@ export default function App() {
         break;
 
       case 'scena_chiama_anna_da_aldo':
-        // Outgoing from Anna's phone to Aldo
+        // Incoming on Anna's phone from Aldo
         setPhoneOwner('Anna');
         setCallState({
-          callerName: appData.annaContacts.find(c => c.id === 'contact_aldo')?.name || 'Aldo Reni',
+          callerName: 'Aldo Reni',
           callerNumber: '+39 328 110 4492',
           callerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
-          type: 'outgoing',
+          type: 'incoming',
           phoneOwnerTarget: 'Anna',
           timeElapsed: 0
         });
         break;
 
       case 'scena_negroni_chiama_anna':
-        // Incoming on Anna from "Conte Negroni"
+        // Legacy preset kept safe: calls are only Aldo <-> Anna.
         setPhoneOwner('Anna');
         setCallState({
-          callerName: appData.annaContacts.find(c => c.id === 'contact_conte_negroni')?.name || 'Conte Negroni',
-          callerNumber: '+39 335 881 7711',
-          callerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
+          callerName: 'Aldo Reni',
+          callerNumber: '+39 328 110 4492',
+          callerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
           type: 'incoming',
           phoneOwnerTarget: 'Anna',
           timeElapsed: 0
@@ -501,14 +541,14 @@ export default function App() {
         break;
 
       case 'scena_anna_chiama_negroni':
-        // Outgoing from Anna's phone to Conte Negroni
-        setPhoneOwner('Anna');
+        // Legacy preset kept safe: calls are only Aldo <-> Anna.
+        setPhoneOwner('Aldo');
         setCallState({
-          callerName: appData.annaContacts.find(c => c.id === 'contact_conte_negroni')?.name || 'Conte Negroni',
-          callerNumber: '+39 335 881 7711',
-          callerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
-          type: 'outgoing',
-          phoneOwnerTarget: 'Anna',
+          callerName: appData.aldoContacts.find(c => c.id === 'contact_anna')?.name || 'Anna Calligaris',
+          callerNumber: '+39 347 129 8834',
+          callerAvatar: appData.annaProfile.avatar,
+          type: 'incoming',
+          phoneOwnerTarget: 'Aldo',
           timeElapsed: 0
         });
         break;
@@ -559,6 +599,14 @@ export default function App() {
     return contact.name.toLowerCase().includes(q) || contact.phone.includes(q);
   });
 
+  const resolveContactThreadId = (contact: Contact) => {
+    if (phoneOwner === 'Aldo') {
+      return contact.id === 'contact_anna' ? 'chat_anna' : 'chat_negroni';
+    }
+
+    return contact.id === 'contact_conte_negroni' ? 'chat_aldo_anna' : 'chat_negroni_anna';
+  };
+
   // Hot simulated triggers
   const handleTriggerPopNotification = () => {
     playInteractionBeep(880, 0.35); // simulated chime
@@ -583,17 +631,18 @@ export default function App() {
       {standbyActive && (
         <div 
           onClick={() => {
+            if (callTimerRunning) return;
             setStandbyActive(false);
             setStandbyTimerRunning(false);
             triggerWakeNotification();
           }}
-          className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center cursor-pointer"
+          className={`fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center ${callTimerRunning ? 'cursor-wait' : 'cursor-pointer'}`}
         >
           {/* Extremely faint standby marker for tech crew */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-mono text-zinc-900 select-none pointer-events-none text-center">
-            SCHERMO IN STANDBY DI ALDO<br/>
-            {standbyTimerRunning ? `RILASCIO IN CORSO... -${standbySecondsLeft} SECONDI` : 'SVEGLIA MANUALE DISPONIBILE'}<br/>
-            <span className="text-zinc-950">(TOCCA LO SCHERMO PER RISVEGLIO RAPIDO)</span>
+            {callTimerRunning ? 'SCHERMO NERO PRE-CHIAMATA' : 'SCHERMO IN STANDBY DI ALDO'}<br/>
+            {callTimerRunning ? `CHIAMATA IN ARRIVO TRA ${callSecondsLeft} SECONDI` : standbyTimerRunning ? `RILASCIO IN CORSO... -${standbySecondsLeft} SECONDI` : 'SVEGLIA MANUALE DISPONIBILE'}<br/>
+            <span className="text-zinc-950">{callTimerRunning ? '(COUNTDOWN CHIAMATA ATTIVO)' : '(TOCCA LO SCHERMO PER RISVEGLIO RAPIDO)'}</span>
           </div>
         </div>
       )}
@@ -602,7 +651,7 @@ export default function App() {
       <AnimatePresence>
         {lockScreenActive && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, y: -800 }}
             transition={{ type: 'spring', damping: 30, stiffness: 180 }}
@@ -816,7 +865,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col justify-between py-16 px-6 text-white select-none text-center"
+            className="fixed inset-0 h-[100dvh] z-[100000] bg-zinc-950 flex flex-col justify-between px-6 pt-16 pb-10 text-white select-none text-center overflow-hidden"
           >
             {/* Visual background blurred circle decor */}
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-emerald-800/10 blur-[80px] pointer-events-none" />
@@ -846,7 +895,6 @@ export default function App() {
 
                 <div className="space-y-1.5">
                   <h2 className="text-2xl font-black tracking-tight text-white">{callState.callerName}</h2>
-                  <p className="text-xs font-mono text-zinc-400">{callState.callerNumber}</p>
                 </div>
 
                 <div className="pt-2 text-xs font-bold uppercase tracking-wider text-emerald-450">
@@ -879,7 +927,9 @@ export default function App() {
                   />
                 ))
               ) : (
-                <p className="text-[10px] text-zinc-500 font-mono italic">In attesa di connessione...</p>
+                <p className="text-[10px] text-zinc-500 font-mono italic">
+                  {callConfig.autoAnswerEnabled ? `Risposta automatica tra ${callAutoAnswerDelayLeft}s` : 'In attesa di connessione...'}
+                </p>
               )}
             </div>
 
@@ -1183,6 +1233,28 @@ export default function App() {
                   }}
                   className="w-full bg-white border border-zinc-250 rounded-2xl pl-10 pr-4 py-2.5 text-xs focus:outline-hidden focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition"
                 />
+              </div>
+
+              <div className="bg-white border border-zinc-200 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-2xs">
+                <div>
+                  <span className="text-[9px] font-mono font-black uppercase tracking-wider text-zinc-500">Risposta chiamata</span>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">Vale anche per le chiamate avviate dalla rubrica.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    value={callConfig.autoAnswerDelay}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value) || 5;
+                      setCallConfig(prev => ({ ...prev, autoAnswerDelay: v }));
+                      setCallAutoAnswerDelayLeft(v);
+                    }}
+                    className="w-16 bg-zinc-50 border border-zinc-200 rounded-lg px-2 py-1.5 text-xs font-mono text-right focus:outline-hidden focus:border-emerald-500"
+                  />
+                  <span className="text-[10px] font-mono font-bold text-zinc-500">sec</span>
+                </div>
               </div>
 
               {/* Dynamic search suggested listings */}
@@ -1697,13 +1769,8 @@ export default function App() {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => {
-                            if (contact.name === 'Anna' || contact.name === 'Aldo') {
-                              setActiveScreen('chat');
-                              setActiveChatId('chat_anna');
-                            } else {
-                              setActiveScreen('chat');
-                              setActiveChatId('chat_negroni');
-                            }
+                            setActiveScreen('chat');
+                            setActiveChatId(resolveContactThreadId(contact));
                             playInteractionBeep(1100, 0.08);
                           }}
                           className="p-2 transition bg-zinc-50 hover:bg-zinc-100 text-zinc-500 hover:text-emerald-700 rounded-lg"
@@ -1713,6 +1780,11 @@ export default function App() {
 
                         <button
                           onClick={() => {
+                            setLockScreenActive(false);
+                            setBannerNotificationActive(false);
+                            setStandbyActive(false);
+                            setStandbyTimerRunning(false);
+                            setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
                             setCallState({
                               callerName: contact.name,
                               callerNumber: contact.phone,
@@ -1949,6 +2021,7 @@ export default function App() {
         wakeConfig={wakeConfig}
         setWakeConfig={setWakeConfig}
         triggerWakeNotification={triggerWakeNotification}
+        triggerVoiceMessageReceipt={triggerVoiceMessageReceipt}
         lockScreenActive={lockScreenActive}
         setLockScreenActive={setLockScreenActive}
         lockScreenWallpaper={lockScreenWallpaper}

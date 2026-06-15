@@ -85,6 +85,7 @@ interface DirectorDrawerProps {
     notificationBehavior: 'lockscreen' | 'inapp';
   }>>;
   triggerWakeNotification: () => void;
+  triggerVoiceMessageReceipt: () => void;
   lockScreenActive: boolean;
   setLockScreenActive: (b: boolean) => void;
   lockScreenWallpaper: string;
@@ -160,6 +161,7 @@ export default function DirectorDrawer({
   wakeConfig,
   setWakeConfig,
   triggerWakeNotification,
+  triggerVoiceMessageReceipt,
   lockScreenActive,
   setLockScreenActive,
   lockScreenWallpaper,
@@ -180,6 +182,7 @@ export default function DirectorDrawer({
   const [activeTab, setActiveTab] = useState<'standby' | 'presets' | 'profile' | 'posts' | 'chats' | 'contacts' | 'media'>('standby');
   const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadNotice, setUploadNotice] = useState<string | null>(null);
 
   // Fast edits states
   const selectedPost = appData.posts.find(p => p.id === selectedPostId);
@@ -209,12 +212,15 @@ export default function DirectorDrawer({
     const fieldId = `${selectedPost.id}-${key}`;
     setUploadingField(fieldId);
     setUploadError(null);
+    setUploadNotice(`Caricamento ${file.name}...`);
 
     try {
       const url = await supabaseSync.uploadImage(file, key === 'authorAvatar' ? 'avatars' : 'posts');
       handlePostChange(selectedPost.id, key, url);
+      setUploadNotice(`Upload completato: ${file.name}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+      setUploadNotice(null);
     } finally {
       setUploadingField(null);
     }
@@ -225,12 +231,15 @@ export default function DirectorDrawer({
 
     setUploadingField('anna-profile-avatar');
     setUploadError(null);
+    setUploadNotice(`Caricamento ${file.name}...`);
 
     try {
       const url = await supabaseSync.uploadImage(file, 'profiles');
       handleProfileChange('avatar', url);
+      setUploadNotice(`Upload completato: ${file.name}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+      setUploadNotice(null);
     } finally {
       setUploadingField(null);
     }
@@ -242,6 +251,7 @@ export default function DirectorDrawer({
     const fieldId = `${threadId}-${messageId}-image`;
     setUploadingField(fieldId);
     setUploadError(null);
+    setUploadNotice(`Caricamento ${file.name}...`);
 
     try {
       const url = await supabaseSync.uploadImage(file, 'messages');
@@ -253,8 +263,10 @@ export default function DirectorDrawer({
           messages: t.messages.map(msg => msg.id === messageId ? { ...msg, image: url } : msg)
         } : t)
       }));
+      setUploadNotice(`Upload completato: ${file.name}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+      setUploadNotice(null);
     } finally {
       setUploadingField(null);
     }
@@ -265,12 +277,15 @@ export default function DirectorDrawer({
 
     setUploadingField('newspaper-main-image');
     setUploadError(null);
+    setUploadNotice(`Caricamento ${file.name}...`);
 
     try {
       const url = await supabaseSync.uploadImage(file, 'newspaper');
       handleNewspaperChange('mainImage', url);
+      setUploadNotice(`Upload completato: ${file.name}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+      setUploadNotice(null);
     } finally {
       setUploadingField(null);
     }
@@ -282,6 +297,7 @@ export default function DirectorDrawer({
     const fieldId = `${owner}-${contactId}-avatar`;
     setUploadingField(fieldId);
     setUploadError(null);
+    setUploadNotice(`Caricamento ${file.name}...`);
 
     try {
       const url = await supabaseSync.uploadImage(file, 'contacts');
@@ -290,8 +306,10 @@ export default function DirectorDrawer({
         ...prev,
         [listKey]: (prev[listKey] as Contact[]).map(c => c.id === contactId ? { ...c, avatar: url } : c)
       }));
+      setUploadNotice(`Upload completato: ${file.name}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+      setUploadNotice(null);
     } finally {
       setUploadingField(null);
     }
@@ -378,10 +396,18 @@ export default function DirectorDrawer({
                         : 'Cloud sync'}
               </span>
             </div>
-            {(supabaseSync.error || uploadError) && (
-              <span className="text-[9px] text-red-300 block font-mono mt-1 max-w-[360px] truncate">
-                {uploadError || supabaseSync.error}
-              </span>
+            {(uploadingField || uploadNotice || supabaseSync.error || uploadError) && (
+              <div className={`mt-1 max-w-[380px] rounded border px-2 py-1 text-[9px] font-mono ${
+                uploadError || supabaseSync.error
+                  ? 'bg-red-950/70 border-red-800 text-red-200'
+                  : uploadingField
+                    ? 'bg-amber-950/70 border-amber-800 text-amber-200'
+                    : 'bg-emerald-950/70 border-emerald-800 text-emerald-200'
+              }`}>
+                <span className="block truncate">
+                  {uploadError || supabaseSync.error || uploadNotice || 'Caricamento in corso...'}
+                </span>
+              </div>
             )}
           </div>
           <button 
@@ -462,10 +488,14 @@ export default function DirectorDrawer({
                         setStandbyTimerRunning(false);
                         triggerWakeNotification();
                       } else {
-                        // Start the process: Standby active + start timer
-                        setStandbySecondsLeft(standbyTotalSeconds);
-                        setStandbyActive(true);
-                        setStandbyTimerRunning(true);
+                        if (wakeConfig.notificationBehavior === 'inapp') {
+                          triggerVoiceMessageReceipt();
+                        } else {
+                          // Start the process: Standby active + start timer
+                          setStandbySecondsLeft(standbyTotalSeconds);
+                          setStandbyActive(true);
+                          setStandbyTimerRunning(true);
+                        }
                       }
                     }}
                     className={`w-full p-4 rounded-xl font-bold font-mono text-xs uppercase tracking-wider text-center transition flex flex-col items-center justify-center gap-1 border cursor-pointer ${
@@ -477,14 +507,26 @@ export default function DirectorDrawer({
                     <div className="flex items-center gap-2">
                       <span className="text-sm">🚀</span>
                       <span className="font-extrabold tracking-widest text-[11px]">
-                        {standbyTimerRunning ? `RILASCIO IN CORSO... (${standbySecondsLeft}s)` : 'AVVIA PROCESSO (STANDBY + SVEGLIA)'}
+                        {standbyTimerRunning ? `RILASCIO IN CORSO... (${standbySecondsLeft}s)` : wakeConfig.notificationBehavior === 'inapp' ? 'AVVIA NOTIFICA IN-APP' : 'AVVIA PROCESSO (STANDBY + SVEGLIA)'}
                       </span>
                     </div>
                     <span className="text-[9px] opacity-75 font-normal tracking-normal lowercase italic font-sans block mt-0.5">
-                      {standbyTimerRunning ? 'tocca lo schermo nero nel mockup per risveglio immediato' : `metti in nero per ${standbyTotalSeconds}s poi sblocca con notifica vocale`}
+                      {standbyTimerRunning ? 'tocca lo schermo nero nel mockup per risveglio immediato' : wakeConfig.notificationBehavior === 'inapp' ? 'mostra subito il banner senza passare dallo schermo nero' : `metti in nero per ${standbyTotalSeconds}s poi sblocca con notifica vocale`}
                     </span>
                   </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerVoiceMessageReceipt();
+                    onClose();
+                  }}
+                  className="w-full p-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 border border-emerald-500 text-white font-black font-mono text-[11px] uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md shadow-emerald-950/30 cursor-pointer"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Avvia ricezione messaggio audio</span>
+                </button>
 
                 {/* Controls Area */}
                 <div className="grid grid-cols-2 gap-2">
@@ -844,7 +886,7 @@ export default function DirectorDrawer({
                   </div>
 
                   {/* Fast selection caller buttons */}
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-2 gap-1">
                     {[
                       {
                         label: "Anna ➔ Aldo",
@@ -858,13 +900,6 @@ export default function DirectorDrawer({
                         name: "Aldo Reni",
                         number: "+39 328 110 4492",
                         avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
-                        target: "Anna" as const
-                      },
-                      {
-                        label: "Negroni ➔ Anna",
-                        name: "Conte Negroni",
-                        number: "+39 335 881 7711",
-                        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
                         target: "Anna" as const
                       }
                     ].map((item, keyIdx) => {
@@ -895,25 +930,14 @@ export default function DirectorDrawer({
 
                   {/* Mini Form fields for custom dialers */}
                   <div className="space-y-1.5 pt-1 border-t border-slate-900 text-left">
-                    <div className="grid grid-cols-2 gap-1.5">
-                      <div className="space-y-0.5">
-                        <span className="text-[8px] text-zinc-500 uppercase font-mono block">Nome Chiamante:</span>
-                        <input
-                          type="text"
-                          value={callConfig.callerName}
-                          onChange={(e) => setCallConfig(prev => ({ ...prev, callerName: e.target.value }))}
-                          className="w-full bg-slate-900 border border-slate-800 rounded p-1 text-white text-[9.5px] font-bold focus:outline-hidden"
-                        />
-                      </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[8px] text-zinc-500 uppercase font-mono block">Numero Chiamante:</span>
-                        <input
-                          type="text"
-                          value={callConfig.callerNumber}
-                          onChange={(e) => setCallConfig(prev => ({ ...prev, callerNumber: e.target.value }))}
-                          className="w-full bg-slate-900 border border-slate-800 rounded p-1 text-white text-[9.5px] font-mono focus:outline-hidden"
-                        />
-                      </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[8px] text-zinc-500 uppercase font-mono block">Nome Chiamante:</span>
+                      <input
+                        type="text"
+                        value={callConfig.callerName}
+                        onChange={(e) => setCallConfig(prev => ({ ...prev, callerName: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded p-1 text-white text-[9.5px] font-bold focus:outline-hidden"
+                      />
                     </div>
 
                     <div className="flex justify-between items-center pt-1.5">
@@ -945,6 +969,9 @@ export default function DirectorDrawer({
                         setCallTimerRunning(false);
                       } else {
                         setCallSecondsLeft(callTotalSeconds);
+                        setLockScreenActive(false);
+                        setStandbyTimerRunning(false);
+                        setStandbyActive(true);
                         setCallTimerRunning(true);
                       }
                     }}
@@ -964,6 +991,9 @@ export default function DirectorDrawer({
                     <button
                       onClick={() => {
                         setCallTimerRunning(false);
+                        setStandbyActive(false);
+                        setStandbyTimerRunning(false);
+                        setLockScreenActive(false);
                         setPhoneOwner(callConfig.phoneOwnerTarget);
                         setCallState({
                           callerName: callConfig.callerName,
@@ -1015,9 +1045,7 @@ export default function DirectorDrawer({
                     { key: 'scena_chat_selfie_ingrandito', label: '7. Zoom Selfie Lightbox' },
                     { key: 'scena_riproduci_vocale', label: '8. Avvia Vocale Anna' },
                     { key: 'scena_chiama_aldo_da_anna', label: '9. Inc. Anna su Aldo' },
-                    { key: 'scena_chiama_anna_da_aldo', label: '10. Out. Aldo da Anna' },
-                    { key: 'scena_negroni_chiama_anna', label: '11. Inc. Conte Negroni' },
-                    { key: 'scena_anna_chiama_negroni', label: '12. Out. Aldo a Negroni' }
+                    { key: 'scena_chiama_anna_da_aldo', label: '10. Inc. Aldo su Anna' }
                   ].map(p => (
                     <button
                       key={p.key}
