@@ -55,11 +55,8 @@ export interface NewspaperContent {
 
 export interface CalendarShift {
   id: string;
-  day: number;
-  title: string;
-  time: string;
-  type: 'night' | 'day' | 'on-call' | 'rest';
-  location: string;
+  label: string;
+  values: string[];
 }
 
 export interface SvevaPhoto {
@@ -786,44 +783,29 @@ export const INITIAL_DATA: AppData = {
   },
   mauroCalendar: [
     {
-      id: "shift_1",
-      day: 8,
-      title: "Guardia Clinica",
-      time: "08:00 - 16:00",
-      type: "day",
-      location: "San Raffaele, Reparto B"
+      id: "ledger_1",
+      label: "Entrate visite",
+      values: ["1250", "980", "1420", "", "", "", "", "", "", "", "", ""]
     },
     {
-      id: "shift_2",
-      day: 9,
-      title: "Turno Notturno",
-      time: "20:00 - 08:00",
-      type: "night",
-      location: "Clinica San Raffaele"
+      id: "ledger_2",
+      label: "Rimborsi",
+      values: ["120", "", "240", "", "", "", "", "", "", "", "", ""]
     },
     {
-      id: "shift_3",
-      day: 10,
-      title: "Reperibilità Telefonica",
-      time: "08:00 - 20:00",
-      type: "on-call",
-      location: "Domicilio"
+      id: "ledger_3",
+      label: "Farmaci e materiali",
+      values: ["-320", "-210", "-185", "", "", "", "", "", "", "", "", ""]
     },
     {
-      id: "shift_4",
-      day: 11,
-      title: "Riposo Pianificato",
-      time: "Tutto il giorno",
-      type: "rest",
-      location: "-"
+      id: "ledger_4",
+      label: "Trasferte",
+      values: ["-80", "-95", "", "", "", "", "", "", "", "", "", ""]
     },
     {
-      id: "shift_5",
-      day: 12,
-      title: "Guardia Clinica",
-      time: "12:00 - 20:00",
-      type: "day",
-      location: "San Raffaele, Lab Reni"
+      id: "ledger_5",
+      label: "Altro",
+      values: ["", "", "", "", "", "", "", "", "", "", "", ""]
     }
   ],
   svevaGallery: [
@@ -860,11 +842,21 @@ export const INITIAL_DATA: AppData = {
 export const hydrateAppData = (data: AppData): AppData => {
   const existingPostIds = new Set(data.posts.map(post => post.id));
   const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
+  const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
+    const possibleRow = row as Partial<CalendarShift>;
+    return typeof possibleRow.label === 'string' && Array.isArray(possibleRow.values);
+  })
+    ? data.mauroCalendar.map(row => ({
+      ...row,
+      values: Array.from({ length: 12 }, (_, index) => row.values[index] ?? "")
+    }))
+    : INITIAL_DATA.mauroCalendar;
 
-  if (!missingInitialPosts.length) return data;
+  if (!missingInitialPosts.length && mauroCalendar === data.mauroCalendar) return data;
 
   return {
     ...data,
-    posts: [...missingInitialPosts, ...data.posts]
+    posts: [...missingInitialPosts, ...data.posts],
+    mauroCalendar
   };
 };

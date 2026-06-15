@@ -1,67 +1,100 @@
-import React, { useState } from 'react';
-import { Calendar, Plus, Clock, MapPin, ChevronLeft, CalendarDays, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { ChevronLeft, FileSpreadsheet, Plus, Trash2 } from 'lucide-react';
 import { CalendarShift } from '../data';
 
 interface CalendarViewProps {
-  shifts: CalendarShift[];
+  rows: CalendarShift[];
   onBackFeed?: () => void;
-  onAddShift?: (newShift: Omit<CalendarShift, 'id'>) => void;
+  onUpdateRows?: (rows: CalendarShift[]) => void;
 }
 
-export default function CalendarView({ shifts, onBackFeed, onAddShift }: CalendarViewProps) {
-  const [newTitle, setNewTitle] = useState('');
-  const [newDay, setNewDay] = useState(1);
-  const [newTime, setNewTime] = useState('08:00 - 16:00');
-  const [newType, setNewType] = useState<'night' | 'day' | 'on-call' | 'rest'>('day');
-  const [newLoc, setNewLoc] = useState('Clinica San Raffaele');
+const MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !onAddShift) return;
-    onAddShift({
-      day: Number(newDay),
-      title: newTitle,
-      time: newTime,
-      type: newType,
-      location: newLoc
-    });
-    setNewTitle('');
+const parseCellValue = (value: string) => {
+  const normalized = value.replace(',', '.').trim();
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const formatTotal = (value: number) =>
+  new Intl.NumberFormat('it-IT', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }).format(value);
+
+export default function CalendarView({ rows, onBackFeed, onUpdateRows }: CalendarViewProps) {
+  const readonly = !onUpdateRows;
+
+  const updateCell = (rowId: string, columnIndex: number, value: string) => {
+    if (!onUpdateRows) return;
+
+    onUpdateRows(rows.map(row => {
+      if (row.id !== rowId) return row;
+
+      const values = [...row.values];
+      values[columnIndex] = value;
+      return { ...row, values };
+    }));
   };
 
-  const getShiftBadge = (type: string) => {
-    switch (type) {
-      case 'night':
-        return 'bg-purple-100 text-purple-850 border border-purple-200';
-      case 'on-call':
-        return 'bg-amber-100 text-amber-850 border border-amber-200';
-      case 'rest':
-        return 'bg-zinc-100 text-zinc-650 border border-zinc-200';
-      case 'day':
-      default:
-        return 'bg-emerald-100 text-emerald-850 border border-emerald-200';
-    }
+  const updateLabel = (rowId: string, label: string) => {
+    if (!onUpdateRows) return;
+    onUpdateRows(rows.map(row => row.id === rowId ? { ...row, label } : row));
   };
+
+  const addRow = () => {
+    if (!onUpdateRows) return;
+
+    onUpdateRows([
+      ...rows,
+      {
+        id: `ledger_${Date.now()}`,
+        label: 'Nuova voce',
+        values: Array.from({ length: MONTHS.length }, () => '')
+      }
+    ]);
+  };
+
+  const deleteRow = (rowId: string) => {
+    if (!onUpdateRows || rows.length <= 1) return;
+    onUpdateRows(rows.filter(row => row.id !== rowId));
+  };
+
+  const rowTotals = rows.map(row => row.values.reduce((sum, value) => sum + parseCellValue(value), 0));
+  const columnTotals = MONTHS.map((_, columnIndex) =>
+    rows.reduce((sum, row) => sum + parseCellValue(row.values[columnIndex] ?? ''), 0)
+  );
+  const grandTotal = rowTotals.reduce((sum, value) => sum + value, 0);
 
   return (
-    <div className="max-w-[900px] mx-auto bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 shadow-sm font-sans select-none">
-      {/* Calendar Header */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-zinc-200 pb-5 mb-6">
+    <div className="max-w-[1080px] mx-auto bg-white border border-zinc-200 rounded-2xl p-5 sm:p-6 shadow-sm font-sans">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-zinc-200 pb-4 mb-5">
         <div>
-          <div className="flex items-center gap-2 text-rose-600 font-mono text-[10px] font-black uppercase tracking-wider">
-            <CalendarDays className="w-4 h-4 animate-pulse" />
-            <span>Gestione Orari Clinica San Raffaele</span>
+          <div className="flex items-center gap-2 text-emerald-700 font-mono text-[10px] font-black uppercase tracking-wider">
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Foglio contabilità</span>
           </div>
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight font-display mt-0.5">
-            Turni Lavorativi di Mauro
+            Prima Nota Mauro
           </h1>
-          <p className="text-xs text-zinc-400 font-mono mt-0.5">Giugno 2026 • Portale Personale Sanitario</p>
+          <p className="text-xs text-zinc-500 font-mono mt-0.5">Anno 2026 • Celle modificabili</p>
         </div>
 
         <div className="flex gap-2">
+          <button
+            onClick={addRow}
+            disabled={readonly}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-extrabold text-white bg-emerald-700 hover:bg-emerald-800 disabled:bg-zinc-300 rounded-lg transition"
+            title="Aggiungi riga"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Riga</span>
+          </button>
+
           {onBackFeed && (
             <button
               onClick={onBackFeed}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Esci</span>
@@ -70,172 +103,87 @@ export default function CalendarView({ shifts, onBackFeed, onAddShift }: Calenda
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Weekly Grid */}
-        <div className="lg:col-span-7 space-y-6">
-          <h2 className="text-xs font-black uppercase text-zinc-400 tracking-wider">
-            Tabella Turni Attivi
-          </h2>
+      <div className="overflow-x-auto border border-zinc-200 rounded-xl">
+        <table className="min-w-[980px] w-full border-collapse text-xs">
+          <thead className="bg-zinc-100 text-zinc-600">
+            <tr>
+              <th className="sticky left-0 z-10 bg-zinc-100 w-[210px] border-r border-zinc-200 px-3 py-2 text-left font-black uppercase tracking-wider">
+                Voce
+              </th>
+              {MONTHS.map(month => (
+                <th key={month} className="w-[70px] border-r border-zinc-200 px-2 py-2 text-right font-black uppercase tracking-wider">
+                  {month}
+                </th>
+              ))}
+              <th className="w-[92px] border-r border-zinc-200 px-3 py-2 text-right font-black uppercase tracking-wider">
+                Totale
+              </th>
+              <th className="w-[44px] px-2 py-2" />
+            </tr>
+          </thead>
 
-          <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-black uppercase tracking-widest text-zinc-450 border-b border-zinc-100 pb-2">
-            <div>Lun</div>
-            <div>Mar</div>
-            <div>Mer</div>
-            <div>Gio</div>
-            <div>Ven</div>
-            <div>Sab</div>
-            <div>Dom</div>
-          </div>
-
-          <div className="grid grid-cols-7 gap-1.5">
-            {/* Days 1 to 7 offset empty or mock spacer if June begins on Monday */}
-            {Array.from({ length: 30 }).map((_, i) => {
-              const dayNum = i + 1;
-              const matches = shifts.filter(s => s.day === dayNum);
-
-              return (
-                <div
-                  key={dayNum}
-                  className={`min-h-[75px] p-1.5 border border-zinc-100 rounded-xl flex flex-col justify-between transition-colors bg-zinc-50/50 hover:bg-zinc-100/40`}
-                >
-                  <span className="text-[10px] font-mono font-bold text-zinc-400">{dayNum}</span>
-                  
-                  <div className="space-y-1">
-                    {matches.map((shift, idx) => (
-                      <div
-                        key={shift.id || idx}
-                        className={`p-1 rounded text-[7px] leading-tight font-bold truncate ${getShiftBadge(shift.type)}`}
-                        title={`${shift.title} (${shift.time})`}
-                      >
-                        {shift.title}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Column: Mini Form to add customized shift on the workstation */}
-        <div className="lg:col-span-5 space-y-6 lg:border-l lg:border-zinc-100 lg:pl-6">
-          <div>
-            <h2 className="text-xs font-black uppercase text-zinc-400 tracking-wider mb-1">
-              Aggiungi Reperibilità / Turno
-            </h2>
-            <p className="text-[11px] text-zinc-400 font-medium">Aggiungi o modifica i turni lavorativi della clinica con un clic.</p>
-          </div>
-
-          {onAddShift ? (
-            <form onSubmit={handleCreate} className="space-y-4 text-xs font-medium bg-zinc-50/70 p-4 rounded-2xl border border-zinc-200">
-              <div className="space-y-1">
-                <label className="text-[10px] text-zinc-505 block font-bold uppercase">Giorno del Mese (Giugno)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={newDay}
-                  onChange={(e) => setNewDay(Number(e.target.value))}
-                  className="w-full bg-white border border-zinc-300 rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-hidden font-mono"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] text-zinc-505 block font-bold uppercase">Descrizione / Servizio</label>
-                <input
-                  type="text"
-                  placeholder="es. Reparto Trapianti o Guardia"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-white border border-zinc-300 rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-hidden"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] text-zinc-505 block font-bold uppercase">Fascia Oraria</label>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={row.id} className="odd:bg-white even:bg-zinc-50/70 hover:bg-emerald-50/50">
+                <td className="sticky left-0 z-10 bg-inherit border-t border-r border-zinc-200 p-0">
                   <input
                     type="text"
-                    value={newTime}
-                    onChange={(e) => setNewTime(e.target.value)}
-                    className="w-full bg-white border border-zinc-300 rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-hidden font-mono"
+                    value={row.label}
+                    readOnly={readonly}
+                    onChange={(event) => updateLabel(row.id, event.target.value)}
+                    className="w-full h-10 bg-transparent px-3 text-zinc-900 font-bold outline-hidden focus:bg-white focus:ring-2 focus:ring-inset focus:ring-emerald-600"
                   />
-                </div>
+                </td>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] text-zinc-505 block font-bold uppercase">Tipologia</label>
-                  <select
-                    value={newType}
-                    onChange={(e) => setNewType(e.target.value as any)}
-                    className="w-full bg-white border border-zinc-200 rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-hidden"
+                {MONTHS.map((month, columnIndex) => (
+                  <td key={`${row.id}-${month}`} className="border-t border-r border-zinc-200 p-0">
+                    <input
+                      inputMode="decimal"
+                      value={row.values[columnIndex] ?? ''}
+                      readOnly={readonly}
+                      onChange={(event) => updateCell(row.id, columnIndex, event.target.value)}
+                      className="w-full h-10 bg-transparent px-2 text-right font-mono text-zinc-800 outline-hidden focus:bg-white focus:ring-2 focus:ring-inset focus:ring-emerald-600"
+                      aria-label={`${row.label} ${month}`}
+                    />
+                  </td>
+                ))}
+
+                <td className="border-t border-r border-zinc-200 bg-zinc-100 px-3 py-2 text-right font-mono font-black text-zinc-900">
+                  {formatTotal(rowTotals[rowIndex])}
+                </td>
+
+                <td className="border-t border-zinc-200 text-center">
+                  <button
+                    type="button"
+                    onClick={() => deleteRow(row.id)}
+                    disabled={readonly || rows.length <= 1}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 hover:bg-rose-100 hover:text-rose-700 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+                    title="Elimina riga"
                   >
-                    <option value="day">🌿 Clinica Giorno</option>
-                    <option value="night">🌙 Notte / Notturno</option>
-                    <option value="on-call">📞 Reperibilità</option>
-                    <option value="rest">🏠 Riposo</option>
-                  </select>
-                </div>
-              </div>
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
 
-              <div className="space-y-1">
-                <label className="text-[10px] text-zinc-505 block font-bold uppercase font-sans">Lab / Locazione Ospedaliera</label>
-                <input
-                  type="text"
-                  value={newLoc}
-                  onChange={(e) => setNewLoc(e.target.value)}
-                  className="w-full bg-white border border-zinc-300 rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-hidden"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold rounded-lg flex items-center justify-center gap-1.5 uppercase tracking-wide cursor-pointer transition shadow-sm text-[11px]"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Salva sul Calendario Clinica</span>
-              </button>
-            </form>
-          ) : (
-            <p className="text-[11px] text-zinc-400 italic">Interfaccia solo lettura in questa inquadratura artistica.</p>
-          )}
-
-          {/* List views of active shifts */}
-          <div className="space-y-3.5 pt-2">
-            <h3 className="text-[10px] font-black uppercase tracking-wider text-zinc-450 flex items-center justify-between">
-              <span>Riepilogo Turnazione Ordinata</span>
-              <span className="text-zinc-500 hover:text-zinc-800 cursor-pointer font-mono font-medium flex items-center gap-0.5 text-[8.5px]">
-                <RefreshCw className="w-3 h-3" /> Aggiorna Rete
-              </span>
-            </h3>
-
-            <div className="space-y-2 max-h-[180px] overflow-y-auto no-scrollbar">
-              {shifts.map((shift, idx) => (
-                <div
-                  key={shift.id || idx}
-                  className="p-3 bg-zinc-50 hover:bg-zinc-100 rounded-xl border border-zinc-200 flex justify-between items-center text-xs"
-                >
-                  <div className="space-y-0.5">
-                    <p className="font-extrabold text-zinc-900 flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${
-                        shift.type === 'night' ? 'bg-purple-500' : shift.type === 'on-call' ? 'bg-amber-500' : shift.type === 'rest' ? 'bg-zinc-400' : 'bg-emerald-500'
-                      }`} />
-                      {shift.title}
-                    </p>
-                    <span className="text-[10px] text-zinc-550 block font-mono">
-                      {shift.time}
-                    </span>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-[9px] bg-white border border-zinc-200 px-2 py-0.5 rounded-md font-mono text-zinc-500 block">
-                      Giorno {shift.day}
-                    </span>
-                  </div>
-                </div>
+          <tfoot className="bg-zinc-900 text-white">
+            <tr>
+              <td className="sticky left-0 z-10 bg-zinc-900 border-t border-r border-zinc-700 px-3 py-3 font-black uppercase tracking-wider">
+                Totale
+              </td>
+              {columnTotals.map((total, index) => (
+                <td key={MONTHS[index]} className="border-t border-r border-zinc-700 px-2 py-3 text-right font-mono font-black">
+                  {formatTotal(total)}
+                </td>
               ))}
-            </div>
-          </div>
-        </div>
+              <td className="border-t border-r border-zinc-700 px-3 py-3 text-right font-mono font-black text-emerald-300">
+                {formatTotal(grandTotal)}
+              </td>
+              <td className="border-t border-zinc-700" />
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   );

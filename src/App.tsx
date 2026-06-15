@@ -15,7 +15,7 @@ import SvevaGalleryView from './components/SvevaGalleryView';
 import DirectorDrawer from './components/DirectorDrawer';
 
 // State and types
-import { INITIAL_DATA, AppData, Post, Contact, Message, ChatThread, hydrateAppData } from './data';
+import { INITIAL_DATA, AppData, Post, Contact, Message, ChatThread, CalendarShift, hydrateAppData } from './data';
 import { useSupabaseAppData } from './hooks/useSupabaseAppData';
 
 export default function App() {
@@ -569,13 +569,11 @@ export default function App() {
     }, 8000);
   };
 
-  const handleApplyAddShift = (newShift: any) => {
-    const shiftWithId = { ...newShift, id: `shift_user_${Date.now()}` };
+  const handleUpdateMauroCalendar = (rows: CalendarShift[]) => {
     setAppData(prev => ({
       ...prev,
-      mauroCalendar: [...prev.mauroCalendar, shiftWithId]
+      mauroCalendar: rows
     }));
-    playInteractionBeep(1000, 0.2);
   };
 
   return (
@@ -1759,9 +1757,9 @@ export default function App() {
           {/* SCREEN: CLINIC CALENDAR PLANNER (MAURO'S COMPUTER WORKSTATION) */}
           {activeScreen === 'calendar' && (
             <CalendarView 
-              shifts={appData.mauroCalendar}
+              rows={appData.mauroCalendar}
               onBackFeed={() => setActiveScreen('feed')}
-              onAddShift={handleApplyAddShift}
+              onUpdateRows={handleUpdateMauroCalendar}
             />
           )}
 
