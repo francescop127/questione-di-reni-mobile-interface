@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Menu, Search, User, MessageSquare, Phone, PhoneOff, Play, Pause, 
   MapPin, Heart, CheckCheck, Send, Calendar, Bookmark, Clock, 
-  Volume2, VolumeX, Sliders, X, Check, Smartphone, ChevronLeft, ChevronRight, 
+  Volume2, VolumeX, Sliders, X, Check, Smartphone, ChevronLeft, 
   Eye, Sparkles, BookOpen, Clock4, Bell, HelpCircle, Flame, Layers, Camera,
   Lock, Battery, Wifi
 } from 'lucide-react';
@@ -44,7 +44,7 @@ export default function App() {
   const [activeScreen, setActiveScreen] = useState<string>('profile');
   const [phoneOwner, setPhoneOwner] = useState<'Aldo' | 'Anna'>('Anna');
   const [adminDrawerOpen, setAdminDrawerOpen] = useState<boolean>(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [mainMenuOpen, setMainMenuOpen] = useState<boolean>(false);
 
   // Search & Profile states
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -57,6 +57,16 @@ export default function App() {
     avatar: post.authorAvatar || appData.annaProfile.avatar
   });
   const annaProfilePosts = appData.posts.filter(post => !post.authorUsername || post.authorUsername === appData.annaProfile.username);
+  const appNavItems = [
+    { id: 'feed', icon: Camera, label: 'Feed Sociale' },
+    { id: 'search', icon: Search, label: 'Cerca Attivisti' },
+    { id: 'profile', icon: User, label: 'Anna Profilo' },
+    { id: 'chat', icon: MessageSquare, label: 'Direct Messaggi', badge: 1 },
+    { id: 'contacts', icon: BookOpen, label: 'Rubrica Contatti' },
+    { id: 'newspaper', icon: Layers, label: 'Leggi Giornale' },
+    { id: 'calendar', icon: Calendar, label: 'Turni Clinica Mauro' },
+    { id: 'gallery_sveva', icon: Heart, label: 'Sofia Album (Sveva)' }
+  ];
 
   // Direct DM state
   const [activeChatId, setActiveChatId] = useState<string>('chat_anna');
@@ -971,126 +981,104 @@ export default function App() {
 
       {/* FULL-SCREEN PUBLIC WEB APPLICATION CONTENT FRAME */}
       <div className="flex-1 flex flex-col md:flex-row relative">
+        <button
+          type="button"
+          onClick={() => {
+            setMainMenuOpen(true);
+            playInteractionBeep(850, 0.08);
+          }}
+          className="fixed top-3 left-3 z-50 h-10 w-10 rounded-xl bg-white/95 border border-zinc-200 shadow-sm flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition"
+          title="Apri menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
-        {/* DESKTOP SIDEBAR - Mimes Instagram's verified web client perfectly */}
-        <aside className={`hidden md:flex flex-col justify-between transition-all duration-300 ${sidebarCollapsed ? 'w-20 px-3 py-6' : 'w-64 p-6'} border-r border-zinc-250 bg-white shrink-0 relative select-none`}>
-          {/* Collapse Toggle Button */}
-          <button
-            onClick={() => {
-              setSidebarCollapsed(!sidebarCollapsed);
-              playInteractionBeep(850, 0.08);
-            }}
-            className="absolute -right-3 top-7 w-6 h-6 rounded-full bg-white border border-zinc-200 shadow-sm flex items-center justify-center text-zinc-500 hover:text-zinc-950 transition z-50 hover:bg-zinc-50 cursor-pointer"
-            title={sidebarCollapsed ? "Espandi Sidebar" : "Riduci Sidebar"}
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-          </button>
-
-          <div className="space-y-8">
-            {/* Social custom scripted logo brand */}
-            <div className={`px-2 transition-all ${sidebarCollapsed ? 'text-center' : ''}`}>
-              <h1 className="text-xl font-display font-black tracking-tight text-zinc-950 flex items-center gap-2 justify-center md:justify-start">
-                <Camera className="w-6 h-6 text-emerald-600 shrink-0" />
-                {!sidebarCollapsed && <span>Social</span>}
-              </h1>
-
-            </div>
-
-            {/* Navigation links - Web interface styling */}
-            <nav className="space-y-1 text-xs font-semibold">
-              {[
-                { id: 'feed', icon: Camera, label: 'Feed Sociale' },
-                { id: 'search', icon: Search, label: 'Cerca Attivisti' },
-                { id: 'profile', icon: User, label: 'Anna Profilo' },
-                { id: 'chat', icon: MessageSquare, label: 'Direct Messaggi', badge: 1 },
-                { id: 'contacts', icon: BookOpen, label: 'Rubrica Contatti' },
-                { id: 'newspaper', icon: Layers, label: 'Leggi Giornale' },
-                { id: 'calendar', icon: Calendar, label: 'Turni Clinica Mauro' },
-                { id: 'gallery_sveva', icon: Heart, label: 'Sofia Album (Sveva)' }
-              ].map(item => {
-                const IconComp = item.icon;
-                const isActive = activeScreen === item.id;
-
-                return (
+        <AnimatePresence>
+          {mainMenuOpen && (
+            <>
+              <motion.button
+                type="button"
+                aria-label="Chiudi menu"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMainMenuOpen(false)}
+                className="fixed inset-0 z-[60] bg-black/25 backdrop-blur-[1px]"
+              />
+              <motion.div
+                initial={{ x: -320, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -320, opacity: 0 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                className="fixed top-0 left-0 bottom-0 z-[70] w-[300px] max-w-[86vw] bg-white border-r border-zinc-200 shadow-2xl p-4 flex flex-col gap-4 select-none"
+              >
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                  <span className="text-[10px] font-mono font-black uppercase tracking-widest text-zinc-500">Menu</span>
                   <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveScreen(item.id);
-                      setFocusedPostId(null);
-                      setSearchQuery('');
-                      playInteractionBeep(1200, 0.05);
-                    }}
-                    className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center py-3.5' : 'justify-between p-3.5'} rounded-xl transition relative group ${
-                      isActive 
-                        ? 'bg-zinc-100 text-zinc-950 font-black' 
-                        : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
-                    }`}
-                    title={sidebarCollapsed ? item.label : undefined}
+                    type="button"
+                    onClick={() => setMainMenuOpen(false)}
+                    className="h-8 w-8 rounded-lg flex items-center justify-center text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                    title="Chiudi"
                   >
-                    <div className="flex items-center gap-3">
-                      <IconComp className={`w-4 h-4 shrink-0 ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`} />
-                      {!sidebarCollapsed && <span>{item.label}</span>}
-                    </div>
-
-                    {item.badge && (
-                      <span className={`${sidebarCollapsed ? 'absolute top-1 left-1 bg-red-500 text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center p-0.5 border border-white' : 'bg-red-500 text-white font-mono font-black text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center'}`}>
-                        {item.badge}
-                      </span>
-                    )}
-
-                    {/* Desktop Hover Tooltip when collapsed */}
-                    {sidebarCollapsed && (
-                      <div className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-950 text-white text-[10px] font-bold rounded-lg shadow-2xl z-50 whitespace-nowrap pointer-events-none">
-                        {item.label}
-                      </div>
-                    )}
+                    <X className="w-4 h-4" />
                   </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Bottom Rail holding the hidden functional burger menu trigger */}
-          <div className="space-y-4 pt-4 border-t border-zinc-200">
-            <button
-              onClick={() => setAdminDrawerOpen(true)}
-              className={`flex items-center ${sidebarCollapsed ? 'justify-center p-3' : 'gap-3 w-full p-3'} bg-zinc-50 hover:bg-zinc-100 rounded-xl transition text-zinc-500 font-bold hover:text-zinc-900 relative group cursor-pointer`}
-              title={sidebarCollapsed ? "Strumenti Regia" : undefined}
-            >
-              <Menu className="w-5 h-5 text-zinc-700 shrink-0" />
-              {!sidebarCollapsed && <span>Strumenti Regia</span>}
-
-              {sidebarCollapsed && (
-                <div className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-950 text-white text-[10px] font-bold rounded-lg shadow-2xl z-50 whitespace-nowrap pointer-events-none">
-                  Strumenti Regia
                 </div>
-              )}
-            </button>
-          </div>
-        </aside>
 
-        {/* IMMERSIVE HEADER FOR MOBILE/TABLET VIEWPORT */}
-        <header className="md:hidden flex justify-between items-center px-4 py-3 border-b border-zinc-200 bg-white sticky top-0 z-40 select-none">
-          <h1 className="text-lg font-display font-black tracking-tight text-zinc-950 flex items-center gap-1.5">
-            <Camera className="w-5 h-5 text-emerald-600" />
-            <span>Social</span>
-          </h1>
+                <nav className="space-y-1 text-xs font-semibold">
+                  {appNavItems.map(item => {
+                    const IconComp = item.icon;
+                    const isActive = activeScreen === item.id;
 
-          {/* Header Controls for actor interaction */}
-          <div className="flex items-center gap-3">
-            {/* Burger menu trigger icon: clean, minimal, looks completely standard */}
-            <button
-              onClick={() => setAdminDrawerOpen(true)}
-              className="p-1.5 hover:bg-zinc-100 rounded-lg text-zinc-755 transition"
-              title="Impostazioni Regia"
-            >
-              <Menu className="w-[20px] h-[20px]" />
-            </button>
-          </div>
-        </header>
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveScreen(item.id);
+                          setFocusedPostId(null);
+                          setSearchQuery('');
+                          setMainMenuOpen(false);
+                          playInteractionBeep(1200, 0.05);
+                        }}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl transition ${
+                          isActive
+                            ? 'bg-zinc-100 text-zinc-950 font-black'
+                            : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <IconComp className={`w-4 h-4 shrink-0 ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`} />
+                          <span>{item.label}</span>
+                        </span>
+                        {item.badge && (
+                          <span className="bg-red-500 text-white font-mono font-black text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center">
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+
+                <div className="mt-auto pt-4 border-t border-zinc-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMainMenuOpen(false);
+                      setAdminDrawerOpen(true);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-black transition"
+                  >
+                    <Sliders className="w-4 h-4" />
+                    <span>Strumenti Regia</span>
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* CONTAINER VIEW FOR ALL PUBLIC SCREENS */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-[#fafafa]">
+        <main className="flex-1 overflow-y-auto p-4 pt-16 sm:p-8 sm:pt-16 no-scrollbar bg-[#fafafa]">
           
           {/* SCREEN: HOME SOCIAL FEED */}
           {activeScreen === 'feed' && (
@@ -1845,46 +1833,6 @@ export default function App() {
 
         </main>
       </div>
-
-      {/* MOBILE BOTTOM TABS BAR - Visible only on mobile viewport */}
-      <nav className="md:hidden sticky bottom-0 bg-white border-t border-zinc-200 py-2 px-1 flex justify-around items-center z-40 bg-white/95 backdrop-blur-md select-none shrink-0">
-        {[
-          { id: 'feed', icon: Camera, label: 'Feed' },
-          { id: 'search', icon: Search, label: 'Cerca' },
-          { id: 'chat', icon: MessageSquare, label: 'Direct', badge: 1 },
-          { id: 'contacts', icon: BookOpen, label: 'Rubrica' },
-          { id: 'profile', icon: User, label: 'Profilo' }
-        ].map(item => {
-          const IconComp = item.icon;
-          const isActive = activeScreen === item.id;
-
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                setActiveScreen(item.id);
-                setFocusedPostId(null);
-                setSearchQuery('');
-                playInteractionBeep(1200, 0.05);
-              }}
-              className="flex flex-col items-center gap-1 py-1 shrink-0 px-2 relative"
-            >
-              <div className="relative">
-                <IconComp className={`w-[21px] h-[21px] ${isActive ? 'text-zinc-950 scale-105' : 'text-zinc-400'}`} />
-                {item.badge && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 w-3.5 h-3.5 rounded-full text-[8.5px] text-white flex items-center justify-center font-bold">
-                    {item.badge}
-                  </span>
-                )}
-              </div>
-              <span className={`text-[9px] tracking-tight font-extrabold ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`}>
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-
       {/* HIDDEN MODAL FOR ENVELOPE FULLSCREEN VIEWER / SELFIE OR OTHER LIGHTBOX IMAGES */}
       <AnimatePresence>
         {focusedPostId !== null && focusedPostId !== 'selfie_zoom' && (
