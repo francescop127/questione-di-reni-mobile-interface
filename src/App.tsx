@@ -124,6 +124,30 @@ export default function App() {
     autoAnswerDelay: 5
   });
 
+  useEffect(() => {
+    const blackoutActive = callTimerRunning && standbyActive;
+    const html = document.documentElement;
+    const body = document.body;
+    const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const previousThemeColor = themeMeta?.content;
+    const managedThemeMeta = themeMeta || document.createElement('meta');
+
+    if (!themeMeta) {
+      managedThemeMeta.name = 'theme-color';
+      document.head.appendChild(managedThemeMeta);
+    }
+
+    html.classList.toggle('blackout-active', blackoutActive);
+    body.classList.toggle('blackout-active', blackoutActive);
+    managedThemeMeta.content = blackoutActive ? '#000000' : previousThemeColor || '#fafafa';
+
+    return () => {
+      html.classList.remove('blackout-active');
+      body.classList.remove('blackout-active');
+      managedThemeMeta.content = previousThemeColor || '#fafafa';
+    };
+  }, [callTimerRunning, standbyActive]);
+
   // Notifications Pop Down
   const [bannerNotificationActive, setBannerNotificationActive] = useState<boolean>(false);
 
@@ -646,7 +670,7 @@ export default function App() {
             setStandbyTimerRunning(false);
             triggerWakeNotification();
           }}
-          className={`fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center ${callTimerRunning ? 'cursor-wait' : 'cursor-pointer'}`}
+          className={`cinematic-blackout z-[2147483647] flex flex-col items-center justify-center ${callTimerRunning ? 'cursor-wait' : 'cursor-pointer'}`}
         >
           {/* Extremely faint standby marker for tech crew */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-mono text-zinc-900 select-none pointer-events-none text-center">
