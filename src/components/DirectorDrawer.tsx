@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud } from 'lucide-react';
-import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR } from '../data';
+import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR } from '../data';
 
 interface UploadImageControlProps {
   enabled: boolean;
@@ -185,6 +185,8 @@ export default function DirectorDrawer({
   const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
+  const getContactDisplayAvatar = (name: string) =>
+    name === 'Anna Calligaris' || name === 'Anna' ? ANNA_CONTACT_AVATAR : CONTACT_PLACEHOLDER_AVATAR;
 
   // Fast edits states
   const selectedPost = appData.posts.find(p => p.id === selectedPostId);
@@ -926,7 +928,7 @@ export default function DirectorDrawer({
                         label: "Anna chiama Aldo",
                         name: "Anna Calligaris",
                         number: "+39 347 129 8834",
-                        avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+                        avatar: ANNA_CONTACT_AVATAR,
                         target: "Aldo" as const
                       },
                       {
@@ -1032,7 +1034,7 @@ export default function DirectorDrawer({
                         setCallState({
                           callerName: callConfig.callerName,
                           callerNumber: callConfig.callerNumber,
-                          callerAvatar: callConfig.callerAvatar,
+                          callerAvatar: getContactDisplayAvatar(callConfig.callerName),
                           type: 'incoming',
                           phoneOwnerTarget: callConfig.phoneOwnerTarget,
                           timeElapsed: 0
@@ -1576,7 +1578,7 @@ export default function DirectorDrawer({
                         <label className={`relative w-9 h-9 rounded-full overflow-hidden border border-slate-800 bg-slate-900 cursor-pointer ${
                           supabaseSync.enabled ? 'hover:border-emerald-500' : 'opacity-60 cursor-not-allowed'
                         }`}>
-                          <img src={CONTACT_PLACEHOLDER_AVATAR} alt="" className="w-full h-full object-cover" />
+                          <img src={getContactDisplayAvatar(contact.name)} alt="" className="w-full h-full object-cover" />
                           <input
                             type="file"
                             accept="image/*"
@@ -1616,7 +1618,7 @@ export default function DirectorDrawer({
                         <label className={`relative w-9 h-9 rounded-full overflow-hidden border border-slate-800 bg-slate-900 cursor-pointer ${
                           supabaseSync.enabled ? 'hover:border-emerald-500' : 'opacity-60 cursor-not-allowed'
                         }`}>
-                          <img src={CONTACT_PLACEHOLDER_AVATAR} alt="" className="w-full h-full object-cover" />
+                          <img src={getContactDisplayAvatar(contact.name)} alt="" className="w-full h-full object-cover" />
                           <input
                             type="file"
                             accept="image/*"

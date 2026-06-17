@@ -15,10 +15,13 @@ import SvevaGalleryView from './components/SvevaGalleryView';
 import DirectorDrawer from './components/DirectorDrawer';
 
 // State and types
-import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, AppData, Post, Contact, Message, ChatThread, CalendarShift, hydrateAppData } from './data';
+import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, AppData, Post, Contact, Message, ChatThread, CalendarShift, hydrateAppData } from './data';
 import { useSupabaseAppData } from './hooks/useSupabaseAppData';
 
 export default function App() {
+  const getContactDisplayAvatar = (name: string) =>
+    name === 'Anna Calligaris' || name === 'Anna' ? ANNA_CONTACT_AVATAR : CONTACT_PLACEHOLDER_AVATAR;
+
   // 1. Centralized Persisted Data State
   const [appData, setAppData] = useState<AppData>(() => {
     const cached = localStorage.getItem('ecolife_sim_app_data');
@@ -118,7 +121,7 @@ export default function App() {
   const [callConfig, setCallConfig] = useState({
     callerName: 'Anna Calligaris',
     callerNumber: '+39 347 129 8834',
-    callerAvatar: '/img/Foto Anna (Ronchi)/profilo.jpeg',
+    callerAvatar: ANNA_CONTACT_AVATAR,
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     autoAnswerEnabled: true,
     autoAnswerDelay: 5,
@@ -342,7 +345,7 @@ export default function App() {
             setCallState({
               callerName: callConfig.callerName,
               callerNumber: callConfig.callerNumber,
-              callerAvatar: callConfig.callerAvatar,
+              callerAvatar: getContactDisplayAvatar(callConfig.callerName),
               type: 'incoming',
               phoneOwnerTarget: callConfig.phoneOwnerTarget,
               timeElapsed: 0
@@ -542,7 +545,7 @@ export default function App() {
         setCallState({
           callerName: appData.aldoContacts.find(c => c.id === 'contact_anna')?.name || 'Anna Calligaris',
           callerNumber: '+39 347 129 8834',
-          callerAvatar: appData.annaProfile.avatar,
+          callerAvatar: ANNA_CONTACT_AVATAR,
           type: 'incoming',
           phoneOwnerTarget: 'Aldo',
           timeElapsed: 0
@@ -555,7 +558,7 @@ export default function App() {
         setCallState({
           callerName: 'Aldo Reni',
           callerNumber: '+39 328 110 4492',
-          callerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+          callerAvatar: CONTACT_PLACEHOLDER_AVATAR,
           type: 'incoming',
           phoneOwnerTarget: 'Anna',
           timeElapsed: 0
@@ -568,7 +571,7 @@ export default function App() {
         setCallState({
           callerName: 'Aldo Reni',
           callerNumber: '+39 328 110 4492',
-          callerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+          callerAvatar: CONTACT_PLACEHOLDER_AVATAR,
           type: 'incoming',
           phoneOwnerTarget: 'Anna',
           timeElapsed: 0
@@ -581,7 +584,7 @@ export default function App() {
         setCallState({
           callerName: appData.aldoContacts.find(c => c.id === 'contact_anna')?.name || 'Anna Calligaris',
           callerNumber: '+39 347 129 8834',
-          callerAvatar: appData.annaProfile.avatar,
+          callerAvatar: ANNA_CONTACT_AVATAR,
           type: 'incoming',
           phoneOwnerTarget: 'Aldo',
           timeElapsed: 0
@@ -919,7 +922,7 @@ export default function App() {
                     callState.type === 'incoming' ? 'animate-pulse' : ''
                   }`}>
                     <img 
-                      src={callState.callerAvatar} 
+                      src={getContactDisplayAvatar(callState.callerName)} 
                       alt="Avatar Chiamata" 
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
@@ -965,11 +968,7 @@ export default function App() {
                     }}
                   />
                 ))
-              ) : (
-                <p className="text-[10px] text-zinc-500 font-mono italic">
-                  {callConfig.autoAnswerEnabled ? `Risposta automatica tra ${callAutoAnswerDelayLeft}s` : 'In attesa di connessione...'}
-                </p>
-              )}
+              ) : null}
             </div>
 
             {/* Calling action buttons */}
@@ -1584,7 +1583,7 @@ export default function App() {
                               setCallState({
                                 callerName: activeThread.name,
                                 callerNumber: activeThread.name === 'Aldo Reni' || activeThread.name === 'Aldo' ? '+39 328 110 4492' : '+39 335 881 7711',
-                                callerAvatar: activeThreadAvatar || activeThread.avatar,
+                                callerAvatar: getContactDisplayAvatar(activeThread.name),
                                 type: 'outgoing',
                                 phoneOwnerTarget: phoneOwner,
                                 timeElapsed: 0
@@ -1764,7 +1763,7 @@ export default function App() {
                       
                       <div className="flex items-center gap-3">
                         <img 
-                          src={CONTACT_PLACEHOLDER_AVATAR} 
+                          src={getContactDisplayAvatar(contact.name)} 
                           alt={contact.name} 
                           className="w-10 h-10 rounded-full object-cover border border-zinc-200"
                           referrerPolicy="no-referrer"
@@ -1797,7 +1796,7 @@ export default function App() {
                             setCallState({
                               callerName: contact.name,
                               callerNumber: contact.phone,
-                              callerAvatar: CONTACT_PLACEHOLDER_AVATAR,
+                              callerAvatar: getContactDisplayAvatar(contact.name),
                               type: 'outgoing',
                               phoneOwnerTarget: phoneOwner,
                               timeElapsed: 0

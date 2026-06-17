@@ -15,6 +15,7 @@ export interface Post {
 }
 
 export const CONTACT_PLACEHOLDER_AVATAR = "/img/conte-negroni-profile.svg";
+export const ANNA_CONTACT_AVATAR = "/img/Foto Anna (Ronchi)/chiamata.jpeg";
 
 export interface Contact {
   id: string;
@@ -399,7 +400,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_anna",
       name: "Anna Calligaris",
       phone: "+39 347 129 8834",
-      avatar: CONTACT_PLACEHOLDER_AVATAR,
+      avatar: ANNA_CONTACT_AVATAR,
       recentCallDate: "Oggi, 11:15",
       recentCallType: "incoming",
       recentCallDuration: "2 min 14 s"
@@ -829,7 +830,9 @@ export const hydrateAppData = (data: AppData): AppData => {
     )
     .map(contact => ({
       ...contact,
-      avatar: conteAvatar
+      avatar: contact.id === "contact_anna" || contact.name === "Anna Calligaris" || contact.name === "Anna"
+        ? ANNA_CONTACT_AVATAR
+        : conteAvatar
     }));
   const annaContacts = data.annaContacts
     .filter(contact =>
