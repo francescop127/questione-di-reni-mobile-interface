@@ -15,7 +15,7 @@ import SvevaGalleryView from './components/SvevaGalleryView';
 import DirectorDrawer from './components/DirectorDrawer';
 
 // State and types
-import { INITIAL_DATA, AppData, Post, Contact, Message, ChatThread, CalendarShift, hydrateAppData } from './data';
+import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, AppData, Post, Contact, Message, ChatThread, CalendarShift, hydrateAppData } from './data';
 import { useSupabaseAppData } from './hooks/useSupabaseAppData';
 
 export default function App() {
@@ -121,7 +121,8 @@ export default function App() {
     callerAvatar: '/img/Foto Anna (Ronchi)/profilo.jpeg',
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     autoAnswerEnabled: true,
-    autoAnswerDelay: 5
+    autoAnswerDelay: 5,
+    delayedStartMode: 'standby' as 'standby' | 'inapp'
   });
 
   useEffect(() => {
@@ -328,7 +329,7 @@ export default function App() {
     let interval: number | undefined;
     if (callTimerRunning) {
       // Automatically turn standby screen off immediately for realism
-      setStandbyActive(true);
+      setStandbyActive(callConfig.delayedStartMode === 'standby');
       setLockScreenActive(false);
       setBannerNotificationActive(false);
       setAdminDrawerOpen(false);
@@ -627,11 +628,15 @@ export default function App() {
   };
 
   // Contacts dataset filtering resolver
-  const activeContacts = phoneOwner === 'Aldo' ? appData.aldoContacts : appData.annaContacts;
+  const hiddenContactNames = phoneOwner === 'Aldo'
+    ? new Set(['Aldo Reni', 'Aldo', 'Conte Negroni'])
+    : new Set(['Anna Calligaris', 'Anna']);
+  const activeContacts = (phoneOwner === 'Aldo' ? appData.aldoContacts : appData.annaContacts)
+    .filter(contact => !hiddenContactNames.has(contact.name));
   const filteredContacts = activeContacts.filter(contact => {
     const q = searchQuery.toLowerCase();
-    return contact.name.toLowerCase().includes(q) || contact.phone.includes(q);
-  });
+    return contact.name.toLowerCase().includes(q);
+  }).sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
 
   const resolveContactThreadId = (contact: Contact) => {
     if (phoneOwner === 'Aldo') {
@@ -896,7 +901,7 @@ export default function App() {
       <AnimatePresence>
         {callState.type !== null && callState.phoneOwnerTarget === phoneOwner && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 h-[100dvh] z-[100000] bg-zinc-950 flex flex-col justify-between px-6 pt-16 pb-10 text-white select-none text-center overflow-hidden"
@@ -1503,10 +1508,11 @@ export default function App() {
                   </div>
 
                   <div className="divide-y divide-zinc-100 max-h-[480px] overflow-y-auto no-scrollbar">
-                    {(phoneOwner === 'Aldo' ? appData.chatsAldo : appData.chatsAnna).map(thread => {
-                      const isSelected = activeChatId === thread.id;
-                      
-                      return (
+                  {(phoneOwner === 'Aldo' ? appData.chatsAldo : appData.chatsAnna).map(thread => {
+                    const isSelected = activeChatId === thread.id;
+                    const threadAvatar = thread.name === 'Conte Negroni' ? CONTACT_PLACEHOLDER_AVATAR : thread.avatar;
+                    
+                    return (
                         <div
                           key={thread.id}
                           onClick={() => {
@@ -1519,7 +1525,7 @@ export default function App() {
                           }`}
                         >
                           <img 
-                            src={thread.avatar} 
+                            src={threadAvatar} 
                             alt={thread.name} 
                             className="w-10 h-10 rounded-full object-cover border border-zinc-200"
                             referrerPolicy="no-referrer"
@@ -1539,6 +1545,7 @@ export default function App() {
               {(() => {
                 const activeThread = (phoneOwner === 'Aldo' ? appData.chatsAldo : appData.chatsAnna)
                   .find(t => t.id === activeChatId);
+                const activeThreadAvatar = activeThread?.name === 'Conte Negroni' ? CONTACT_PLACEHOLDER_AVATAR : activeThread?.avatar;
 
                 return (
                   <div className={`w-full md:flex-1 flex flex-col justify-between bg-[#fafafa] ${mobileShowActiveChat ? 'flex' : 'hidden md:flex'}`}>
@@ -1560,7 +1567,7 @@ export default function App() {
                             </button>
 
                             <img 
-                              src={activeThread.avatar} 
+                              src={activeThreadAvatar} 
                               alt={activeThread.name} 
                               className="w-9 h-9 rounded-full object-cover border border-zinc-200"
                               referrerPolicy="no-referrer"
@@ -1577,7 +1584,7 @@ export default function App() {
                               setCallState({
                                 callerName: activeThread.name,
                                 callerNumber: activeThread.name === 'Aldo Reni' || activeThread.name === 'Aldo' ? '+39 328 110 4492' : '+39 335 881 7711',
-                                callerAvatar: activeThread.avatar,
+                                callerAvatar: activeThreadAvatar || activeThread.avatar,
                                 type: 'outgoing',
                                 phoneOwnerTarget: phoneOwner,
                                 timeElapsed: 0
@@ -1739,7 +1746,7 @@ export default function App() {
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-400" />
                 <input 
                   type="text" 
-                  placeholder="Filtra contatti per nome o prefisso..."
+                  placeholder="Filtra contatti per nome..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -1757,23 +1764,13 @@ export default function App() {
                       
                       <div className="flex items-center gap-3">
                         <img 
-                          src={contact.avatar} 
+                          src={CONTACT_PLACEHOLDER_AVATAR} 
                           alt={contact.name} 
                           className="w-10 h-10 rounded-full object-cover border border-zinc-200"
                           referrerPolicy="no-referrer"
                         />
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="text-xs font-black text-zinc-950 font-sans">{contact.name}</h3>
-                          <p className="text-[10px] text-zinc-400 font-mono tracking-wide mt-0.5">{contact.phone}</p>
-                          {contact.recentCallDate && (
-                            <p className="text-[8.5px] text-zinc-400 mt-1 font-sans">
-                              Chiamata: <span className="text-zinc-650 font-semibold">{contact.recentCallDate}</span> (
-                              <span className={contact.recentCallType === 'missed' ? 'text-rose-500 font-bold' : 'text-zinc-500 font-medium'}>
-                                {contact.recentCallType === 'incoming' ? 'entrante' : contact.recentCallType === 'outgoing' ? 'uscito' : 'persa'}
-                              </span>
-                              )
-                            </p>
-                          )}
                         </div>
                       </div>
 
@@ -1800,7 +1797,7 @@ export default function App() {
                             setCallState({
                               callerName: contact.name,
                               callerNumber: contact.phone,
-                              callerAvatar: contact.avatar,
+                              callerAvatar: CONTACT_PLACEHOLDER_AVATAR,
                               type: 'outgoing',
                               phoneOwnerTarget: phoneOwner,
                               timeElapsed: 0

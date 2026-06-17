@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud } from 'lucide-react';
-import { AppData, Post, Contact, Message, INITIAL_DATA } from '../data';
+import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR } from '../data';
 
 interface UploadImageControlProps {
   enabled: boolean;
@@ -103,6 +103,7 @@ interface DirectorDrawerProps {
     phoneOwnerTarget: 'Aldo' | 'Anna';
     autoAnswerEnabled: boolean;
     autoAnswerDelay: number;
+    delayedStartMode: 'standby' | 'inapp';
   };
   setCallConfig: React.Dispatch<React.SetStateAction<{
     callerName: string;
@@ -111,6 +112,7 @@ interface DirectorDrawerProps {
     phoneOwnerTarget: 'Aldo' | 'Anna';
     autoAnswerEnabled: boolean;
     autoAnswerDelay: number;
+    delayedStartMode: 'standby' | 'inapp';
   }>>;
   callState: {
     callerName: string;
@@ -878,6 +880,38 @@ export default function DirectorDrawer({
                   </div>
                 </div>
 
+                {/* Delayed call visual behavior */}
+                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-850 space-y-2 text-left">
+                  <span className="text-[9px] text-zinc-400 block font-mono uppercase font-black">Durante il pre-ritardo:</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCallConfig(prev => ({ ...prev, delayedStartMode: 'standby' }))}
+                      className={`p-2 rounded font-mono text-[9px] uppercase font-bold text-center border cursor-pointer transition ${
+                        callConfig.delayedStartMode === 'standby'
+                          ? 'bg-cyan-950 text-cyan-300 border-cyan-500'
+                          : 'bg-slate-900 text-zinc-400 border-slate-850 hover:text-white'
+                      }`}
+                    >
+                      Nero Standby
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCallConfig(prev => ({ ...prev, delayedStartMode: 'inapp' }))}
+                      className={`p-2 rounded font-mono text-[9px] uppercase font-bold text-center border cursor-pointer transition ${
+                        callConfig.delayedStartMode === 'inapp'
+                          ? 'bg-cyan-950 text-cyan-300 border-cyan-500'
+                          : 'bg-slate-900 text-zinc-400 border-slate-850 hover:text-white'
+                      }`}
+                    >
+                      App Visibile
+                    </button>
+                  </div>
+                  <span className="text-[8px] text-slate-500 font-sans block leading-tight">
+                    Scegli se nascondere tutto con schermo nero o far arrivare la chiamata mentre il telefono è in uso.
+                  </span>
+                </div>
+
                 {/* Target phone and Presets selectors */}
                 <div className="space-y-2 bg-slate-950 p-3 rounded-lg border border-slate-850">
                   <div className="flex justify-between items-center">
@@ -889,17 +923,17 @@ export default function DirectorDrawer({
                   <div className="grid grid-cols-2 gap-1">
                     {[
                       {
-                        label: "Anna ➔ Aldo",
+                        label: "Anna chiama Aldo",
                         name: "Anna Calligaris",
                         number: "+39 347 129 8834",
-                        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
+                        avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
                         target: "Aldo" as const
                       },
                       {
-                        label: "Aldo ➔ Anna",
-                        name: "Aldo Reni",
+                        label: "Conte Negroni chiama Anna",
+                        name: "Conte Negroni",
                         number: "+39 328 110 4492",
-                        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+                        avatar: CONTACT_PLACEHOLDER_AVATAR,
                         target: "Anna" as const
                       }
                     ].map((item, keyIdx) => {
@@ -971,7 +1005,7 @@ export default function DirectorDrawer({
                         setCallSecondsLeft(callTotalSeconds);
                         setLockScreenActive(false);
                         setStandbyTimerRunning(false);
-                        setStandbyActive(true);
+                        setStandbyActive(callConfig.delayedStartMode === 'standby');
                         setCallTimerRunning(true);
                       }
                     }}
@@ -1542,7 +1576,7 @@ export default function DirectorDrawer({
                         <label className={`relative w-9 h-9 rounded-full overflow-hidden border border-slate-800 bg-slate-900 cursor-pointer ${
                           supabaseSync.enabled ? 'hover:border-emerald-500' : 'opacity-60 cursor-not-allowed'
                         }`}>
-                          <img src={contact.avatar} alt="" className="w-full h-full object-cover" />
+                          <img src={CONTACT_PLACEHOLDER_AVATAR} alt="" className="w-full h-full object-cover" />
                           <input
                             type="file"
                             accept="image/*"
@@ -1582,7 +1616,7 @@ export default function DirectorDrawer({
                         <label className={`relative w-9 h-9 rounded-full overflow-hidden border border-slate-800 bg-slate-900 cursor-pointer ${
                           supabaseSync.enabled ? 'hover:border-emerald-500' : 'opacity-60 cursor-not-allowed'
                         }`}>
-                          <img src={contact.avatar} alt="" className="w-full h-full object-cover" />
+                          <img src={CONTACT_PLACEHOLDER_AVATAR} alt="" className="w-full h-full object-cover" />
                           <input
                             type="file"
                             accept="image/*"

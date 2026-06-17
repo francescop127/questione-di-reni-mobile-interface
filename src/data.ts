@@ -14,6 +14,8 @@ export interface Post {
   eventDetails?: string;
 }
 
+export const CONTACT_PLACEHOLDER_AVATAR = "/img/conte-negroni-profile.svg";
+
 export interface Contact {
   id: string;
   name: string;
@@ -397,25 +399,16 @@ export const INITIAL_DATA: AppData = {
       id: "contact_anna",
       name: "Anna Calligaris",
       phone: "+39 347 129 8834",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       recentCallDate: "Oggi, 11:15",
       recentCallType: "incoming",
       recentCallDuration: "2 min 14 s"
     },
     {
-      id: "contact_conte",
-      name: "Conte Negroni",
-      phone: "+39 335 881 7711",
-      avatar: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
-      recentCallDate: "Ieri, 18:40",
-      recentCallType: "outgoing",
-      recentCallDuration: "45 s"
-    },
-    {
       id: "contact_barto",
       name: "Bartolomeo Reni",
       phone: "+39 348 711 0291",
-      avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       recentCallDate: "3 giorni fa",
       recentCallType: "missed"
     },
@@ -423,7 +416,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_dottore",
       name: "Dott. De Santis",
       phone: "+39 339 444 8920",
-      avatar: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       recentCallDate: "4 giorni fa",
       recentCallType: "incoming",
       recentCallDuration: "8 min 12 s"
@@ -432,49 +425,49 @@ export const INITIAL_DATA: AppData = {
       id: "contact_avvocato",
       name: "Avvocato Moretti",
       phone: "+39 333 111 2233",
-      avatar: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_clinica",
       name: "Clinica San Raffaele",
       phone: "+39 06 5509 0110",
-      avatar: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_valerio",
       name: "Ing. Valerio Marini (Efficienza)",
       phone: "+39 349 881 2200",
-      avatar: "/img/Foto Anna (Ronchi)/post_organic_orchard.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_sergio",
       name: "Sergio (Gommista Eco)",
       phone: "+39 347 555 9011",
-      avatar: "/img/Foto Anna (Ronchi)/post_bee_rescue.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_monica",
       name: "Monica (Fotografa Set)",
       phone: "+39 329 123 4567",
-      avatar: "/img/Foto Anna (Ronchi)/post_hiking.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_beatrice",
       name: "Beatrice Reni (Cugina)",
       phone: "+39 345 999 1111",
-      avatar: "/img/Foto Anna (Ronchi)/post_wind_energy.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_riccardo",
       name: "Riccardo (Climatizzazione)",
       phone: "+39 334 777 8888",
-      avatar: "/img/Foto Anna (Ronchi)/post_river_clean.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_barbieri",
       name: "Dott.ssa Barbieri (Ricerca)",
       phone: "+39 320 333 4444",
-      avatar: "/img/Foto Anna (Ronchi)/post_organic_market.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     }
   ],
   annaContacts: [
@@ -482,7 +475,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_conte_negroni",
       name: "Conte Negroni",
       phone: "+39 328 110 4492",
-      avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       recentCallDate: "Oggi, 11:15",
       recentCallType: "outgoing",
       recentCallDuration: "2 min 14 s"
@@ -491,7 +484,7 @@ export const INITIAL_DATA: AppData = {
       id: "contact_mamme",
       name: "Mamma",
       phone: "+39 338 900 1122",
-      avatar: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       recentCallDate: "Ieri, 15:30",
       recentCallType: "incoming",
       recentCallDuration: "10 min 40 s"
@@ -500,43 +493,43 @@ export const INITIAL_DATA: AppData = {
       id: "contact_enpa",
       name: "ENPA Sede Centrale",
       phone: "+39 06 3242 0011",
-      avatar: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_tommaso",
       name: "Tommaso (Attivista Milano)",
       phone: "+39 333 888 9999",
-      avatar: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_chiara",
       name: "Chiara (Grafica Volantini)",
       phone: "+39 346 111 2222",
-      avatar: "/img/Foto Anna (Ronchi)/post_organic_orchard.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_barbara_gatti",
       name: "Barbara (Rifugio Gatti)",
       phone: "+39 328 333 4444",
-      avatar: "/img/Foto Anna (Ronchi)/post_bee_rescue.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_stefano_coord",
       name: "Stefano (Coordinamento Bici)",
       phone: "+39 345 555 6666",
-      avatar: "/img/Foto Anna (Ronchi)/post_hiking.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_federica",
       name: "Federica (Permacultura RM)",
       phone: "+39 331 444 5555",
-      avatar: "/img/Foto Anna (Ronchi)/post_wind_energy.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     },
     {
       id: "contact_salvaterra",
       name: "Associazione Salvaterra",
       phone: "+39 06 999 888",
-      avatar: "/img/Foto Anna (Ronchi)/post_river_clean.jpeg"
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     }
   ],
   chatHistory: [
@@ -647,7 +640,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_negroni",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       status: "attivo 2 ore fa",
       messages: [
         {
@@ -728,7 +721,7 @@ export const INITIAL_DATA: AppData = {
       id: "chat_negroni_anna",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
+      avatar: CONTACT_PLACEHOLDER_AVATAR,
       status: "attivo ora",
       messages: [
         {
@@ -818,6 +811,7 @@ export const INITIAL_DATA: AppData = {
 };
 
 export const hydrateAppData = (data: AppData): AppData => {
+  const conteAvatar = CONTACT_PLACEHOLDER_AVATAR;
   const socialPosts = data.posts.filter(post =>
     post.id !== "post_contact_conte_negroni_empty" &&
     post.authorUsername !== "conte_negroni" &&
@@ -825,18 +819,49 @@ export const hydrateAppData = (data: AppData): AppData => {
   );
   const existingPostIds = new Set(socialPosts.map(post => post.id));
   const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
+  const aldoContacts = data.aldoContacts
+    .filter(contact =>
+      contact.id !== "contact_conte" &&
+      contact.id !== "contact_aldo" &&
+      contact.name !== "Conte Negroni" &&
+      contact.name !== "Aldo Reni" &&
+      contact.name !== "Aldo"
+    )
+    .map(contact => ({
+      ...contact,
+      avatar: conteAvatar
+    }));
   const annaContacts = data.annaContacts
-    .filter(contact => contact.id !== "contact_aldo")
-    .map(contact => contact.id === "contact_conte_negroni"
-      ? {
-        ...contact,
-        name: "Conte Negroni",
-        phone: "+39 328 110 4492",
-        avatar: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg"
-      }
-      : contact
-    );
+    .filter(contact =>
+      contact.id !== "contact_aldo" &&
+      contact.id !== "contact_anna" &&
+      contact.name !== "Anna Calligaris" &&
+      contact.name !== "Anna" &&
+      contact.name !== "Aldo Reni" &&
+      contact.name !== "Aldo"
+    )
+    .map(contact => ({
+      ...contact,
+      ...(contact.id === "contact_conte_negroni"
+        ? {
+          name: "Conte Negroni",
+          phone: "+39 328 110 4492"
+        }
+        : {}),
+      avatar: conteAvatar
+    }));
+  const chatsAldo = data.chatsAldo.map(chat => chat.id === "chat_negroni"
+    ? { ...chat, avatar: conteAvatar }
+    : chat
+  );
+  const chatsAnna = data.chatsAnna.map(chat => chat.id === "chat_negroni_anna"
+    ? { ...chat, avatar: conteAvatar }
+    : chat
+  );
+  const aldoContactsChanged = JSON.stringify(aldoContacts) !== JSON.stringify(data.aldoContacts);
   const annaContactsChanged = JSON.stringify(annaContacts) !== JSON.stringify(data.annaContacts);
+  const chatsAldoChanged = JSON.stringify(chatsAldo) !== JSON.stringify(data.chatsAldo);
+  const chatsAnnaChanged = JSON.stringify(chatsAnna) !== JSON.stringify(data.chatsAnna);
   const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
     const possibleRow = row as Partial<CalendarShift>;
     return typeof possibleRow.label === 'string' && Array.isArray(possibleRow.values);
@@ -847,12 +872,23 @@ export const hydrateAppData = (data: AppData): AppData => {
     }))
     : INITIAL_DATA.mauroCalendar;
 
-  if (!missingInitialPosts.length && mauroCalendar === data.mauroCalendar && socialPosts.length === data.posts.length && !annaContactsChanged) return data;
+  if (
+    !missingInitialPosts.length &&
+    mauroCalendar === data.mauroCalendar &&
+    socialPosts.length === data.posts.length &&
+    !aldoContactsChanged &&
+    !annaContactsChanged &&
+    !chatsAldoChanged &&
+    !chatsAnnaChanged
+  ) return data;
 
   return {
     ...data,
     posts: [...missingInitialPosts, ...socialPosts],
+    aldoContacts,
     annaContacts,
+    chatsAldo,
+    chatsAnna,
     mauroCalendar
   };
 };
