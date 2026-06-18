@@ -129,7 +129,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    const blackoutActive = callTimerRunning && standbyActive;
+    const blackoutActive = standbyActive;
     const html = document.documentElement;
     const body = document.body;
     const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');

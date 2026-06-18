@@ -187,6 +187,13 @@ export default function DirectorDrawer({
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
   const getContactDisplayAvatar = (name: string) =>
     name === 'Anna Calligaris' || name === 'Anna' ? ANNA_CONTACT_AVATAR : CONTACT_PLACEHOLDER_AVATAR;
+  const requestFullscreenForBlackout = () => {
+    const root = document.documentElement;
+    const requestFullscreen = root.requestFullscreen || (root as any).webkitRequestFullscreen;
+    if (!document.fullscreenElement && requestFullscreen) {
+      requestFullscreen.call(root).catch?.(() => {});
+    }
+  };
 
   // Fast edits states
   const selectedPost = appData.posts.find(p => p.id === selectedPostId);
@@ -1004,6 +1011,9 @@ export default function DirectorDrawer({
                       if (callTimerRunning) {
                         setCallTimerRunning(false);
                       } else {
+                        if (callConfig.delayedStartMode === 'standby') {
+                          requestFullscreenForBlackout();
+                        }
                         setCallSecondsLeft(callTotalSeconds);
                         setLockScreenActive(false);
                         setStandbyTimerRunning(false);

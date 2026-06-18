@@ -1,0 +1,19 @@
+{
+  "name": "Questione di Reni - Schermo Prop",
+  "short_name": "Reni Prop",
+  "description": "Interfaccia mobile prop per Questione di Reni.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
