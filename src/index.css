@@ -24,6 +24,15 @@ body {
   overflow-x: hidden;
 }
 
+.safe-menu-button {
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: calc(env(safe-area-inset-left, 0px) + 12px);
+}
+
+.safe-app-main {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 4rem);
+}
+
 html.blackout-active,
 body.blackout-active {
   background: #000;

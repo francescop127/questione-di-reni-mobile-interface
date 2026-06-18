@@ -1015,7 +1015,7 @@ export default function App() {
             setMainMenuOpen(true);
             playInteractionBeep(850, 0.08);
           }}
-          className="fixed top-3 left-3 z-50 h-10 w-10 rounded-xl bg-white/95 border border-zinc-200 shadow-sm flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition"
+          className="safe-menu-button fixed z-50 h-10 w-10 rounded-xl bg-white/95 border border-zinc-200 shadow-sm flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition"
           title="Apri menu"
         >
           <Menu className="w-5 h-5" />
@@ -1106,7 +1106,7 @@ export default function App() {
         </AnimatePresence>
 
         {/* CONTAINER VIEW FOR ALL PUBLIC SCREENS */}
-        <main className="flex-1 overflow-y-auto p-4 pt-16 sm:p-8 sm:pt-16 no-scrollbar bg-[#fafafa]">
+        <main className="safe-app-main flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-[#fafafa]">
           
           {/* SCREEN: HOME SOCIAL FEED */}
           {activeScreen === 'feed' && (
