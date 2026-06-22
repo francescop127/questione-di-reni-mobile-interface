@@ -623,6 +623,18 @@ export const INITIAL_DATA: AppData = {
       recentCallDuration: "10 min 40 s"
     },
     {
+      id: "contact_margherita_sorella",
+      name: "Margherita ❤️",
+      phone: "+39 347 618 2049",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_marco_collega",
+      name: "Marco (Collega)",
+      phone: "+39 339 475 8206",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
       id: "contact_enpa",
       name: "ENPA Sede Centrale",
       phone: "+39 06 3242 0011",
