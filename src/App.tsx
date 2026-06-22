@@ -1818,11 +1818,6 @@ export default function App() {
                 )}
               </div>
 
-              {/* Scene helper narrative guidelines */}
-              <div className="p-4 bg-amber-55 bg-amber-50 rounded-2xl border border-amber-200 text-[10px] leading-relaxed text-amber-900 font-medium whitespace-pre-line">
-                <strong>💡 SUGGERIMENTO GUIDA DI SCENA FOR CREW:</strong>
-                {"\n"}Seleziona la rubrica di Aldo per simularne lo scorrimento verso Anna. Oppure usa la rubrica di Anna per inquadrare "Conte Negroni". Cliccando l'icona cornetta verde partiranno i toni realistici e il prompt a tutto schermo per l'attore!
-              </div>
             </div>
           )}
 

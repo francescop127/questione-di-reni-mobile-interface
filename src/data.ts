@@ -469,6 +469,138 @@ export const INITIAL_DATA: AppData = {
       name: "Dott.ssa Barbieri (Ricerca)",
       phone: "+39 320 333 4444",
       avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_mauro_clinica",
+      name: "Mauro (Clinica - Turni)",
+      phone: "+39 347 882 1045",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_paola_reni",
+      name: "Paola Reni",
+      phone: "+39 338 419 7720",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_luca_reni",
+      name: "Luca Reni",
+      phone: "+39 349 002 7716",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_giulia_amministrazione",
+      name: "Giulia (Amministrazione)",
+      phone: "+39 06 4412 9088",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_prof_caruso",
+      name: "Prof. Caruso",
+      phone: "+39 335 690 1182",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_farmacia_nomentana",
+      name: "Farmacia Nomentana",
+      phone: "+39 06 8620 7741",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_taxi_roma",
+      name: "Taxi Roma",
+      phone: "+39 06 3570",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_portineria",
+      name: "Portineria Studio",
+      phone: "+39 06 4429 3301",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_geometra_rinaldi",
+      name: "Geom. Rinaldi",
+      phone: "+39 331 778 6402",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_marcello_banca",
+      name: "Marcello (Banca)",
+      phone: "+39 339 210 4501",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_elena_assicurazione",
+      name: "Elena Assicurazioni",
+      phone: "+39 345 761 0922",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_laboratorio_analisi",
+      name: "Laboratorio Analisi Europa",
+      phone: "+39 06 8077 5520",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_nicola_idraulico",
+      name: "Nicola Idraulico",
+      phone: "+39 328 541 1189",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_ristorante_da_gino",
+      name: "Ristorante Da Gino",
+      phone: "+39 06 581 4902",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_fabio_autista",
+      name: "Fabio Autista",
+      phone: "+39 333 602 1477",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_segreteria_universita",
+      name: "Segreteria Universita",
+      phone: "+39 06 4991 2000",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_ottica_parioli",
+      name: "Ottica Parioli",
+      phone: "+39 06 807 6123",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_francesca_commercialista",
+      name: "Francesca Commercialista",
+      phone: "+39 340 881 2350",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_carlo_vicino",
+      name: "Carlo (Vicino)",
+      phone: "+39 347 310 9944",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_renata_domestica",
+      name: "Renata Casa",
+      phone: "+39 329 771 5528",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_claudio_palestra",
+      name: "Claudio Palestra",
+      phone: "+39 334 219 8701",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_veterinario_orsini",
+      name: "Dott. Orsini Veterinario",
+      phone: "+39 06 8530 1420",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
     }
   ],
   annaContacts: [
@@ -530,6 +662,138 @@ export const INITIAL_DATA: AppData = {
       id: "contact_salvaterra",
       name: "Associazione Salvaterra",
       phone: "+39 06 999 888",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_alessia_banchetto",
+      name: "Alessia (Banchetto)",
+      phone: "+39 347 405 1832",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_lorenzo_legale",
+      name: "Lorenzo Legale Animali",
+      phone: "+39 335 808 1420",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_marta_stampa",
+      name: "Marta Ufficio Stampa",
+      phone: "+39 339 662 0194",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_roberto_megafoni",
+      name: "Roberto Megafoni",
+      phone: "+39 328 771 6009",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_sara_veterinaria",
+      name: "Sara Veterinaria",
+      phone: "+39 06 4422 7310",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_lucia_nature",
+      name: "Lucia Nature",
+      phone: "+39 346 810 2455",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_margherita_green",
+      name: "Margherita Green",
+      phone: "+39 340 505 3318",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_claudio_valle",
+      name: "Claudio Valle",
+      phone: "+39 333 119 7082",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_sveva",
+      name: "Sveva",
+      phone: "+39 348 941 0076",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_giancarlo_osteria",
+      name: "Giancarlo Osteria",
+      phone: "+39 0774 210 389",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_bici_lifestyle",
+      name: "Bici Lifestyle Shop",
+      phone: "+39 06 578 4410",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_ciclofficina",
+      name: "Ciclofficina Popolare",
+      phone: "+39 06 4547 2201",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_canile_selci",
+      name: "Santuario Animali Selci",
+      phone: "+39 0765 778 201",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_tipografia_metro",
+      name: "Tipografia Metro",
+      phone: "+39 06 3974 5542",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_eco_brian",
+      name: "Brian Eco",
+      phone: "+39 331 990 3412",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_martina_p",
+      name: "Martina P.",
+      phone: "+39 345 612 9804",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_pietro_permessi",
+      name: "Pietro Permessi Comune",
+      phone: "+39 06 6710 4420",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_francesca_tende",
+      name: "Francesca Gazebo",
+      phone: "+39 320 551 8839",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_nadia_social",
+      name: "Nadia Social",
+      phone: "+39 329 440 1290",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_emanuele_audio",
+      name: "Emanuele Audio",
+      phone: "+39 347 090 7745",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_arianna_volontari",
+      name: "Arianna Volontari",
+      phone: "+39 338 613 5017",
+      avatar: CONTACT_PLACEHOLDER_AVATAR
+    },
+    {
+      id: "contact_radio_civica",
+      name: "Radio Civica Roma",
+      phone: "+39 06 4550 8811",
       avatar: CONTACT_PLACEHOLDER_AVATAR
     }
   ],
@@ -813,6 +1077,13 @@ export const INITIAL_DATA: AppData = {
 
 export const hydrateAppData = (data: AppData): AppData => {
   const conteAvatar = CONTACT_PLACEHOLDER_AVATAR;
+  const appendMissingInitialContacts = (contacts: Contact[], initialContacts: Contact[]) => {
+    const contactIds = new Set(contacts.map(contact => contact.id));
+    return [
+      ...contacts,
+      ...initialContacts.filter(contact => !contactIds.has(contact.id))
+    ];
+  };
   const socialPosts = data.posts.filter(post =>
     post.id !== "post_contact_conte_negroni_empty" &&
     post.authorUsername !== "conte_negroni" &&
@@ -820,39 +1091,45 @@ export const hydrateAppData = (data: AppData): AppData => {
   );
   const existingPostIds = new Set(socialPosts.map(post => post.id));
   const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
-  const aldoContacts = data.aldoContacts
-    .filter(contact =>
-      contact.id !== "contact_conte" &&
-      contact.id !== "contact_aldo" &&
-      contact.name !== "Conte Negroni" &&
-      contact.name !== "Aldo Reni" &&
-      contact.name !== "Aldo"
-    )
-    .map(contact => ({
-      ...contact,
-      avatar: contact.id === "contact_anna" || contact.name === "Anna Calligaris" || contact.name === "Anna"
-        ? ANNA_CONTACT_AVATAR
-        : conteAvatar
-    }));
-  const annaContacts = data.annaContacts
-    .filter(contact =>
-      contact.id !== "contact_aldo" &&
-      contact.id !== "contact_anna" &&
-      contact.name !== "Anna Calligaris" &&
-      contact.name !== "Anna" &&
-      contact.name !== "Aldo Reni" &&
-      contact.name !== "Aldo"
-    )
-    .map(contact => ({
-      ...contact,
-      ...(contact.id === "contact_conte_negroni"
-        ? {
-          name: "Conte Negroni",
-          phone: "+39 328 110 4492"
-        }
-        : {}),
-      avatar: conteAvatar
-    }));
+  const aldoContacts = appendMissingInitialContacts(
+    data.aldoContacts
+      .filter(contact =>
+        contact.id !== "contact_conte" &&
+        contact.id !== "contact_aldo" &&
+        contact.name !== "Conte Negroni" &&
+        contact.name !== "Aldo Reni" &&
+        contact.name !== "Aldo"
+      )
+      .map(contact => ({
+        ...contact,
+        avatar: contact.id === "contact_anna" || contact.name === "Anna Calligaris" || contact.name === "Anna"
+          ? ANNA_CONTACT_AVATAR
+          : conteAvatar
+      })),
+    INITIAL_DATA.aldoContacts
+  );
+  const annaContacts = appendMissingInitialContacts(
+    data.annaContacts
+      .filter(contact =>
+        contact.id !== "contact_aldo" &&
+        contact.id !== "contact_anna" &&
+        contact.name !== "Anna Calligaris" &&
+        contact.name !== "Anna" &&
+        contact.name !== "Aldo Reni" &&
+        contact.name !== "Aldo"
+      )
+      .map(contact => ({
+        ...contact,
+        ...(contact.id === "contact_conte_negroni"
+          ? {
+            name: "Conte Negroni",
+            phone: "+39 328 110 4492"
+          }
+          : {}),
+        avatar: conteAvatar
+      })),
+    INITIAL_DATA.annaContacts
+  );
   const chatsAldo = data.chatsAldo.map(chat => chat.id === "chat_negroni"
     ? { ...chat, avatar: conteAvatar }
     : chat
