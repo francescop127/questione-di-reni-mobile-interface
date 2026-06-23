@@ -103,6 +103,8 @@ interface DirectorDrawerProps {
     phoneOwnerTarget: 'Aldo' | 'Anna';
     autoAnswerEnabled: boolean;
     autoAnswerDelay: number;
+    noAnswerTimeoutEnabled: boolean;
+    noAnswerTimeout: number;
     delayedStartMode: 'standby' | 'inapp';
   };
   setCallConfig: React.Dispatch<React.SetStateAction<{
@@ -112,8 +114,11 @@ interface DirectorDrawerProps {
     phoneOwnerTarget: 'Aldo' | 'Anna';
     autoAnswerEnabled: boolean;
     autoAnswerDelay: number;
+    noAnswerTimeoutEnabled: boolean;
+    noAnswerTimeout: number;
     delayedStartMode: 'standby' | 'inapp';
   }>>;
+  callNoAnswerSecondsLeft: number;
   callState: {
     callerName: string;
     callerNumber: string;
@@ -176,6 +181,7 @@ export default function DirectorDrawer({
   setCallTotalSeconds,
   callConfig,
   setCallConfig,
+  callNoAnswerSecondsLeft,
   callState,
   setCallState,
   supabaseSync
@@ -811,7 +817,7 @@ export default function DirectorDrawer({
                   <span className="text-[8px] font-mono text-zinc-500 uppercase">scena timer</span>
                 </div>
                 <p className="text-[10px] text-zinc-400 leading-normal font-sans">
-                  Gestisci il telefono facendolo squillare e poi <strong>rispondere automaticamente</strong> dopo tot secondi, programmando un conto alla rovescia preventivo.
+                  Gestisci il telefono facendolo squillare, rispondere automaticamente o tornare nero se nessuno risponde entro il tempo impostato.
                 </p>
 
                 {/* Status indicator / Live countdown feedback */}
@@ -829,7 +835,19 @@ export default function DirectorDrawer({
                   ) : callState.type === 'incoming' ? (
                     <div className="flex items-center gap-2 text-amber-400 font-mono text-[11px] font-semibold animate-pulse bg-amber-950/40 p-2 rounded-md border border-amber-900/40">
                       <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                      <span>SQUILLO DI {callState.callerName.toUpperCase()}! Auto-risposta in {callConfig.autoAnswerEnabled ? `${callConfig.autoAnswerDelay} secondi` : 'Disattivata'}...</span>
+                      <span>
+                        SQUILLO DI {callState.callerName.toUpperCase()}!
+                        {' '}Auto-risposta: {callConfig.autoAnswerEnabled ? `${callConfig.autoAnswerDelay}s` : 'OFF'}
+                        {' '}• Nero se non risponde: {callConfig.noAnswerTimeoutEnabled ? `${callNoAnswerSecondsLeft}s` : 'OFF'}
+                      </span>
+                    </div>
+                  ) : callState.type === 'outgoing' ? (
+                    <div className="flex items-center gap-2 text-cyan-400 font-mono text-[11px] font-semibold animate-pulse bg-cyan-950/40 p-2 rounded-md border border-cyan-900/40">
+                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
+                      <span>
+                        CHIAMATA A {callState.callerName.toUpperCase()} IN CORSO
+                        {' '}• Nero se non risponde: {callConfig.noAnswerTimeoutEnabled ? `${callNoAnswerSecondsLeft}s` : 'OFF'}
+                      </span>
                     </div>
                   ) : callState.type === 'connected' ? (
                     <div className="flex items-center gap-2 text-emerald-400 font-mono text-[11px] font-semibold bg-emerald-950/40 p-2 rounded-md border border-emerald-900/40">
@@ -886,6 +904,35 @@ export default function DirectorDrawer({
                       />
                       <label htmlFor="autoAnswerEnabledCheck" className="text-[8px] text-slate-350 font-bold uppercase select-none cursor-pointer">Attiva Risposta</label>
                     </div>
+                  </div>
+
+                  <div className="col-span-2 space-y-1.5 bg-slate-950 p-2.5 rounded-lg border border-slate-850">
+                    <label className="text-[9px] text-zinc-400 block font-mono uppercase font-black text-left">Timeout Non Risponde (s):</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="120"
+                      value={callConfig.noAnswerTimeout}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value) || 18;
+                        setCallConfig(prev => ({ ...prev, noAnswerTimeout: v }));
+                      }}
+                      disabled={!callConfig.noAnswerTimeoutEnabled}
+                      className="w-full bg-slate-900 border border-slate-800 rounded p-1 text-white font-mono text-xs focus:outline-hidden disabled:opacity-40"
+                    />
+                    <div className="flex items-center gap-1.5 mt-1 text-left">
+                      <input
+                        type="checkbox"
+                        id="noAnswerTimeoutEnabledCheck"
+                        checked={callConfig.noAnswerTimeoutEnabled}
+                        onChange={(e) => setCallConfig(prev => ({ ...prev, noAnswerTimeoutEnabled: e.target.checked }))}
+                        className="w-3.5 h-3.5 text-cyan-600 rounded bg-slate-900 border-slate-800 cursor-pointer"
+                      />
+                      <label htmlFor="noAnswerTimeoutEnabledCheck" className="text-[8px] text-slate-350 font-bold uppercase select-none cursor-pointer">Torna nero se non risponde</label>
+                    </div>
+                    <span className="text-[8px] text-slate-500 font-sans block leading-tight text-left">
+                      Se la chiamata resta senza risposta fino a zero, lo squillo finisce e il telefono torna nero.
+                    </span>
                   </div>
                 </div>
 

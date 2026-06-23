@@ -117,6 +117,7 @@ export default function App() {
   const [callSecondsLeft, setCallSecondsLeft] = useState<number>(5);
   const [callTotalSeconds, setCallTotalSeconds] = useState<number>(5);
   const [callAutoAnswerDelayLeft, setCallAutoAnswerDelayLeft] = useState<number>(5);
+  const [callNoAnswerSecondsLeft, setCallNoAnswerSecondsLeft] = useState<number>(18);
 
   const [callConfig, setCallConfig] = useState({
     callerName: 'Anna Calligaris',
@@ -125,6 +126,8 @@ export default function App() {
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     autoAnswerEnabled: true,
     autoAnswerDelay: 5,
+    noAnswerTimeoutEnabled: true,
+    noAnswerTimeout: 18,
     delayedStartMode: 'standby' as 'standby' | 'inapp'
   });
 
@@ -259,6 +262,18 @@ export default function App() {
     }
   };
 
+  const endUnansweredCallToBlack = () => {
+    playInteractionBeep(260, 0.25);
+    stopSynthRingtone();
+    setCallTimerRunning(false);
+    setCallState(prev => ({ ...prev, type: null, timeElapsed: 0 }));
+    setLockScreenActive(false);
+    setBannerNotificationActive(false);
+    setStandbyTimerRunning(false);
+    setStandbyActive(true);
+    setAdminDrawerOpen(false);
+  };
+
   // Sound beep when playing simulated voice or answering
   const playInteractionBeep = (freq = 600, duration = 0.15) => {
     try {
@@ -354,6 +369,7 @@ export default function App() {
             setStandbyActive(false);
             // Prepare auto-answer countdown from config
             setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
+            setCallNoAnswerSecondsLeft(callConfig.noAnswerTimeout);
             return 0;
           }
           return prev - 1;
@@ -387,12 +403,32 @@ export default function App() {
     };
   }, [callState.type, callConfig.autoAnswerEnabled, callTimerRunning]);
 
-  // Reset auto-answer timer whenever any ringing/outgoing call starts
+  // Countdown for unanswered active ringing/outgoing calls returning to black.
+  useEffect(() => {
+    let interval: number | undefined;
+    if ((callState.type === 'incoming' || callState.type === 'outgoing') && callConfig.noAnswerTimeoutEnabled && !callTimerRunning) {
+      interval = window.setInterval(() => {
+        setCallNoAnswerSecondsLeft(prev => {
+          if (prev <= 1) {
+            endUnansweredCallToBlack();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [callState.type, callConfig.noAnswerTimeoutEnabled, callTimerRunning]);
+
+  // Reset call timers whenever any ringing/outgoing call starts
   useEffect(() => {
     if (callState.type === 'incoming' || callState.type === 'outgoing') {
       setCallAutoAnswerDelayLeft(callConfig.autoAnswerDelay);
+      setCallNoAnswerSecondsLeft(callConfig.noAnswerTimeout);
     }
-  }, [callState.type, callConfig.autoAnswerDelay]);
+  }, [callState.type, callConfig.autoAnswerDelay, callConfig.noAnswerTimeout]);
 
   // Prevent visual leak of director's settings panel underneath black, locked, or call screens.
   useEffect(() => {
@@ -1997,6 +2033,7 @@ export default function App() {
         setCallTotalSeconds={setCallTotalSeconds}
         callConfig={callConfig}
         setCallConfig={setCallConfig}
+        callNoAnswerSecondsLeft={callNoAnswerSecondsLeft}
         callState={callState}
         setCallState={setCallState}
         supabaseSync={supabaseSync}
