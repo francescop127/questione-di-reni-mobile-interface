@@ -393,6 +393,237 @@ export const INITIAL_DATA: AppData = {
         { user: "anna_calligaris_eco", text: "Giancarlo, questa è arte! Vengo subito." },
         { user: "lucia_nature", text: "Finalmente qualcuno che capisce il legame tra cibo e territorio." }
       ]
+    },
+    {
+      id: "post_aldo_studio",
+      authorName: "Aldo Reni",
+      authorUsername: "aldo_reni",
+      authorAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=900",
+      caption: "Giornata lunga in studio. Alcune decisioni si prendono meglio con la porta chiusa e il telefono in silenzioso.",
+      date: "1 settimana fa",
+      likes: 9,
+      commentsCount: 1,
+      location: "Roma, Studio Reni",
+      comments: [
+        { user: "anna_calligaris_eco", text: "Ogni tanto una pausa vera, Aldo." }
+      ]
+    },
+    {
+      id: "post_aldo_espresso",
+      authorName: "Aldo Reni",
+      authorUsername: "aldo_reni",
+      authorAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=900",
+      caption: "Il primo caffe resta il momento piu onesto della giornata.",
+      date: "2 settimane fa",
+      likes: 12,
+      commentsCount: 2,
+      location: "Parioli",
+      comments: [
+        { user: "marco_collega", text: "Concordo. Poi iniziano le telefonate." }
+      ]
+    },
+    {
+      id: "post_aldo_archivio",
+      authorName: "Aldo Reni",
+      authorUsername: "aldo_reni",
+      authorAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=900",
+      caption: "Vecchi fascicoli, vecchie abitudini. A volte tornano utili entrambe.",
+      date: "1 mese fa",
+      likes: 7,
+      commentsCount: 0,
+      location: "Archivio",
+      comments: []
+    },
+    {
+      id: "post_aldo_serata",
+      authorName: "Aldo Reni",
+      authorUsername: "aldo_reni",
+      authorAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=900",
+      caption: "Cena rapida, tavolo in fondo. Nessuna foto alle persone, solo alle luci.",
+      date: "2 mesi fa",
+      likes: 14,
+      commentsCount: 1,
+      location: "Centro Storico",
+      comments: [
+        { user: "bar_appennino", text: "Le luci raccontano sempre qualcosa." }
+      ]
+    },
+    {
+      id: "post_aldo_collina",
+      authorName: "Aldo Reni",
+      authorUsername: "aldo_reni",
+      authorAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&q=80&w=900",
+      caption: "Fuori Roma cambia il rumore. Non sempre cambia il pensiero.",
+      date: "3 mesi fa",
+      likes: 11,
+      commentsCount: 0,
+      location: "Castelli Romani",
+      comments: []
+    },
+    {
+      id: "post_lorenzo_spagna_mercato",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&q=80&w=900",
+      caption: "Sabato al mercato con Ines. Lei contratta in spagnolo, io porto le borse e faccio finta di capire tutto.",
+      date: "3 giorni fa",
+      likes: 31,
+      commentsCount: 4,
+      location: "Mercato Trionfale",
+      comments: [
+        { user: "aldo_reni", text: "Metodo efficace." },
+        { user: "anna_calligaris_eco", text: "Team perfetto." }
+      ]
+    },
+    {
+      id: "post_lorenzo_ines_casa",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=900",
+      caption: "Ines dice che una casa senza piante sembra una sala d'attesa. Ha ragione, come quasi sempre.",
+      date: "1 settimana fa",
+      likes: 42,
+      commentsCount: 3,
+      location: "Casa",
+      comments: [
+        { user: "bar_appennino", text: "Le piante cambiano l'umore di una stanza." }
+      ]
+    },
+    {
+      id: "post_lorenzo_mare_spagna",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=900",
+      caption: "La famiglia di Ines vive vicino al mare. Ogni volta torno con piu sale addosso e meno parole.",
+      date: "1 mese fa",
+      likes: 58,
+      commentsCount: 5,
+      location: "Costa Brava",
+      comments: [
+        { user: "anna_calligaris_eco", text: "Che luce!" }
+      ]
+    },
+    {
+      id: "post_lorenzo_cucina",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&q=80&w=900",
+      caption: "Tortilla riuscita. O almeno Ines ha sorriso prima di correggermi il sale.",
+      date: "2 mesi fa",
+      likes: 36,
+      commentsCount: 2,
+      location: "Cucina di casa",
+      comments: [
+        { user: "aldo_reni", text: "Il sale e una questione diplomatica." }
+      ]
+    },
+    {
+      id: "post_lorenzo_strada",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&q=80&w=900",
+      caption: "Rientro tardi, quartiere mezzo vuoto. Roma sa essere enorme e domestica nello stesso momento.",
+      date: "3 mesi fa",
+      likes: 24,
+      commentsCount: 1,
+      location: "Roma",
+      comments: []
+    },
+    {
+      id: "post_lorenzo_libri",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&q=80&w=900",
+      caption: "Due lingue sul comodino: il mio italiano sgualcito e lo spagnolo perfetto di Ines.",
+      date: "4 mesi fa",
+      likes: 29,
+      commentsCount: 2,
+      location: "Letture serali",
+      comments: [
+        { user: "anna_calligaris_eco", text: "Bellissima immagine." }
+      ]
+    },
+    {
+      id: "post_lorenzo_finestra",
+      authorName: "Lorenzo Vidal",
+      authorUsername: "lorenzo_vidal",
+      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&q=80&w=900",
+      caption: "Domenica lenta. Ines alla radio, io alla finestra. Va bene cosi.",
+      date: "5 mesi fa",
+      likes: 33,
+      commentsCount: 3,
+      location: "Domenica",
+      comments: []
+    },
+    {
+      id: "post_mirella_bar_alba",
+      authorName: "Mirella Bardi",
+      authorUsername: "bar_appennino",
+      authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1511081692775-05d0f180a065?auto=format&fit=crop&q=80&w=900",
+      caption: "Alle sei il bar profuma gia di cornetti. Fuori l'Appennino si sveglia piano.",
+      date: "2 giorni fa",
+      likes: 47,
+      commentsCount: 6,
+      location: "Bar del Valico",
+      comments: [
+        { user: "aldo_reni", text: "Il caffe migliore e sempre quello preso presto." }
+      ]
+    },
+    {
+      id: "post_mirella_bancone",
+      authorName: "Mirella Bardi",
+      authorUsername: "bar_appennino",
+      authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&q=80&w=900",
+      caption: "Bancone lucidato, tazzine in fila, giornali piegati. La giornata puo cominciare.",
+      date: "2 settimane fa",
+      likes: 39,
+      commentsCount: 2,
+      location: "Appennino Centrale",
+      comments: []
+    },
+    {
+      id: "post_mirella_neve",
+      authorName: "Mirella Bardi",
+      authorUsername: "bar_appennino",
+      authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&q=80&w=900",
+      caption: "Prima neve sul passo. Oggi minestra calda e bicchieri appannati.",
+      date: "1 mese fa",
+      likes: 61,
+      commentsCount: 7,
+      location: "Passo di Fontechiara",
+      comments: [
+        { user: "lorenzo_vidal", text: "Posto da fermarsi senza guardare l'orologio." }
+      ]
+    },
+    {
+      id: "post_mirella_tavoli",
+      authorName: "Mirella Bardi",
+      authorUsername: "bar_appennino",
+      authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300",
+      image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=900",
+      caption: "Tre tavoli occupati, due storie raccontate mille volte, una partita a carte che non finisce mai.",
+      date: "3 mesi fa",
+      likes: 44,
+      commentsCount: 4,
+      location: "Sala piccola",
+      comments: [
+        { user: "anna_calligaris_eco", text: "Sembra un luogo pieno di memoria." }
+      ]
     }
   ],
   aldoContacts: [
@@ -943,58 +1174,6 @@ export const INITIAL_DATA: AppData = {
   ],
   chatsAnna: [
     {
-      id: "chat_aldo_anna",
-      name: "Aldo Reni",
-      username: "aldo_reni_real",
-      avatar: "/img/Foto Anna (Ronchi)/chiamata.jpeg",
-      status: "attivo ora",
-      messages: [
-        {
-          id: "msg_1_a",
-          sender: "me",
-          text: "Ciao Aldo, ho preparato i cartelli per Piazza Celli. Domani sarà una giornata cruciale.",
-          timestamp: "10:05"
-        },
-        {
-          id: "msg_2_a",
-          sender: "other",
-          text: "Pensi davvero che scendere in piazza cambierà le cose? Comunque sono con te.",
-          timestamp: "10:11"
-        },
-        {
-          id: "msg_3_a",
-          sender: "me",
-          text: "Te lo dimostro subito! Ecco l'autoscatto che mi hai chiesto poco fa:",
-          timestamp: "10:14"
-        },
-        {
-          id: "msg_4_a",
-          sender: "me",
-          image: "/img/Foto Anna (Ronchi)/profilo.jpeg",
-          timestamp: "10:16"
-        },
-        {
-          id: "msg_5_a",
-          sender: "other",
-          text: "Bellissima foto, si vede la tua determinazione! Ma non rischiare troppo.",
-          timestamp: "10:20"
-        },
-        {
-          id: "msg_6_a",
-          sender: "me",
-          text: "Ascolta, ti lascio un messaggio vocale urgente sui megafoni per Piazza Celli:",
-          timestamp: "10:22"
-        },
-        {
-          id: "msg_7_a",
-          sender: "me",
-          voiceDuration: "0:42",
-          voicePlayed: false,
-          timestamp: "10:23"
-        }
-      ]
-    },
-    {
       id: "chat_negroni_anna",
       name: "Conte Negroni",
       username: "conte_negroni_dial",
@@ -1012,6 +1191,12 @@ export const INITIAL_DATA: AppData = {
           sender: "me",
           text: "Non si preoccupi Conte, sarà un flashmob pacifico ma di grande impatto visivo. Piazza Celli sarà piena.",
           timestamp: "11:45"
+        },
+        {
+          id: "msg_negroni_img_anna",
+          sender: "other",
+          image: "https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=900",
+          timestamp: "12:04"
         }
       ]
     }
@@ -1146,10 +1331,25 @@ export const hydrateAppData = (data: AppData): AppData => {
     ? { ...chat, avatar: conteAvatar }
     : chat
   );
-  const chatsAnna = data.chatsAnna.map(chat => chat.id === "chat_negroni_anna"
-    ? { ...chat, avatar: conteAvatar }
-    : chat
-  );
+  const hydratedAnnaChats = data.chatsAnna.filter(chat => chat.id !== "chat_aldo_anna").map(chat => {
+    if (chat.id !== "chat_negroni_anna") return chat;
+
+    const initialNegroniChat = INITIAL_DATA.chatsAnna.find(initialChat => initialChat.id === "chat_negroni_anna");
+    const initialImageMessage = initialNegroniChat?.messages.find(message => message.id === "msg_negroni_img_anna");
+    const hasImageMessage = chat.messages.some(message => message.id === "msg_negroni_img_anna");
+
+    return {
+      ...chat,
+      avatar: conteAvatar,
+      messages: hasImageMessage || !initialImageMessage
+        ? chat.messages
+        : [...chat.messages, initialImageMessage]
+    };
+  });
+  const initialNegroniAnnaChat = INITIAL_DATA.chatsAnna.find(chat => chat.id === "chat_negroni_anna");
+  const chatsAnna = hydratedAnnaChats.some(chat => chat.id === "chat_negroni_anna") || !initialNegroniAnnaChat
+    ? hydratedAnnaChats
+    : [...hydratedAnnaChats, initialNegroniAnnaChat];
   const aldoContactsChanged = JSON.stringify(aldoContacts) !== JSON.stringify(data.aldoContacts);
   const annaContactsChanged = JSON.stringify(annaContacts) !== JSON.stringify(data.annaContacts);
   const chatsAldoChanged = JSON.stringify(chatsAldo) !== JSON.stringify(data.chatsAldo);

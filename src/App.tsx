@@ -53,13 +53,226 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [profileViewMode, setProfileViewMode] = useState<'grid' | 'feed'>('grid');
   const [focusedPostId, setFocusedPostId] = useState<string | null>(null);
+  const [focusedChatImage, setFocusedChatImage] = useState<string | null>(null);
+  const [activeProfileUsername, setActiveProfileUsername] = useState<string>('anna_calligaris_eco');
+  const [profileListOpen, setProfileListOpen] = useState<'followers' | 'following' | null>(null);
 
   const getPostAuthor = (post: Post) => ({
     name: post.authorName || appData.annaProfile.fullName,
     username: post.authorUsername || appData.annaProfile.username,
     avatar: post.authorAvatar || appData.annaProfile.avatar
   });
-  const annaProfilePosts = appData.posts.filter(post => !post.authorUsername || post.authorUsername === appData.annaProfile.username);
+  const socialProfiles = [
+    {
+      username: appData.annaProfile.username,
+      fullName: appData.annaProfile.fullName,
+      avatar: appData.annaProfile.avatar,
+      bio: appData.annaProfile.bio,
+      followers: appData.annaProfile.followers,
+      following: appData.annaProfile.following,
+      postsCount: appData.annaProfile.postsCount,
+      isVerified: appData.annaProfile.isVerified,
+      linkLabel: 'leggi_giornata_piazza_celli_news.it',
+      linkScreen: 'newspaper',
+      highlights: [
+        { label: "Bici Libere", icon: "🚴‍♀️" },
+        { label: "FlashMob", icon: "📢" },
+        { label: "Amici Coda", icon: "🐾" }
+      ]
+    },
+    {
+      username: 'aldo_reni',
+      fullName: 'Aldo Reni',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300',
+      bio: 'Roma, lavoro e poche fotografie.\n📍 Studio Reni\nPreferisco osservare prima di parlare.',
+      followers: 7,
+      following: 32,
+      postsCount: 5,
+      isVerified: false,
+      linkLabel: '',
+      linkScreen: '',
+      highlights: [
+        { label: "Studio", icon: "📁" },
+        { label: "Roma", icon: "🏛️" },
+        { label: "Note", icon: "☕" }
+      ]
+    },
+    {
+      username: 'lorenzo_vidal',
+      fullName: 'Lorenzo Vidal',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
+      bio: 'Vivo a Roma con Ines, che viene dalla Spagna e corregge il mio modo di salare tutto.\nCase, mercati, strade lente.',
+      followers: 86,
+      following: 144,
+      postsCount: 7,
+      isVerified: false,
+      linkLabel: '',
+      linkScreen: '',
+      highlights: [
+        { label: "Ines", icon: "🇪🇸" },
+        { label: "Casa", icon: "🪴" },
+        { label: "Roma", icon: "🌙" }
+      ]
+    },
+    {
+      username: 'bar_appennino',
+      fullName: 'Mirella Bardi',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
+      bio: 'Tengo aperto un piccolo bar sul passo.\n☕ Caffe, giornali, neve quando arriva.\n📍 Appennino Centrale',
+      followers: 213,
+      following: 97,
+      postsCount: 4,
+      isVerified: false,
+      linkLabel: '',
+      linkScreen: '',
+      highlights: [
+        { label: "Banco", icon: "☕" },
+        { label: "Neve", icon: "❄️" },
+        { label: "Paese", icon: "🃏" }
+      ]
+    }
+  ];
+  const profileByUsername = new Map(socialProfiles.map(profile => [profile.username, profile]));
+  const activeProfile = profileByUsername.get(activeProfileUsername) || socialProfiles[0];
+  const activeProfilePosts = appData.posts.filter(post => {
+    if (post.id.startsWith('post_contact_')) return false;
+    const username = post.authorUsername || appData.annaProfile.username;
+    return username === activeProfile.username;
+  });
+  const profileFollowersByUsername: Record<string, { name: string; username?: string }[]> = {
+    anna_calligaris_eco: [
+      { name: 'Aldo Reni', username: 'aldo_reni' },
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Margherita ❤️' },
+      { name: 'Marco' },
+      { name: 'Lucia Nature' },
+      { name: 'Tommaso' },
+      { name: 'Sveva' },
+      { name: 'Marta' },
+      { name: 'Nadia' },
+      { name: 'Brian Eco' },
+      { name: 'Claudio Valle' }
+    ],
+    aldo_reni: [
+      { name: 'Anna Calligaris', username: appData.annaProfile.username },
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Marco' },
+      { name: 'Margherita ❤️' },
+      { name: 'Mauro' },
+      { name: 'Paola Reni' }
+    ],
+    lorenzo_vidal: [
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Aldo Reni', username: 'aldo_reni' },
+      { name: 'Ines Vidal' },
+      { name: 'Claudia M.' },
+      { name: 'Pablo Serrano' },
+      { name: 'Marco' },
+      { name: 'Elena R.' },
+      { name: 'Gianni Costa' },
+      { name: 'Sara L.' },
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Martina P.' }
+    ],
+    bar_appennino: [
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Aldo Reni', username: 'aldo_reni' },
+      { name: 'Gino del Passo' },
+      { name: 'Teresa Forno' },
+      { name: 'Nadia Social' },
+      { name: 'Carlo Autista' },
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Lucia Nature' },
+      { name: 'Roberto Megafoni' },
+      { name: 'Pietro Comune' },
+      { name: 'Sveva' }
+    ]
+  };
+  const profileFollowingByUsername: Record<string, { name: string; username?: string }[]> = {
+    anna_calligaris_eco: [
+      { name: 'Aldo Reni', username: 'aldo_reni' },
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Margherita ❤️' },
+      { name: 'Marco' },
+      { name: 'ENPA Sede Centrale' },
+      { name: 'Tommaso' },
+      { name: 'Lucia Nature' },
+      { name: 'Brian Eco' },
+      { name: 'Bici Lifestyle Shop' },
+      { name: 'Santuario Animali Selci' },
+      { name: 'Radio Civica Roma' }
+    ],
+    aldo_reni: [
+      { name: 'Anna Calligaris', username: appData.annaProfile.username },
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Bartolomeo Reni' },
+      { name: 'Dott. De Santis' },
+      { name: 'Avvocato Moretti' },
+      { name: 'Mauro' },
+      { name: 'Paola Reni' },
+      { name: 'Luca Reni' },
+      { name: 'Giulia Amministrazione' },
+      { name: 'Prof. Caruso' },
+      { name: 'Francesca Commercialista' }
+    ],
+    lorenzo_vidal: [
+      { name: 'Aldo Reni', username: 'aldo_reni' },
+      { name: 'Mirella Bardi', username: 'bar_appennino' },
+      { name: 'Ines Vidal' },
+      { name: 'Pablo Serrano' },
+      { name: 'Claudia M.' },
+      { name: 'Elena R.' },
+      { name: 'Gianni Costa' },
+      { name: 'Sara L.' },
+      { name: 'Martina P.' },
+      { name: 'Diego R.' },
+      { name: 'Rosa Navarro' },
+      { name: 'Miguel Torres' }
+    ],
+    bar_appennino: [
+      { name: 'Aldo Reni', username: 'aldo_reni' },
+      { name: 'Lorenzo Vidal', username: 'lorenzo_vidal' },
+      { name: 'Gino del Passo' },
+      { name: 'Teresa Forno' },
+      { name: 'Carlo Autista' },
+      { name: 'Nadia Social' },
+      { name: 'Pietro Comune' },
+      { name: 'Lucia Nature' },
+      { name: 'Roberto Megafoni' },
+      { name: 'Sveva' },
+      { name: 'Franco Neve' },
+      { name: 'Assunta Alimentari' }
+    ]
+  };
+  const activeProfileFollowers = profileFollowersByUsername[activeProfile.username] || [];
+  const activeProfileFollowing = profileFollowingByUsername[activeProfile.username] || [];
+  const activeProfileList = profileListOpen === 'followers' ? activeProfileFollowers : profileListOpen === 'following' ? activeProfileFollowing : [];
+  const clickableSocialUsernames = new Set([appData.annaProfile.username, 'aldo_reni', 'lorenzo_vidal', 'bar_appennino']);
+  const feedPosts = appData.posts
+    .filter(post => !post.id.startsWith('post_contact_'))
+    .slice()
+    .sort((a, b) => {
+      const aIsAnna = (a.authorUsername || appData.annaProfile.username) === appData.annaProfile.username;
+      const bIsAnna = (b.authorUsername || appData.annaProfile.username) === appData.annaProfile.username;
+      if (aIsAnna !== bIsAnna) return aIsAnna ? 1 : -1;
+      const rank = (id: string) => Array.from(id).reduce((total, char) => total + char.charCodeAt(0), 0) % 17;
+      return rank(a.id) - rank(b.id) || a.id.localeCompare(b.id);
+    });
+  const profileShortcuts = socialProfiles.filter(profile => profile.username !== appData.annaProfile.username);
+  const openProfile = (username: string) => {
+    if (!profileByUsername.has(username)) return;
+    setActiveProfileUsername(username);
+    setActiveScreen('profile');
+    setProfileViewMode('grid');
+    setFocusedPostId(null);
+    setSearchQuery('');
+    setProfileListOpen(null);
+    playInteractionBeep(1000, 0.1);
+  };
   const appNavItems = [
     { id: 'feed', icon: Camera, label: 'Feed Sociale' },
     { id: 'search', icon: Search, label: 'Cerca Attivisti' },
@@ -77,23 +290,92 @@ export default function App() {
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(false);
   const [mobileShowActiveChat, setMobileShowActiveChat] = useState<boolean>(false);
 
+  const defaultCallConfig = {
+    callerName: 'Anna Calligaris',
+    callerNumber: '+39 347 129 8834',
+    callerAvatar: ANNA_CONTACT_AVATAR,
+    phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
+    autoAnswerEnabled: true,
+    autoAnswerDelay: 5,
+    noAnswerTimeoutEnabled: true,
+    noAnswerTimeout: 18,
+    delayedStartMode: 'standby' as 'standby' | 'inapp'
+  };
+  const defaultDirectorSettings = {
+    standbyTotalSeconds: 10,
+    lockScreenWallpaper: '/img/Foto Anna (Ronchi)/profilo.jpeg',
+    callTotalSeconds: 5,
+    callConfig: defaultCallConfig,
+    ringerEnabled: true,
+    currentTime: '15:10'
+  };
+  const loadDirectorSettings = () => {
+    const cached = localStorage.getItem('ecolife_sim_director_settings');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        return {
+          ...defaultDirectorSettings,
+          ...parsed,
+          callConfig: {
+            ...defaultCallConfig,
+            ...(parsed.callConfig || {})
+          }
+        };
+      } catch (err) {
+        // Keep defaults if cached settings are not readable.
+      }
+    }
+    return defaultDirectorSettings;
+  };
+  const directorSettings = loadDirectorSettings();
+
   // Screen-wake notification standby scene configuration
   const [standbyActive, setStandbyActive] = useState<boolean>(false);
   const [standbyTimerRunning, setStandbyTimerRunning] = useState<boolean>(false);
-  const [standbySecondsLeft, setStandbySecondsLeft] = useState<number>(10);
-  const [standbyTotalSeconds, setStandbyTotalSeconds] = useState<number>(10);
+  const [standbySecondsLeft, setStandbySecondsLeft] = useState<number>(directorSettings.standbyTotalSeconds);
+  const [standbyTotalSeconds, setStandbyTotalSeconds] = useState<number>(directorSettings.standbyTotalSeconds);
   const [standbyPulseActive, setStandbyPulseActive] = useState<boolean>(false);
   const [lockScreenActive, setLockScreenActive] = useState<boolean>(false);
-  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>('/img/Foto Anna (Ronchi)/profilo.jpeg');
+  const [lockScreenWallpaper, setLockScreenWallpaper] = useState<string>(directorSettings.lockScreenWallpaper);
 
-  const [wakeConfig, setWakeConfig] = useState({
+  const defaultWakeConfig = {
     senderName: 'Anna',
     messagePreview: '🎤 Messaggio Vocale (0:42)',
     timestamp: 'Adesso',
     voiceDuration: '0:42',
     useVibratingPulse: true,
-    notificationBehavior: 'lockscreen' as 'lockscreen' | 'inapp'
+    notificationBehavior: 'lockscreen' as 'lockscreen' | 'inapp',
+    phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
+    targetChatId: 'chat_anna',
+    notificationTitle: 'Messaggio Vocale',
+    actionLabel: 'TOCCA PER ASCOLTARE ➔',
+    showLockDateTime: true,
+    lockScreenTime: '15:10',
+    lockScreenDate: '25 giugno 2026'
+  };
+  const [wakeConfig, setWakeConfig] = useState(() => {
+    const cachedWakeConfig = localStorage.getItem('ecolife_sim_wake_config');
+    if (cachedWakeConfig) {
+      try {
+        const parsedWakeConfig = JSON.parse(cachedWakeConfig);
+        return {
+          ...defaultWakeConfig,
+          ...parsedWakeConfig,
+          targetChatId: parsedWakeConfig.targetChatId === 'chat_aldo_anna'
+            ? 'chat_negroni_anna'
+            : parsedWakeConfig.targetChatId
+        };
+      } catch (err) {
+        // Keep defaults if cached config is not readable.
+      }
+    }
+    return defaultWakeConfig;
   });
+
+  useEffect(() => {
+    localStorage.setItem('ecolife_sim_wake_config', JSON.stringify(wakeConfig));
+  }, [wakeConfig]);
 
   // Call simulation overlay state
   const [callState, setCallState] = useState<{
@@ -114,22 +396,12 @@ export default function App() {
 
   // Call simulation countdown and configurations
   const [callTimerRunning, setCallTimerRunning] = useState<boolean>(false);
-  const [callSecondsLeft, setCallSecondsLeft] = useState<number>(5);
-  const [callTotalSeconds, setCallTotalSeconds] = useState<number>(5);
-  const [callAutoAnswerDelayLeft, setCallAutoAnswerDelayLeft] = useState<number>(5);
-  const [callNoAnswerSecondsLeft, setCallNoAnswerSecondsLeft] = useState<number>(18);
+  const [callSecondsLeft, setCallSecondsLeft] = useState<number>(directorSettings.callTotalSeconds);
+  const [callTotalSeconds, setCallTotalSeconds] = useState<number>(directorSettings.callTotalSeconds);
+  const [callAutoAnswerDelayLeft, setCallAutoAnswerDelayLeft] = useState<number>(directorSettings.callConfig.autoAnswerDelay);
+  const [callNoAnswerSecondsLeft, setCallNoAnswerSecondsLeft] = useState<number>(directorSettings.callConfig.noAnswerTimeout);
 
-  const [callConfig, setCallConfig] = useState({
-    callerName: 'Anna Calligaris',
-    callerNumber: '+39 347 129 8834',
-    callerAvatar: ANNA_CONTACT_AVATAR,
-    phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
-    autoAnswerEnabled: true,
-    autoAnswerDelay: 5,
-    noAnswerTimeoutEnabled: true,
-    noAnswerTimeout: 18,
-    delayedStartMode: 'standby' as 'standby' | 'inapp'
-  });
+  const [callConfig, setCallConfig] = useState(directorSettings.callConfig);
 
   useEffect(() => {
     const blackoutActive = standbyActive;
@@ -159,8 +431,19 @@ export default function App() {
   const [bannerNotificationActive, setBannerNotificationActive] = useState<boolean>(false);
 
   // Audio & Synthesizer State
-  const [ringerEnabled, setRingerEnabled] = useState<boolean>(true);
-  const [currentTime, setCurrentTime] = useState<string>('15:10');
+  const [ringerEnabled, setRingerEnabled] = useState<boolean>(directorSettings.ringerEnabled);
+  const [currentTime, setCurrentTime] = useState<string>(directorSettings.currentTime);
+
+  useEffect(() => {
+    localStorage.setItem('ecolife_sim_director_settings', JSON.stringify({
+      standbyTotalSeconds,
+      lockScreenWallpaper,
+      callTotalSeconds,
+      callConfig,
+      ringerEnabled,
+      currentTime
+    }));
+  }, [standbyTotalSeconds, lockScreenWallpaper, callTotalSeconds, callConfig, ringerEnabled, currentTime]);
 
   // Voice message player simulated progression
   const [voiceIsPlaying, setVoiceIsPlaying] = useState<boolean>(false);
@@ -445,9 +728,9 @@ export default function App() {
 
     setCallTimerRunning(false);
     setCallState(prev => ({ ...prev, type: null }));
-    setPhoneOwner('Aldo');
+    setPhoneOwner(wakeConfig.phoneOwnerTarget);
     setActiveScreen('chat');
-    setActiveChatId('chat_anna');
+    setActiveChatId(wakeConfig.targetChatId);
     setMobileShowActiveChat(true);
     setStandbyActive(false);
     setStandbyTimerRunning(false);
@@ -682,7 +965,7 @@ export default function App() {
       return contact.id === 'contact_anna' ? 'chat_anna' : 'chat_negroni';
     }
 
-    return contact.id === 'contact_conte_negroni' ? 'chat_aldo_anna' : 'chat_negroni_anna';
+    return 'chat_negroni_anna';
   };
 
   // Hot simulated triggers
@@ -725,7 +1008,7 @@ export default function App() {
         </div>
       )}
 
-      {/* IMMERSIVE SMARTPHONE LOCK SCREEN WITH THE DECLARED BACKEND WALLPAPER FIELD */}
+      {/* IMMERSIVE SMARTPHONE LOCK SCREEN WITH NEUTRAL BACKGROUND */}
       <AnimatePresence>
         {lockScreenActive && (
           <motion.div
@@ -735,13 +1018,10 @@ export default function App() {
             transition={{ type: 'spring', damping: 30, stiffness: 180 }}
             className="fixed inset-0 z-[99990] flex flex-col justify-between p-6 select-none text-white font-sans overflow-hidden"
             style={{
-              backgroundImage: `url(${lockScreenWallpaper})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              background: 'linear-gradient(180deg, #18181b 0%, #09090b 100%)',
             }}
           >
-            {/* Elegant dark frosted aesthetic glass overlay */}
-            <div className="absolute inset-0 bg-black/35 backdrop-blur-[1px] pointer-events-none" />
+            <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
             {/* Status bar top */}
             <div className="relative z-10 flex justify-between items-center text-[11px] font-semibold tracking-wider text-zinc-100 px-2 pt-1 select-none">
@@ -760,17 +1040,18 @@ export default function App() {
             </div>
 
             {/* Large Cinematic Clock and Date */}
-            <div className="relative z-10 flex flex-col items-center mt-12 text-center">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#e4e4e7] drop-shadow-md font-mono">
-                {new Date().toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase()}
-              </span>
-              <h2 className="text-7xl font-display font-light tracking-tight mt-1 mb-0.5 select-none text-white drop-shadow-xl">
-                {currentTime}
-              </h2>
-              <span className="text-[14px] font-medium tracking-wide text-zinc-200 opacity-90 drop-shadow-sm font-sans">
-                {new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </span>
-            </div>
+            {wakeConfig.showLockDateTime ? (
+              <div className="relative z-10 flex flex-col items-center mt-12 text-center">
+                <h2 className="text-7xl font-display font-light tracking-tight mt-1 mb-0.5 select-none text-white drop-shadow-xl">
+                  {wakeConfig.lockScreenTime || currentTime}
+                </h2>
+                <span className="text-[14px] font-medium tracking-wide text-zinc-200 opacity-90 drop-shadow-sm font-sans">
+                  {wakeConfig.lockScreenDate}
+                </span>
+              </div>
+            ) : (
+              <div className="relative z-10 mt-12 min-h-[98px]" />
+            )}
 
             {/* Middle part - Interactive Notifications Area */}
             <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[420px] mx-auto w-full pt-1">
@@ -783,9 +1064,9 @@ export default function App() {
                   playInteractionBeep(1100, 0.15);
                   setLockScreenActive(false);
                   setBannerNotificationActive(false);
-                  setPhoneOwner('Aldo');
+                  setPhoneOwner(wakeConfig.phoneOwnerTarget);
                   setActiveScreen('chat');
-                  setActiveChatId('chat_anna');
+                  setActiveChatId(wakeConfig.targetChatId);
                   setMobileShowActiveChat(true); // Open details panel on mobile reactively
                 }}
                 className="bg-white/15 backdrop-blur-[24px] border border-white/20 rounded-2xl p-4 shadow-2xl hover:scale-102 hover:bg-white/20 transition duration-300 cursor-pointer active:scale-98 relative overflow-hidden group select-none"
@@ -799,7 +1080,7 @@ export default function App() {
                   </div>
                   <div className="flex-1 space-y-0.5 text-left">
                     <div className="flex justify-between items-baseline">
-                      <span className="text-[10px] font-black tracking-widest text-emerald-400 font-mono uppercase leading-none">WHATSAPP</span>
+                      <span className="text-[10px] font-black tracking-widest text-emerald-400 font-mono uppercase leading-none">NUOVO MESSAGGIO</span>
                       <span className="text-[9px] text-zinc-300 font-medium font-mono lowercase">{wakeConfig.timestamp}</span>
                     </div>
                     <h4 className="text-sm font-extrabold text-white leading-tight">{wakeConfig.senderName}</h4>
@@ -811,9 +1092,9 @@ export default function App() {
 
                 <div className="mt-3.5 pt-2.5 border-t border-white/10 flex items-center justify-between text-[9px] font-bold text-zinc-300 uppercase tracking-widest">
                   <span className="text-emerald-400 flex items-center gap-1 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" /> Messaggio urgente
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" /> {wakeConfig.notificationTitle}
                   </span>
-                  <span className="opacity-80 group-hover:translate-x-1 transition-transform cursor-pointer">TOCCA PER ASCOLTARE ➔</span>
+                  <span className="opacity-80 group-hover:translate-x-1 transition-transform cursor-pointer">{wakeConfig.actionLabel}</span>
                 </div>
               </motion.div>
             </div>
@@ -854,7 +1135,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* IMMERSIVE WHATSAPP SLIDE-DOWN NOTIFICATION */}
+      {/* IMMERSIVE SLIDE-DOWN MESSAGE NOTIFICATION */}
       <AnimatePresence>
         {bannerNotificationActive && !lockScreenActive && (
           <motion.div
@@ -867,10 +1148,10 @@ export default function App() {
             } : { y: 12, x: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             onClick={() => {
-              // Clicking the WhatsApp banner automatically routes to Aldo's chat with Anna
-              setPhoneOwner('Aldo');
+              // Clicking the WhatsApp banner routes to the configured target chat.
+              setPhoneOwner(wakeConfig.phoneOwnerTarget);
               setActiveScreen('chat');
-              setActiveChatId('chat_anna');
+              setActiveChatId(wakeConfig.targetChatId);
               setMobileShowActiveChat(true); // show the chat thread on mobile
               setBannerNotificationActive(false);
               playInteractionBeep(1000, 0.15);
@@ -885,7 +1166,7 @@ export default function App() {
               </div>
               <div className="flex-1 space-y-0.5">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-[11px] font-black tracking-wider text-emerald-800 uppercase font-mono">Messaggio Vocale</span>
+                  <span className="text-[11px] font-black tracking-wider text-emerald-800 uppercase font-mono">{wakeConfig.notificationTitle}</span>
                   <span className="text-[9px] text-zinc-400 font-bold font-mono">{wakeConfig.timestamp}</span>
                 </div>
                 <h4 className="text-xs font-black text-zinc-900">{wakeConfig.senderName}</h4>
@@ -1098,6 +1379,7 @@ export default function App() {
                         key={item.id}
                         onClick={() => {
                           setActiveScreen(item.id);
+                          if (item.id === 'profile') setActiveProfileUsername(appData.annaProfile.username);
                           setFocusedPostId(null);
                           setSearchQuery('');
                           setMainMenuOpen(false);
@@ -1122,6 +1404,34 @@ export default function App() {
                     );
                   })}
                 </nav>
+
+                <div className="space-y-2 border-t border-zinc-100 pt-3">
+                  <span className="text-[9px] font-mono font-black uppercase tracking-widest text-zinc-400">Profili</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {profileShortcuts.map(profile => (
+                      <button
+                        key={profile.username}
+                        type="button"
+                        onClick={() => {
+                          setMainMenuOpen(false);
+                          openProfile(profile.username);
+                        }}
+                        className="flex flex-col items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 p-2 hover:bg-white transition"
+                        title={profile.fullName}
+                      >
+                        <img
+                          src={profile.avatar}
+                          alt={profile.fullName}
+                          className="h-9 w-9 rounded-full object-cover border border-zinc-200"
+                          referrerPolicy="no-referrer"
+                        />
+                        <span className="text-[9px] font-black text-zinc-700 truncate max-w-full">
+                          {profile.fullName.split(' ')[0]}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="mt-auto pt-4 border-t border-zinc-200">
                   <button
@@ -1162,6 +1472,7 @@ export default function App() {
                       if (st.trigger) {
                         st.trigger();
                       } else {
+                        setActiveProfileUsername(appData.annaProfile.username);
                         setActiveScreen('profile');
                         setFocusedPostId(null);
                       }
@@ -1180,14 +1491,21 @@ export default function App() {
               </div>
 
               {/* Feed items */}
-              {appData.posts.map(post => {
+              {feedPosts.map(post => {
                 const author = getPostAuthor(post);
+                const authorProfileAvailable = profileByUsername.has(author.username);
 
                 return (
                 <div key={post.id} className="bg-white border border-zinc-250 rounded-3xl overflow-hidden shadow-2xs">
                   {/* Item Header */}
                   <div className="p-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (authorProfileAvailable) openProfile(author.username);
+                      }}
+                      className={`flex items-center gap-3 text-left ${authorProfileAvailable ? 'cursor-pointer hover:opacity-80 transition' : 'cursor-default'}`}
+                    >
                       <img
                         src={author.avatar}
                         alt="Profile Post" 
@@ -1201,7 +1519,7 @@ export default function App() {
                         </div>
                         <p className="text-[10px] text-zinc-400 font-bold">{post.location || author.name}</p>
                       </div>
-                    </div>
+                    </button>
                   </div>
 
                   {/* Photo content */}
@@ -1310,42 +1628,53 @@ export default function App() {
               </div>
 
               {/* Dynamic search suggested listings */}
-              {(searchQuery.toLowerCase().includes('anna') || searchQuery === '') ? (
+              {socialProfiles.filter(profile => {
+                const q = searchQuery.toLowerCase();
+                return q === '' || profile.fullName.toLowerCase().includes(q) || profile.username.toLowerCase().includes(q);
+              }).length > 0 ? (
                 <div className="bg-white border border-zinc-250 rounded-2xl overflow-hidden divide-y divide-zinc-150">
-                  <div 
-                    onClick={() => {
-                      setActiveScreen('profile');
-                      setSearchQuery('');
-                      playInteractionBeep(1000, 0.1);
-                    }}
-                    className="p-4 flex justify-between items-center hover:bg-zinc-50 cursor-pointer transition"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={appData.annaProfile.avatar} 
-                        alt="Search suggest" 
-                        className="w-11 h-11 rounded-full object-cover border border-zinc-200" 
-                        referrerPolicy="no-referrer"
-                      />
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h3 className="text-xs font-black text-zinc-900">{appData.annaProfile.fullName}</h3>
-                          <span className="w-3.5 h-3.5 rounded-full bg-cyan-500 flex items-center justify-center text-[7px] text-white font-extrabold font-mono font-sans font-black">
-                            ✓
-                          </span>
+                  {socialProfiles
+                    .filter(profile => {
+                      const q = searchQuery.toLowerCase();
+                      return q === '' || profile.fullName.toLowerCase().includes(q) || profile.username.toLowerCase().includes(q);
+                    })
+                    .map(profile => (
+                      <div 
+                        key={profile.username}
+                        onClick={() => {
+                          openProfile(profile.username);
+                        }}
+                        className="p-4 flex justify-between items-center hover:bg-zinc-50 cursor-pointer transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={profile.avatar} 
+                            alt="Search suggest" 
+                            className="w-11 h-11 rounded-full object-cover border border-zinc-200" 
+                            referrerPolicy="no-referrer"
+                          />
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="text-xs font-black text-zinc-900">{profile.fullName}</h3>
+                              {profile.isVerified && (
+                                <span className="w-3.5 h-3.5 rounded-full bg-cyan-500 flex items-center justify-center text-[7px] text-white font-extrabold font-mono font-sans font-black">
+                                  ✓
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-gray-500 font-mono">@{profile.username}</p>
+                          </div>
                         </div>
-                        <p className="text-[10px] text-gray-500 font-mono">@{appData.annaProfile.username}</p>
-                      </div>
-                    </div>
 
-                    <button className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase">
-                      Vedi Profilo
-                    </button>
-                  </div>
+                        <button className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase">
+                          Vedi Profilo
+                        </button>
+                      </div>
+                    ))}
                 </div>
               ) : (
                 <div className="p-8 text-center text-xs italic text-zinc-400">
-                  Nessun attivista con prefisso "{searchQuery}" trovato. Svuota la ricerca per riprovare.
+                  Nessun profilo con prefisso "{searchQuery}" trovato. Svuota la ricerca per riprovare.
                 </div>
               )}
 
@@ -1367,7 +1696,7 @@ export default function App() {
             </div>
           )}
 
-          {/* SCREEN: ANNA'S PROFILE & VERIFIED LAYOUT */}
+          {/* SCREEN: SOCIAL PROFILE LAYOUT */}
           {activeScreen === 'profile' && (
             <div className="max-w-[650px] mx-auto space-y-8 select-none">
               
@@ -1377,8 +1706,8 @@ export default function App() {
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-[3px] bg-linear-to-tr from-emerald-500 to-cyan-400 shrink-0 mx-auto sm:mx-0">
                   <div className="w-full h-full bg-white rounded-full p-[2px]">
                     <img 
-                      src={appData.annaProfile.avatar} 
-                      alt="Anna Verified avatar" 
+                      src={activeProfile.avatar} 
+                      alt={`${activeProfile.fullName} avatar`}
                       className="w-full h-full object-cover rounded-full"
                       referrerPolicy="no-referrer"
                     />
@@ -1389,10 +1718,10 @@ export default function App() {
                   {/* Verified username section */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-center sm:justify-start">
                     <h2 className="text-lg font-black tracking-tight text-neutral-900 font-mono">
-                      {appData.annaProfile.username}
+                      {activeProfile.username}
                     </h2>
                     
-                    {appData.annaProfile.isVerified && (
+                    {activeProfile.isVerified && (
                       <span className="inline-flex self-center bg-cyan-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full font-sans uppercase tracking-widest">
                         ✓ VERIFICATO
                       </span>
@@ -1402,43 +1731,83 @@ export default function App() {
                   {/* Core stats block */}
                   <div className="flex justify-center sm:justify-start gap-8 text-xs font-semibold text-zinc-550">
                     <div>
-                      <strong className="text-zinc-900 text-sm block font-black">{appData.annaProfile.postsCount}</strong> post
+                      <strong className="text-zinc-900 text-sm block font-black">{activeProfile.postsCount}</strong> post
                     </div>
-                    <div>
-                      <strong className="text-zinc-900 text-sm block font-black">{appData.annaProfile.followers}</strong> follower
-                    </div>
-                    <div>
-                      <strong className="text-zinc-900 text-sm block font-black">{appData.annaProfile.following}</strong> seguiti
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!activeProfileFollowers.length) return;
+                        setProfileListOpen(prev => prev === 'followers' ? null : 'followers');
+                        playInteractionBeep(950, 0.08);
+                      }}
+                      className={`text-left ${activeProfileFollowers.length ? 'cursor-pointer hover:text-zinc-900' : 'cursor-default'}`}
+                    >
+                      <strong className="text-zinc-900 text-sm block font-black">{activeProfile.followers}</strong> follower
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!activeProfileFollowing.length) return;
+                        setProfileListOpen(prev => prev === 'following' ? null : 'following');
+                        playInteractionBeep(950, 0.08);
+                      }}
+                      className={`text-left ${activeProfileFollowing.length ? 'cursor-pointer hover:text-zinc-900' : 'cursor-default'}`}
+                    >
+                      <strong className="text-zinc-900 text-sm block font-black">{activeProfile.following}</strong> seguiti
+                    </button>
                   </div>
+
+                  {activeProfileList.length > 0 && profileListOpen && (
+                    <div className="bg-zinc-50 border border-zinc-200 rounded-2xl overflow-hidden text-left">
+                      <div className="px-3 py-2 border-b border-zinc-200 text-[9px] font-mono font-black uppercase tracking-widest text-zinc-500">
+                        {profileListOpen === 'followers' ? 'Follower' : 'Seguiti'}
+                      </div>
+                      <div className="divide-y divide-zinc-100 max-h-44 overflow-y-auto no-scrollbar">
+                        {activeProfileList.map((person, index) => {
+                          const canOpen = person.username ? clickableSocialUsernames.has(person.username) : false;
+
+                          return (
+                            <button
+                              key={`${person.name}-${index}`}
+                              type="button"
+                              onClick={() => {
+                                if (canOpen && person.username) openProfile(person.username);
+                              }}
+                              className="w-full px-3 py-2.5 text-left text-xs font-black text-zinc-900"
+                            >
+                              {person.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Bio descriptions */}
                   <div className="text-xs leading-relaxed text-zinc-800 text-justify">
-                    <h4 className="font-bold text-zinc-900 text-xs mb-1">{appData.annaProfile.fullName}</h4>
-                    <p className="whitespace-pre-line font-medium text-zinc-600">{appData.annaProfile.bio}</p>
+                    <h4 className="font-bold text-zinc-900 text-xs mb-1">{activeProfile.fullName}</h4>
+                    <p className="whitespace-pre-line font-medium text-zinc-600">{activeProfile.bio}</p>
                     
                     {/* Fake Bio Web Link */}
-                    <button
-                      onClick={() => setActiveScreen('newspaper')}
-                      className="text-emerald-700 font-bold hover:underline mt-2.5 block text-left"
-                    >
-                      🔗 leggi_giornata_piazza_celli_news.it
-                    </button>
+                    {activeProfile.linkLabel && (
+                      <button
+                        onClick={() => setActiveScreen(activeProfile.linkScreen)}
+                        className="text-emerald-700 font-bold hover:underline mt-2.5 block text-left"
+                      >
+                        🔗 {activeProfile.linkLabel}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Story Highlights simulated badges */}
               <div className="flex gap-4 overflow-x-auto no-scrollbar py-1">
-                {[
-                  { label: "Bici Libere", icon: "🚴‍♀️", color: "from-amber-100 to-amber-200" },
-                  { label: "FlashMob", icon: "📢", color: "from-zinc-100 to-zinc-200" },
-                  { label: "Amici Coda", icon: "🐾", color: "from-emerald-100 to-emerald-200" }
-                ].map((high, i) => (
+                {activeProfile.highlights.map((high, i) => (
                   <div 
                     key={i} 
                     onClick={() => {
-                      if (high.label === "FlashMob") setActiveScreen('feed');
+                      if (activeProfile.username === appData.annaProfile.username && high.label === "FlashMob") setActiveScreen('feed');
                       playInteractionBeep(800, 0.1);
                     }}
                     className="flex flex-col items-center gap-1 cursor-pointer"
@@ -1468,7 +1837,7 @@ export default function App() {
                 {/* Content selector */}
                 {profileViewMode === 'grid' ? (
                   <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                    {annaProfilePosts.map(post => (
+                    {activeProfilePosts.map(post => (
                       <div
                         key={post.id}
                         onClick={() => {
@@ -1499,7 +1868,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="space-y-6 max-w-[480px] mx-auto">
-                    {annaProfilePosts.map(post => {
+                    {activeProfilePosts.map(post => {
                       const author = getPostAuthor(post);
 
                       return (
@@ -1654,7 +2023,7 @@ export default function App() {
                                   {/* Image attachments selfie / photos preview */}
                                   {msg.image && (
                                     <div 
-                                      onClick={() => setFocusedPostId('selfie_zoom')}
+                                      onClick={() => setFocusedChatImage(msg.image || null)}
                                       className="relative aspect-square max-w-[160px] rounded-xl overflow-hidden cursor-zoom-in border border-zinc-100/30"
                                     >
                                       <img 
@@ -1956,20 +2325,20 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* FULLSCREEN LIGHTBOX FOR ALDO'S RECEIVED SELFIE */}
+      {/* FULLSCREEN LIGHTBOX FOR CHAT IMAGE ATTACHMENTS */}
       <AnimatePresence>
-        {focusedPostId === 'selfie_zoom' && (
+        {focusedChatImage && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setFocusedPostId(null)}
+            onClick={() => setFocusedChatImage(null)}
             className="fixed inset-0 bg-black/95 p-4 z-[9999] flex flex-col justify-between items-center text-white cursor-zoom-out"
           >
             <div className="w-full flex justify-between items-center max-w-[600px] text-zinc-450 text-[10px] py-1 select-none font-mono tracking-widest">
-              <span>AUTOSCATTO DI ANNA COSTRUZIONE LOGO</span>
+              <span>IMMAGINE RICEVUTA VIA DIRECT</span>
               <button
-                onClick={() => setFocusedPostId(null)}
+                onClick={() => setFocusedChatImage(null)}
                 className="p-2.5 bg-zinc-805 bg-zinc-800 text-white rounded-full transition hover:bg-zinc-700"
               >
                 <X className="w-4.5 h-4.5" />
@@ -1978,13 +2347,13 @@ export default function App() {
 
             <div className="max-w-[400px] w-full aspect-square overflow-hidden rounded-2xl border-2 border-white/10 bg-zinc-950 relative">
               <img 
-                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400" 
-                alt="Zoomed Anna Selfie Photo" 
+                src={focusedChatImage}
+                alt="Zoomed chat attachment"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3 text-center text-xs font-sans">
-                "Pronta per domani a Piazza Celli. Mandami i tuoi feedback!"
+                Allegato immagine
               </div>
             </div>
 

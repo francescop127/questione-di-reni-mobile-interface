@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud } from 'lucide-react';
+import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud, Bell } from 'lucide-react';
 import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR } from '../data';
 
 interface UploadImageControlProps {
@@ -75,6 +75,13 @@ interface DirectorDrawerProps {
     voiceDuration: string;
     useVibratingPulse: boolean;
     notificationBehavior: 'lockscreen' | 'inapp';
+    phoneOwnerTarget: 'Aldo' | 'Anna';
+    targetChatId: string;
+    notificationTitle: string;
+    actionLabel: string;
+    showLockDateTime: boolean;
+    lockScreenTime: string;
+    lockScreenDate: string;
   };
   setWakeConfig: React.Dispatch<React.SetStateAction<{
     senderName: string;
@@ -83,6 +90,13 @@ interface DirectorDrawerProps {
     voiceDuration: string;
     useVibratingPulse: boolean;
     notificationBehavior: 'lockscreen' | 'inapp';
+    phoneOwnerTarget: 'Aldo' | 'Anna';
+    targetChatId: string;
+    notificationTitle: string;
+    actionLabel: string;
+    showLockDateTime: boolean;
+    lockScreenTime: string;
+    lockScreenDate: string;
   }>>;
   triggerWakeNotification: () => void;
   triggerVoiceMessageReceipt: () => void;
@@ -203,6 +217,15 @@ export default function DirectorDrawer({
 
   // Fast edits states
   const selectedPost = appData.posts.find(p => p.id === selectedPostId);
+  const negroniAnnaImageMessage = appData.chatsAnna
+    .find(chat => chat.id === 'chat_negroni_anna')
+    ?.messages.find(message => message.id === 'msg_negroni_img_anna');
+  const buildNegroniAnnaImageMessage = (image = ''): Message => ({
+    id: 'msg_negroni_img_anna',
+    sender: 'other',
+    image,
+    timestamp: '12:04'
+  });
 
   // Profile data edits
   const handleProfileChange = (key: keyof typeof appData.annaProfile, val: any) => {
@@ -277,7 +300,14 @@ export default function DirectorDrawer({
         ...prev,
         [listKey]: prev[listKey].map(t => t.id === threadId ? {
           ...t,
-          messages: t.messages.map(msg => msg.id === messageId ? { ...msg, image: url } : msg)
+          messages: t.messages.some(msg => msg.id === messageId)
+            ? t.messages.map(msg => msg.id === messageId ? { ...msg, image: url } : msg)
+            : [...t.messages, messageId === 'msg_negroni_img_anna' ? buildNegroniAnnaImageMessage(url) : {
+              id: messageId,
+              sender: 'other',
+              image: url,
+              timestamp: 'Adesso'
+            }]
         } : t)
       }));
       setUploadNotice(`Upload completato: ${file.name}`);
@@ -357,6 +387,24 @@ export default function DirectorDrawer({
         }
         return thread;
       })
+    }));
+  };
+
+  const handleMessageImageUrlChange = (owner: 'Aldo' | 'Anna', threadId: string, messageId: string, val: string) => {
+    const listKey = owner === 'Aldo' ? 'chatsAldo' : 'chatsAnna';
+    setAppData(prev => ({
+      ...prev,
+      [listKey]: prev[listKey].map(thread => thread.id === threadId ? {
+        ...thread,
+        messages: thread.messages.some(message => message.id === messageId)
+          ? thread.messages.map(message => message.id === messageId ? { ...message, image: val } : message)
+          : [...thread.messages, messageId === 'msg_negroni_img_anna' ? buildNegroniAnnaImageMessage(val) : {
+            id: messageId,
+            sender: 'other',
+            image: val,
+            timestamp: 'Adesso'
+          }]
+      } : thread)
     }));
   };
 
@@ -495,25 +543,18 @@ export default function DirectorDrawer({
                   </div>
                 </div>
 
-                {/* Primary AVVIA Button in full contrast red/gold to fulfill exact user specifications */}
-                <div className="pt-2">
+                {/* Notification action CTAs */}
+                <div className="pt-2 space-y-2">
                   <button
                     onClick={() => {
-                      if (standbyActive) {
-                        // If already standby, force wake to lock screen!
-                        setStandbyActive(false);
+                      if (standbyTimerRunning) {
                         setStandbyTimerRunning(false);
-                        triggerWakeNotification();
-                      } else {
-                        if (wakeConfig.notificationBehavior === 'inapp') {
-                          triggerVoiceMessageReceipt();
-                        } else {
-                          // Start the process: Standby active + start timer
-                          setStandbySecondsLeft(standbyTotalSeconds);
-                          setStandbyActive(true);
-                          setStandbyTimerRunning(true);
-                        }
+                        setStandbyActive(false);
+                        return;
                       }
+                      setStandbySecondsLeft(standbyTotalSeconds);
+                      setStandbyActive(true);
+                      setStandbyTimerRunning(true);
                     }}
                     className={`w-full p-4 rounded-xl font-bold font-mono text-xs uppercase tracking-wider text-center transition flex flex-col items-center justify-center gap-1 border cursor-pointer ${
                       standbyTimerRunning
@@ -524,26 +565,41 @@ export default function DirectorDrawer({
                     <div className="flex items-center gap-2">
                       <span className="text-sm">🚀</span>
                       <span className="font-extrabold tracking-widest text-[11px]">
-                        {standbyTimerRunning ? `RILASCIO IN CORSO... (${standbySecondsLeft}s)` : wakeConfig.notificationBehavior === 'inapp' ? 'AVVIA NOTIFICA IN-APP' : 'AVVIA PROCESSO (STANDBY + SVEGLIA)'}
+                        {standbyTimerRunning ? `ANNULLA TIMER NOTIFICA (${standbySecondsLeft}s)` : 'AVVIA NOTIFICA CON TIMER STANDBY'}
                       </span>
                     </div>
                     <span className="text-[9px] opacity-75 font-normal tracking-normal lowercase italic font-sans block mt-0.5">
-                      {standbyTimerRunning ? 'tocca lo schermo nero nel mockup per risveglio immediato' : wakeConfig.notificationBehavior === 'inapp' ? 'mostra subito il banner senza passare dallo schermo nero' : `metti in nero per ${standbyTotalSeconds}s poi sblocca con notifica vocale`}
+                      {standbyTimerRunning ? 'annulla solo il countdown della notifica' : `mette il telefono nero per ${standbyTotalSeconds}s, poi mostra la notifica configurata`}
                     </span>
                   </button>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerVoiceMessageReceipt();
-                    onClose();
-                  }}
-                  className="w-full p-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 border border-emerald-500 text-white font-black font-mono text-[11px] uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md shadow-emerald-950/30 cursor-pointer"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Avvia ricezione messaggio audio</span>
-                </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStandbyActive(false);
+                        setStandbyTimerRunning(false);
+                        triggerWakeNotification();
+                      }}
+                      className="p-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 border border-emerald-500 text-white font-black font-mono text-[10px] uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md shadow-emerald-950/30 cursor-pointer"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Notifica ora</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerVoiceMessageReceipt();
+                        onClose();
+                      }}
+                      className="p-3 rounded-xl bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 text-white font-black font-mono text-[10px] uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md shadow-cyan-950/30 cursor-pointer"
+                    >
+                      <Bell className="w-4 h-4" />
+                      <span>Sequenza notifica salvata</span>
+                    </button>
+                  </div>
+                </div>
 
                 {/* Controls Area */}
                 <div className="grid grid-cols-2 gap-2">
@@ -701,6 +757,56 @@ export default function DirectorDrawer({
               {/* Notification Configuration form */}
               <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
                 <span className="text-[9px] font-black uppercase text-amber-400 tracking-wider block font-mono">⚙️ PARAMETRI DI NOTIFICA</span>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWakeConfig(prev => ({
+                        ...prev,
+                        senderName: 'Anna',
+                        messagePreview: '🎤 Messaggio Vocale (0:42)',
+                        timestamp: 'Adesso',
+                        voiceDuration: '0:42',
+                        phoneOwnerTarget: 'Aldo',
+                        targetChatId: 'chat_anna',
+                        notificationTitle: 'Messaggio Vocale',
+                        actionLabel: 'TOCCA PER ASCOLTARE ➔'
+                      }));
+                    }}
+                    className={`p-2 rounded-lg border text-[8.5px] font-mono font-black uppercase transition ${
+                      wakeConfig.phoneOwnerTarget === 'Aldo' && wakeConfig.targetChatId === 'chat_anna'
+                        ? 'bg-emerald-950 text-emerald-300 border-emerald-500'
+                        : 'bg-slate-950 hover:bg-slate-850 text-slate-350 border-slate-800'
+                    }`}
+                  >
+                    Preset Anna → Aldo vocale
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWakeConfig(prev => ({
+                        ...prev,
+                        senderName: 'Conte Negroni',
+                        messagePreview: '📷 Immagine ricevuta',
+                        timestamp: 'Adesso',
+                        voiceDuration: '',
+                        phoneOwnerTarget: 'Anna',
+                        targetChatId: 'chat_negroni_anna',
+                        notificationTitle: 'Immagine ricevuta',
+                        actionLabel: 'TOCCA PER APRIRE ➔'
+                      }));
+                    }}
+                    className={`p-2 rounded-lg border text-[8.5px] font-mono font-black uppercase transition ${
+                      wakeConfig.phoneOwnerTarget === 'Anna' && wakeConfig.targetChatId === 'chat_negroni_anna'
+                        ? 'bg-cyan-950 text-cyan-300 border-cyan-500'
+                        : 'bg-slate-950 hover:bg-slate-850 text-slate-350 border-slate-800'
+                    }`}
+                  >
+                    Preset Conte → Anna immagine
+                  </button>
+                </div>
                 
                 {/* Delay Select */}
                 <div className="space-y-1.5">
@@ -763,6 +869,94 @@ export default function DirectorDrawer({
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-zinc-400 block font-mono uppercase">Telefono Target:</label>
+                    <select
+                      value={wakeConfig.phoneOwnerTarget}
+                      onChange={(e) => setWakeConfig(prev => ({ ...prev, phoneOwnerTarget: e.target.value as 'Aldo' | 'Anna' }))}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-semibold text-xs focus:outline-hidden focus:border-emerald-500"
+                    >
+                      <option value="Aldo">Aldo</option>
+                      <option value="Anna">Anna</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-zinc-400 block font-mono uppercase">Chat Apertura:</label>
+                    <select
+                      value={wakeConfig.targetChatId}
+                      onChange={(e) => setWakeConfig(prev => ({ ...prev, targetChatId: e.target.value }))}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-semibold text-xs focus:outline-hidden focus:border-emerald-500"
+                    >
+                      <option value="chat_anna">Aldo - Anna</option>
+                      <option value="chat_negroni">Aldo - Conte</option>
+                      <option value="chat_negroni_anna">Anna - Conte</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-zinc-400 block font-mono uppercase">Titolo Notifica:</label>
+                    <input
+                      type="text"
+                      value={wakeConfig.notificationTitle}
+                      onChange={(e) => setWakeConfig(prev => ({ ...prev, notificationTitle: e.target.value }))}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-semibold text-xs focus:outline-hidden focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-zinc-400 block font-mono uppercase">Azione Testo:</label>
+                    <input
+                      type="text"
+                      value={wakeConfig.actionLabel}
+                      onChange={(e) => setWakeConfig(prev => ({ ...prev, actionLabel: e.target.value }))}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-semibold text-xs focus:outline-hidden focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-850 space-y-2">
+                  <div className="flex justify-between items-center gap-3">
+                    <div>
+                      <span className="text-[10px] font-bold text-white block uppercase font-mono">Data/Ora schermata blocco</span>
+                      <span className="text-[9px] text-zinc-400 font-sans block">Mostra, modifica o nasconde completamente data e ora.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={wakeConfig.showLockDateTime}
+                      onChange={(e) => setWakeConfig(prev => ({ ...prev, showLockDateTime: e.target.checked }))}
+                      className="w-4 h-4 text-emerald-600 rounded bg-slate-900 border-slate-800 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] text-zinc-400 block font-mono uppercase">Ora schermo:</label>
+                      <input
+                        type="text"
+                        value={wakeConfig.lockScreenTime}
+                        onChange={(e) => setWakeConfig(prev => ({ ...prev, lockScreenTime: e.target.value }))}
+                        disabled={!wakeConfig.showLockDateTime}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white font-semibold text-xs focus:outline-hidden focus:border-emerald-500 disabled:opacity-40"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] text-zinc-400 block font-mono uppercase">Data schermo:</label>
+                      <input
+                        type="text"
+                        value={wakeConfig.lockScreenDate}
+                        onChange={(e) => setWakeConfig(prev => ({ ...prev, lockScreenDate: e.target.value }))}
+                        disabled={!wakeConfig.showLockDateTime}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white font-semibold text-xs focus:outline-hidden focus:border-emerald-500 disabled:opacity-40"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Vibration pulse state switcher */}
                 <div className="flex justify-between items-center bg-slate-950 p-2.5 rounded-lg border border-slate-850 mt-1">
                   <div>
@@ -779,7 +973,7 @@ export default function DirectorDrawer({
 
                 {/* Comportamento Notifica (Blocco o In-App) */}
                 <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-850 mt-1 space-y-2 text-left">
-                  <span className="text-[10px] font-bold text-white block uppercase font-mono">Modalità Notifica Vocale</span>
+                  <span className="text-[10px] font-bold text-white block uppercase font-mono">Modalità Notifica</span>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
@@ -1076,7 +1270,7 @@ export default function DirectorDrawer({
                   >
                     <span>⏱️</span>
                     <span>
-                      {callTimerRunning ? `ANNULLA CONTO ROVESCIA (${callSecondsLeft}s)` : 'AVVIA CON TIMER DI RITARDO'}
+                      {callTimerRunning ? `ANNULLA TIMER CHIAMATA (${callSecondsLeft}s)` : 'AVVIA CHIAMATA CON TIMER'}
                     </span>
                   </button>
 
@@ -1099,7 +1293,7 @@ export default function DirectorDrawer({
                       }}
                       className="p-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 border border-emerald-600 text-white font-bold text-center transition flex flex-col items-center justify-center gap-1 leading-none text-[9.5px] uppercase font-mono cursor-pointer"
                     >
-                      <span>📞 AVVIA ORA</span>
+                      <span>📞 AVVIA CHIAMATA ORA</span>
                     </button>
 
                     <button
@@ -1538,6 +1732,48 @@ export default function DirectorDrawer({
                 <p className="text-[10px] text-slate-402 leading-normal italic">
                   Qui di seguito vedi i messaggi scritti o vocali pianificati nello storico dei Direct. Sostituisci i testi per i primi piani:
                 </p>
+
+                <div className="p-3 bg-slate-950 rounded-lg border border-cyan-900/60 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[9px] font-black uppercase text-cyan-300 tracking-wider font-mono">
+                      🖼️ Conte → Anna: immagine ricevuta
+                    </span>
+                    <span className="text-[8px] font-mono text-slate-500 uppercase">salvato nei dati app</span>
+                  </div>
+
+                  {negroniAnnaImageMessage?.image && (
+                    <img
+                      src={negroniAnnaImageMessage.image}
+                      alt="Anteprima immagine Conte Negroni per Anna"
+                      className="w-full h-32 object-cover rounded-lg border border-slate-800 bg-slate-900"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
+
+                  <label className="block space-y-1">
+                    <span className="text-[8px] text-slate-400 uppercase font-mono font-bold">URL immagine messaggio:</span>
+                    <input
+                      type="text"
+                      value={negroniAnnaImageMessage?.image || ''}
+                      onChange={(e) => handleMessageImageUrlChange('Anna', 'chat_negroni_anna', 'msg_negroni_img_anna', e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-[10px] text-white font-mono focus:outline-hidden focus:border-cyan-600"
+                    />
+                  </label>
+
+                  <UploadImageControl
+                    enabled={supabaseSync.enabled}
+                    disabled={uploadingField !== null}
+                    loading={uploadingField === 'chat_negroni_anna-msg_negroni_img_anna-image'}
+                    label="Carica immagine Conte per Anna"
+                    loadingLabel="Caricamento immagine..."
+                    onFile={(file) => handleMessageImageUpload('Anna', 'chat_negroni_anna', 'msg_negroni_img_anna', file)}
+                    compact
+                  />
+
+                  <p className="text-[9px] text-slate-500 leading-normal">
+                    Il valore resta salvato perché modifica lo storico chat di Anna. Apri il telefono di Anna, Direct con Conte Negroni, per vedere l'immagine.
+                  </p>
+                </div>
 
                 <div className="space-y-3.5 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
                   {/* Aldo and Anna message logs */}
