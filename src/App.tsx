@@ -4,7 +4,7 @@ import {
   MapPin, Heart, CheckCheck, Send, Calendar, Bookmark, Clock, 
   Volume2, VolumeX, Sliders, X, Check, Smartphone, ChevronLeft, 
   Eye, Sparkles, BookOpen, Clock4, Bell, HelpCircle, Flame, Layers, Camera,
-  Lock, Battery, Wifi
+  Lock, Battery, Wifi, MoreHorizontal, UploadCloud
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -53,7 +53,15 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [profileViewMode, setProfileViewMode] = useState<'grid' | 'feed'>('grid');
   const [focusedPostId, setFocusedPostId] = useState<string | null>(null);
-  const [focusedChatImage, setFocusedChatImage] = useState<string | null>(null);
+  const [focusedChatImage, setFocusedChatImage] = useState<{
+    url: string;
+    owner: 'Aldo' | 'Anna';
+    threadId: string;
+    messageId: string;
+  } | null>(null);
+  const [chatImageSettingsOpen, setChatImageSettingsOpen] = useState<boolean>(false);
+  const [chatImageUploading, setChatImageUploading] = useState<boolean>(false);
+  const [chatImageUploadError, setChatImageUploadError] = useState<string | null>(null);
   const [activeProfileUsername, setActiveProfileUsername] = useState<string>('anna_calligaris_eco');
   const [profileListOpen, setProfileListOpen] = useState<'followers' | 'following' | null>(null);
 
@@ -947,6 +955,39 @@ export default function App() {
     });
 
     setTypedMessage('');
+  };
+
+  const handleFocusedChatImageChange = (url: string) => {
+    if (!focusedChatImage) return;
+
+    const listKey = focusedChatImage.owner === 'Aldo' ? 'chatsAldo' : 'chatsAnna';
+    setFocusedChatImage(prev => prev ? { ...prev, url } : prev);
+    setAppData(prev => ({
+      ...prev,
+      [listKey]: prev[listKey].map(thread => thread.id === focusedChatImage.threadId ? {
+        ...thread,
+        messages: thread.messages.map(message => message.id === focusedChatImage.messageId ? {
+          ...message,
+          image: url
+        } : message)
+      } : thread)
+    }));
+  };
+
+  const handleFocusedChatImageUpload = async (file: File | undefined) => {
+    if (!file || !focusedChatImage) return;
+
+    setChatImageUploading(true);
+    setChatImageUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'messages');
+      handleFocusedChatImageChange(url);
+    } catch (err) {
+      setChatImageUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setChatImageUploading(false);
+    }
   };
 
   // Contacts dataset filtering resolver
@@ -2023,7 +2064,15 @@ export default function App() {
                                   {/* Image attachments selfie / photos preview */}
                                   {msg.image && (
                                     <div 
-                                      onClick={() => setFocusedChatImage(msg.image || null)}
+                                      onClick={() => {
+                                        setFocusedChatImage({
+                                          url: msg.image || '',
+                                          owner: phoneOwner,
+                                          threadId: activeThread.id,
+                                          messageId: msg.id
+                                        });
+                                        setChatImageSettingsOpen(false);
+                                      }}
                                       className="relative aspect-square max-w-[160px] rounded-xl overflow-hidden cursor-zoom-in border border-zinc-100/30"
                                     >
                                       <img 
@@ -2332,33 +2381,95 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setFocusedChatImage(null)}
-            className="fixed inset-0 bg-black/95 p-4 z-[9999] flex flex-col justify-between items-center text-white cursor-zoom-out"
+            onClick={() => {
+              setFocusedChatImage(null);
+              setChatImageSettingsOpen(false);
+            }}
+            className="fixed inset-0 bg-black z-[9999] flex items-center justify-center text-white cursor-zoom-out"
           >
-            <div className="w-full flex justify-between items-center max-w-[600px] text-zinc-450 text-[10px] py-1 select-none font-mono tracking-widest">
-              <span>IMMAGINE RICEVUTA VIA DIRECT</span>
+            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
               <button
-                onClick={() => setFocusedChatImage(null)}
-                className="p-2.5 bg-zinc-805 bg-zinc-800 text-white rounded-full transition hover:bg-zinc-700"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setChatImageSettingsOpen(prev => !prev);
+                }}
+                className="h-10 w-10 bg-black/55 hover:bg-black/80 text-white rounded-full transition flex items-center justify-center border border-white/10"
+                title="Impostazioni immagine"
+              >
+                <MoreHorizontal className="w-5 h-5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFocusedChatImage(null);
+                  setChatImageSettingsOpen(false);
+                }}
+                className="h-10 w-10 bg-black/55 hover:bg-black/80 text-white rounded-full transition flex items-center justify-center border border-white/10"
+                title="Chiudi"
               >
                 <X className="w-4.5 h-4.5" />
               </button>
             </div>
 
-            <div className="max-w-[400px] w-full aspect-square overflow-hidden rounded-2xl border-2 border-white/10 bg-zinc-950 relative">
+            {chatImageSettingsOpen && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute top-16 right-4 z-20 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-white/10 bg-zinc-950/95 p-3 shadow-2xl cursor-default"
+              >
+                <label className="block space-y-2">
+                  <span className="text-[10px] font-mono font-black uppercase tracking-widest text-zinc-400">URL immagine</span>
+                  <input
+                    type="text"
+                    value={focusedChatImage.url}
+                    onChange={(e) => handleFocusedChatImageChange(e.target.value)}
+                    className="w-full rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-mono text-white focus:outline-hidden focus:border-emerald-500"
+                  />
+                </label>
+
+                <label className={`relative mt-3 flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-[10px] font-mono font-black uppercase tracking-widest transition ${
+                  supabaseSync.enabled && !chatImageUploading
+                    ? 'cursor-pointer border-emerald-700 bg-emerald-950/40 text-emerald-200 hover:bg-emerald-900/50'
+                    : 'cursor-not-allowed border-zinc-800 bg-zinc-900 text-zinc-500'
+                }`}>
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  <span>
+                    {!supabaseSync.enabled
+                      ? 'Configura Supabase per caricare'
+                      : chatImageUploading
+                        ? 'Caricamento...'
+                        : 'Carica su Supabase'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={!supabaseSync.enabled || chatImageUploading}
+                    onChange={(e) => {
+                      handleFocusedChatImageUpload(e.target.files?.[0]);
+                      e.currentTarget.value = '';
+                    }}
+                    className="absolute inset-0 h-full w-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                  />
+                </label>
+
+                {chatImageUploadError && (
+                  <p className="mt-2 text-[10px] font-semibold text-red-300">
+                    {chatImageUploadError}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="h-full w-full flex items-center justify-center"
+            >
               <img 
-                src={focusedChatImage}
+                src={focusedChatImage.url}
                 alt="Zoomed chat attachment"
-                className="w-full h-full object-cover"
+                className="max-h-full max-w-full object-contain"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3 text-center text-xs font-sans">
-                Allegato immagine
-              </div>
-            </div>
-
-            <div className="text-[9px] text-zinc-450 font-mono tracking-widest text-center select-none">
-              RICEVUTO VIA DIRECT INSTAGRAM • IMPIANTO LUCI ALTA PRECISIONE
             </div>
           </motion.div>
         )}
