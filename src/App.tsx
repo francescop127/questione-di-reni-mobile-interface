@@ -68,11 +68,40 @@ export default function App() {
   const [activeProfileUsername, setActiveProfileUsername] = useState<string>('anna_calligaris_eco');
   const [profileListOpen, setProfileListOpen] = useState<'followers' | 'following' | null>(null);
 
-  const getPostAuthor = (post: Post) => ({
-    name: post.authorName || appData.annaProfile.fullName,
-    username: post.authorUsername || appData.annaProfile.username,
-    avatar: post.authorAvatar || appData.annaProfile.avatar
+  const defaultSocialProfileAvatars = {
+    aldo_reni: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300',
+    lorenzo_vidal: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
+    bar_appennino: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300'
+  };
+  const [socialProfileAvatars, setSocialProfileAvatars] = useState(() => {
+    const cached = localStorage.getItem('ecolife_sim_social_profile_avatars');
+    if (cached) {
+      try {
+        return {
+          ...defaultSocialProfileAvatars,
+          ...JSON.parse(cached)
+        };
+      } catch (err) {
+        // Keep defaults if cached avatar settings are not readable.
+      }
+    }
+    return defaultSocialProfileAvatars;
   });
+
+  useEffect(() => {
+    localStorage.setItem('ecolife_sim_social_profile_avatars', JSON.stringify(socialProfileAvatars));
+  }, [socialProfileAvatars]);
+
+  const getPostAuthor = (post: Post) => {
+    const username = post.authorUsername || appData.annaProfile.username;
+    const editableAvatar = socialProfileAvatars[username as keyof typeof socialProfileAvatars];
+
+    return {
+      name: post.authorName || appData.annaProfile.fullName,
+      username,
+      avatar: editableAvatar || post.authorAvatar || appData.annaProfile.avatar
+    };
+  };
   const socialProfiles = [
     {
       username: appData.annaProfile.username,
@@ -94,7 +123,7 @@ export default function App() {
     {
       username: 'aldo_reni',
       fullName: 'Aldo Reni',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300',
+      avatar: socialProfileAvatars.aldo_reni,
       bio: 'Roma, lavoro e poche fotografie.\n📍 Studio Reni\nPreferisco osservare prima di parlare.',
       followers: 7,
       following: 32,
@@ -111,7 +140,7 @@ export default function App() {
     {
       username: 'lorenzo_vidal',
       fullName: 'Lorenzo Vidal',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
+      avatar: socialProfileAvatars.lorenzo_vidal,
       bio: 'Vivo a Roma con Ines, che viene dalla Spagna e corregge il mio modo di salare tutto.\nCase, mercati, strade lente.',
       followers: 86,
       following: 144,
@@ -128,7 +157,7 @@ export default function App() {
     {
       username: 'bar_appennino',
       fullName: 'Mirella Bardi',
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
+      avatar: socialProfileAvatars.bar_appennino,
       bio: 'Tengo aperto un piccolo bar sul passo.\n☕ Caffe, giornali, neve quando arriva.\n📍 Appennino Centrale',
       followers: 213,
       following: 97,
@@ -2575,6 +2604,8 @@ export default function App() {
         onClose={() => setAdminDrawerOpen(false)}
         appData={appData}
         setAppData={setAppData}
+        socialProfileAvatars={socialProfileAvatars}
+        setSocialProfileAvatars={setSocialProfileAvatars}
         currentTime={currentTime}
         setCurrentTime={setCurrentTime}
         ringerEnabled={ringerEnabled}

@@ -52,6 +52,8 @@ interface DirectorDrawerProps {
   onClose: () => void;
   appData: AppData;
   setAppData: React.Dispatch<React.SetStateAction<AppData>>;
+  socialProfileAvatars: Record<'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino', string>;
+  setSocialProfileAvatars: React.Dispatch<React.SetStateAction<Record<'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino', string>>>;
   currentTime: string;
   setCurrentTime: (t: string) => void;
   ringerEnabled: boolean;
@@ -163,6 +165,8 @@ export default function DirectorDrawer({
   onClose,
   appData,
   setAppData,
+  socialProfileAvatars,
+  setSocialProfileAvatars,
   currentTime,
   setCurrentTime,
   ringerEnabled,
@@ -276,6 +280,46 @@ export default function DirectorDrawer({
     try {
       const url = await supabaseSync.uploadImage(file, 'profiles');
       handleProfileChange('avatar', url);
+      setUploadNotice(`Upload completato: ${file.name}`);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+      setUploadNotice(null);
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const handleSocialProfileAvatarChange = (
+    username: 'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino',
+    url: string
+  ) => {
+    setSocialProfileAvatars(prev => ({
+      ...prev,
+      [username]: url
+    }));
+    setAppData(prev => ({
+      ...prev,
+      posts: prev.posts.map(post => post.authorUsername === username ? {
+        ...post,
+        authorAvatar: url
+      } : post)
+    }));
+  };
+
+  const handleSocialProfileAvatarUpload = async (
+    username: 'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino',
+    file: File | undefined
+  ) => {
+    if (!file) return;
+
+    const fieldId = `${username}-profile-avatar`;
+    setUploadingField(fieldId);
+    setUploadError(null);
+    setUploadNotice(`Caricamento ${file.name}...`);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'profiles');
+      handleSocialProfileAvatarChange(username, url);
       setUploadNotice(`Upload completato: ${file.name}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
@@ -1471,6 +1515,42 @@ export default function DirectorDrawer({
                   loadingLabel="Caricamento avatar..."
                   onFile={handleProfileImageUpload}
                 />
+              </div>
+
+              <div className="space-y-3 border-t border-slate-800 pt-3">
+                <span className="text-[9px] font-black uppercase text-cyan-300 tracking-wider font-mono">Avatar altri profili social</span>
+                {[
+                  { username: 'aldo_reni' as const, label: 'Aldo Reni' },
+                  { username: 'lorenzo_vidal' as const, label: 'Lorenzo Vidal' },
+                  { username: 'bar_appennino' as const, label: 'Mirella Bardi' }
+                ].map(profile => (
+                  <div key={profile.username} className="space-y-1 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5">
+                    <label className="text-[10px] text-slate-400 block font-bold">{profile.label}</label>
+                    <div className="flex gap-2 items-center">
+                      <img
+                        src={socialProfileAvatars[profile.username]}
+                        alt={`${profile.label} avatar preview`}
+                        className="w-10 h-10 rounded-full object-cover border border-slate-800 bg-slate-950 shrink-0"
+                        referrerPolicy="no-referrer"
+                      />
+                      <input
+                        type="text"
+                        value={socialProfileAvatars[profile.username]}
+                        onChange={(e) => handleSocialProfileAvatarChange(profile.username, e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 font-mono text-[10px] text-cyan-300"
+                      />
+                    </div>
+                    <UploadImageControl
+                      enabled={supabaseSync.enabled}
+                      disabled={uploadingField !== null}
+                      loading={uploadingField === `${profile.username}-profile-avatar`}
+                      label={`Carica avatar ${profile.label} su Supabase`}
+                      loadingLabel="Caricamento avatar..."
+                      onFile={(file) => handleSocialProfileAvatarUpload(profile.username, file)}
+                      compact
+                    />
+                  </div>
+                ))}
               </div>
 
               <div className="grid grid-cols-3 gap-2">
