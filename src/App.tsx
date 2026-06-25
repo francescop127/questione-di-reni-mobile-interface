@@ -53,6 +53,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [profileViewMode, setProfileViewMode] = useState<'grid' | 'feed'>('grid');
   const [focusedPostId, setFocusedPostId] = useState<string | null>(null);
+  const [postImageSettingsOpen, setPostImageSettingsOpen] = useState<boolean>(false);
+  const [postImageUploading, setPostImageUploading] = useState<boolean>(false);
+  const [postImageUploadError, setPostImageUploadError] = useState<string | null>(null);
   const [focusedChatImage, setFocusedChatImage] = useState<{
     url: string;
     owner: 'Aldo' | 'Anna';
@@ -990,6 +993,34 @@ export default function App() {
     }
   };
 
+  const handleFocusedPostImageChange = (url: string) => {
+    if (!focusedPostId) return;
+
+    setAppData(prev => ({
+      ...prev,
+      posts: prev.posts.map(post => post.id === focusedPostId ? {
+        ...post,
+        image: url
+      } : post)
+    }));
+  };
+
+  const handleFocusedPostImageUpload = async (file: File | undefined) => {
+    if (!file || !focusedPostId) return;
+
+    setPostImageUploading(true);
+    setPostImageUploadError(null);
+
+    try {
+      const url = await supabaseSync.uploadImage(file, 'posts');
+      handleFocusedPostImageChange(url);
+    } catch (err) {
+      setPostImageUploadError(err instanceof Error ? err.message : 'Upload non riuscito.');
+    } finally {
+      setPostImageUploading(false);
+    }
+  };
+
   // Contacts dataset filtering resolver
   const hiddenContactNames = phoneOwner === 'Aldo'
     ? new Set(['Aldo Reni', 'Aldo', 'Conte Negroni'])
@@ -1565,7 +1596,11 @@ export default function App() {
 
                   {/* Photo content */}
                   <div 
-                    onClick={() => setFocusedPostId(post.id)}
+                    onClick={() => {
+                      setFocusedPostId(post.id);
+                      setPostImageSettingsOpen(false);
+                      setPostImageUploadError(null);
+                    }}
                     className="aspect-square bg-zinc-50 border-y border-zinc-150 relative cursor-pointer group"
                   >
                     {post.image ? (
@@ -1919,9 +1954,24 @@ export default function App() {
                           <span className="text-[11px] font-extrabold text-zinc-800">{author.username}</span>
                         </div>
                         {post.image ? (
-                          <img src={post.image} className="w-full h-64 object-cover" />
+                          <img
+                            src={post.image}
+                            onClick={() => {
+                              setFocusedPostId(post.id);
+                              setPostImageSettingsOpen(false);
+                              setPostImageUploadError(null);
+                            }}
+                            className="w-full h-64 object-cover cursor-zoom-in"
+                          />
                         ) : (
-                          <div className="w-full h-64 flex items-center justify-center bg-zinc-100 text-zinc-400">
+                          <div
+                            onClick={() => {
+                              setFocusedPostId(post.id);
+                              setPostImageSettingsOpen(false);
+                              setPostImageUploadError(null);
+                            }}
+                            className="w-full h-64 flex items-center justify-center bg-zinc-100 text-zinc-400 cursor-zoom-in"
+                          >
                             <Camera className="w-6 h-6" />
                           </div>
                         )}
@@ -2302,74 +2352,118 @@ export default function App() {
 
         </main>
       </div>
-      {/* HIDDEN MODAL FOR ENVELOPE FULLSCREEN VIEWER / SELFIE OR OTHER LIGHTBOX IMAGES */}
+      {/* FULLSCREEN LIGHTBOX FOR SOCIAL POST IMAGES */}
       <AnimatePresence>
         {focusedPostId !== null && focusedPostId !== 'selfie_zoom' && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 p-4 z-[9999] flex flex-col justify-between items-center text-white"
+            onClick={() => {
+              setFocusedPostId(null);
+              setPostImageSettingsOpen(false);
+            }}
+            className="fixed inset-0 bg-black z-[9999] flex items-center justify-center text-white cursor-zoom-out"
           >
-            <div className="w-full flex justify-between items-center max-w-[600px] text-zinc-400 text-xs py-2 font-mono uppercase tracking-widest">
-              <span>ALBUM SOCIAL ANNA CONTRO VIVISEZIONE</span>
+            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
               <button
-                onClick={() => setFocusedPostId(null)}
-                className="p-2 bg-zinc-800 text-white rounded-full transition hover:bg-zinc-750"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPostImageSettingsOpen(prev => !prev);
+                }}
+                className="h-10 w-10 bg-black/55 hover:bg-black/80 text-white rounded-full transition flex items-center justify-center border border-white/10"
+                title="Impostazioni immagine"
+              >
+                <MoreHorizontal className="w-5 h-5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFocusedPostId(null);
+                  setPostImageSettingsOpen(false);
+                }}
+                className="h-10 w-10 bg-black/55 hover:bg-black/80 text-white rounded-full transition flex items-center justify-center border border-white/10"
+                title="Chiudi"
               >
                 <X className="w-4.5 h-4.5" />
               </button>
             </div>
 
-            {/* Focused Item Block */}
             {(() => {
               const activePost = appData.posts.find(p => p.id === focusedPostId);
               if (!activePost) return null;
-              const author = getPostAuthor(activePost);
 
               return (
-                <div className="max-w-[500px] w-full bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-2xl relative border border-zinc-200">
-                  {activePost.image ? (
-                    <img src={activePost.image} className="w-full aspect-video object-cover" />
-                  ) : (
-                    <div className="w-full aspect-video flex flex-col items-center justify-center gap-2 bg-zinc-100 text-zinc-400">
-                      <Camera className="w-8 h-8" />
-                      <span className="text-[10px] font-mono uppercase tracking-widest">Post vuoto</span>
+                <>
+                  {postImageSettingsOpen && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute top-16 right-4 z-20 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-white/10 bg-zinc-950/95 p-3 shadow-2xl cursor-default"
+                    >
+                      <label className="block space-y-2">
+                        <span className="text-[10px] font-mono font-black uppercase tracking-widest text-zinc-400">URL immagine post</span>
+                        <input
+                          type="text"
+                          value={activePost.image}
+                          onChange={(e) => handleFocusedPostImageChange(e.target.value)}
+                          className="w-full rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-mono text-white focus:outline-hidden focus:border-emerald-500"
+                        />
+                      </label>
+
+                      <label className={`relative mt-3 flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-[10px] font-mono font-black uppercase tracking-widest transition ${
+                        supabaseSync.enabled && !postImageUploading
+                          ? 'cursor-pointer border-emerald-700 bg-emerald-950/40 text-emerald-200 hover:bg-emerald-900/50'
+                          : 'cursor-not-allowed border-zinc-800 bg-zinc-900 text-zinc-500'
+                      }`}>
+                        <UploadCloud className="w-3.5 h-3.5" />
+                        <span>
+                          {!supabaseSync.enabled
+                            ? 'Configura Supabase per caricare'
+                            : postImageUploading
+                              ? 'Caricamento...'
+                              : 'Carica su Supabase'}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={!supabaseSync.enabled || postImageUploading}
+                          onChange={(e) => {
+                            handleFocusedPostImageUpload(e.target.files?.[0]);
+                            e.currentTarget.value = '';
+                          }}
+                          className="absolute inset-0 h-full w-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                        />
+                      </label>
+
+                      {postImageUploadError && (
+                        <p className="mt-2 text-[10px] font-semibold text-red-300">
+                          {postImageUploadError}
+                        </p>
+                      )}
                     </div>
                   )}
-                  
-                  <div className="p-5 space-y-4">
-                    <div className="flex items-center gap-2 text-xs">
-                      <img src={author.avatar} className="w-7 h-7 rounded-full object-cover bg-zinc-100" />
-                      <span className="font-extrabold text-zinc-900">{author.username}</span>
-                    </div>
 
-                    {/* Location Badge */}
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-mono text-zinc-400 uppercase tracking-widest">Località:</span>
-                      <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full font-bold">
-                        {activePost.location || author.name}
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm font-semibold leading-relaxed">
-                      {activePost.caption || 'Descrizione da inserire'}
-                    </h3>
-
-                    {/* Flyer specifications detail row in case of active flyer */}
-                    {activePost.isEvent && (
-                      <div className="p-3 bg-red-50 border border-red-200 rounded-2xl font-mono text-xs text-red-950 whitespace-pre-line leading-relaxed font-semibold">
-                        {activePost.eventDetails}
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-full w-full flex items-center justify-center"
+                  >
+                    {activePost.image ? (
+                      <img
+                        src={activePost.image}
+                        alt="Post fullscreen"
+                        className="max-h-full max-w-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-2 text-zinc-500">
+                        <Camera className="w-8 h-8" />
                       </div>
                     )}
                   </div>
-                </div>
+                </>
               );
             })()}
-
-            <div className="text-[10px] text-zinc-550 uppercase tracking-widest font-mono p-2">
-              ECO LIFE — ZOOM FOTO ATTIVISTA
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
