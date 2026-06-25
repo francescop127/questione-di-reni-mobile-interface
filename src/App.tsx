@@ -4,7 +4,7 @@ import {
   MapPin, Heart, CheckCheck, Send, Calendar, Bookmark, Clock, 
   Volume2, VolumeX, Sliders, X, Check, Smartphone, ChevronLeft, 
   Eye, Sparkles, BookOpen, Clock4, Bell, HelpCircle, Flame, Layers, Camera,
-  Lock, Battery, Wifi, MoreHorizontal, UploadCloud
+  Lock, Battery, Wifi, MoreHorizontal, UploadCloud, Plus, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -1048,6 +1048,56 @@ export default function App() {
     } finally {
       setPostImageUploading(false);
     }
+  };
+
+  const handleDeleteFocusedPost = () => {
+    if (!focusedPostId) return;
+
+    setAppData(prev => ({
+      ...prev,
+      posts: prev.posts.filter(post => post.id !== focusedPostId)
+    }));
+    setFocusedPostId(null);
+    setPostImageSettingsOpen(false);
+    setPostImageUploadError(null);
+  };
+
+  const handleAddPostBelowFocused = () => {
+    if (!focusedPostId) return;
+
+    const newPostId = `post_custom_${Date.now()}`;
+
+    setAppData(prev => {
+      const sourcePost = prev.posts.find(post => post.id === focusedPostId);
+      if (!sourcePost) return prev;
+
+      const sourceAuthor = getPostAuthor(sourcePost);
+      const newPost: Post = {
+        id: newPostId,
+        authorName: sourcePost.authorName || sourceAuthor.name,
+        authorUsername: sourcePost.authorUsername || sourceAuthor.username,
+        authorAvatar: sourceAuthor.avatar,
+        image: '',
+        caption: '',
+        date: 'Adesso',
+        likes: 0,
+        commentsCount: 0,
+        location: sourcePost.location || '',
+        comments: []
+      };
+      const insertIndex = prev.posts.findIndex(post => post.id === focusedPostId);
+      const nextPosts = [...prev.posts];
+      nextPosts.splice(insertIndex + 1, 0, newPost);
+
+      return {
+        ...prev,
+        posts: nextPosts
+      };
+    });
+
+    setFocusedPostId(newPostId);
+    setPostImageSettingsOpen(true);
+    setPostImageUploadError(null);
   };
 
   // Contacts dataset filtering resolver
@@ -2470,6 +2520,26 @@ export default function App() {
                           {postImageUploadError}
                         </p>
                       )}
+
+                      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-zinc-800 pt-3">
+                        <button
+                          type="button"
+                          onClick={handleAddPostBelowFocused}
+                          className="flex items-center justify-center gap-1.5 rounded-lg border border-cyan-700 bg-cyan-950/40 px-3 py-2 text-[10px] font-mono font-black uppercase tracking-widest text-cyan-200 hover:bg-cyan-900/50 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Aggiungi sotto</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleDeleteFocusedPost}
+                          className="flex items-center justify-center gap-1.5 rounded-lg border border-red-800 bg-red-950/50 px-3 py-2 text-[10px] font-mono font-black uppercase tracking-widest text-red-200 hover:bg-red-900/60 transition"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Elimina post</span>
+                        </button>
+                      </div>
                     </div>
                   )}
 
