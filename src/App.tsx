@@ -277,7 +277,7 @@ export default function App() {
   const activeProfileList = profileListOpen === 'followers' ? activeProfileFollowers : profileListOpen === 'following' ? activeProfileFollowing : [];
   const clickableSocialUsernames = new Set([appData.annaProfile.username, 'aldo_reni', 'lorenzo_vidal', 'bar_appennino']);
   const feedPosts = appData.posts
-    .filter(post => !post.id.startsWith('post_contact_'))
+    .filter(post => !post.id.startsWith('post_contact_') && post.authorUsername !== 'aldo_reni')
     .slice()
     .sort((a, b) => {
       const aIsAnna = (a.authorUsername || appData.annaProfile.username) === appData.annaProfile.username;
