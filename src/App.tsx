@@ -15,7 +15,7 @@ import SvevaGalleryView from './components/SvevaGalleryView';
 import DirectorDrawer from './components/DirectorDrawer';
 
 // State and types
-import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, AppData, Post, Contact, Message, ChatThread, CalendarShift, hydrateAppData } from './data';
+import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, AppData, Post, Contact, Message, ChatThread, CalendarShift, SocialProfileAvatars, hydrateAppData } from './data';
 import { useSupabaseAppData } from './hooks/useSupabaseAppData';
 
 export default function App() {
@@ -68,29 +68,13 @@ export default function App() {
   const [activeProfileUsername, setActiveProfileUsername] = useState<string>('anna_calligaris_eco');
   const [profileListOpen, setProfileListOpen] = useState<'followers' | 'following' | null>(null);
 
-  const defaultSocialProfileAvatars = {
-    aldo_reni: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300',
-    lorenzo_vidal: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
-    bar_appennino: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300'
+  const socialProfileAvatars = appData.socialProfileAvatars;
+  const setSocialProfileAvatars: React.Dispatch<React.SetStateAction<SocialProfileAvatars>> = (next) => {
+    setAppData(prev => ({
+      ...prev,
+      socialProfileAvatars: typeof next === 'function' ? next(prev.socialProfileAvatars) : next
+    }));
   };
-  const [socialProfileAvatars, setSocialProfileAvatars] = useState(() => {
-    const cached = localStorage.getItem('ecolife_sim_social_profile_avatars');
-    if (cached) {
-      try {
-        return {
-          ...defaultSocialProfileAvatars,
-          ...JSON.parse(cached)
-        };
-      } catch (err) {
-        // Keep defaults if cached avatar settings are not readable.
-      }
-    }
-    return defaultSocialProfileAvatars;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('ecolife_sim_social_profile_avatars', JSON.stringify(socialProfileAvatars));
-  }, [socialProfileAvatars]);
 
   const getPostAuthor = (post: Post) => {
     const username = post.authorUsername || appData.annaProfile.username;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud, Bell } from 'lucide-react';
-import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR } from '../data';
+import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, SocialProfileAvatars, SocialProfileUsername } from '../data';
 
 interface UploadImageControlProps {
   enabled: boolean;
@@ -52,8 +52,8 @@ interface DirectorDrawerProps {
   onClose: () => void;
   appData: AppData;
   setAppData: React.Dispatch<React.SetStateAction<AppData>>;
-  socialProfileAvatars: Record<'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino', string>;
-  setSocialProfileAvatars: React.Dispatch<React.SetStateAction<Record<'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino', string>>>;
+  socialProfileAvatars: SocialProfileAvatars;
+  setSocialProfileAvatars: React.Dispatch<React.SetStateAction<SocialProfileAvatars>>;
   currentTime: string;
   setCurrentTime: (t: string) => void;
   ringerEnabled: boolean;
@@ -290,7 +290,7 @@ export default function DirectorDrawer({
   };
 
   const handleSocialProfileAvatarChange = (
-    username: 'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino',
+    username: SocialProfileUsername,
     url: string
   ) => {
     setSocialProfileAvatars(prev => ({
@@ -307,7 +307,7 @@ export default function DirectorDrawer({
   };
 
   const handleSocialProfileAvatarUpload = async (
-    username: 'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino',
+    username: SocialProfileUsername,
     file: File | undefined
   ) => {
     if (!file) return;

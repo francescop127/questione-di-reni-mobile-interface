@@ -17,6 +17,15 @@ export interface Post {
 export const CONTACT_PLACEHOLDER_AVATAR = "/img/conte-negroni-profile.svg";
 export const ANNA_CONTACT_AVATAR = "/img/Foto Anna (Ronchi)/chiamata.jpeg";
 
+export type SocialProfileUsername = 'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino';
+export type SocialProfileAvatars = Record<SocialProfileUsername, string>;
+
+export const DEFAULT_SOCIAL_PROFILE_AVATARS: SocialProfileAvatars = {
+  aldo_reni: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300',
+  lorenzo_vidal: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
+  bar_appennino: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300'
+};
+
 export interface Contact {
   id: string;
   name: string;
@@ -88,6 +97,7 @@ export interface AppData {
     postsCount: number;
     isVerified: boolean;
   };
+  socialProfileAvatars: SocialProfileAvatars;
   posts: Post[];
   aldoContacts: Contact[];
   annaContacts: Contact[];
@@ -111,6 +121,7 @@ export const INITIAL_DATA: AppData = {
     postsCount: 24,
     isVerified: true
   },
+  socialProfileAvatars: DEFAULT_SOCIAL_PROFILE_AVATARS,
   posts: [
     {
       id: "post_contact_aldo_empty",
@@ -1274,6 +1285,8 @@ export const INITIAL_DATA: AppData = {
 
 export const hydrateAppData = (data: AppData): AppData => {
   const conteAvatar = CONTACT_PLACEHOLDER_AVATAR;
+  const hasStoredSocialProfileAvatars = Boolean(data.socialProfileAvatars);
+  const socialProfileAvatars = { ...DEFAULT_SOCIAL_PROFILE_AVATARS, ...(data.socialProfileAvatars || {}) };
   const appendMissingInitialContacts = (contacts: Contact[], initialContacts: Contact[]) => {
     const contactIds = new Set(contacts.map(contact => contact.id));
     return [
@@ -1286,6 +1299,14 @@ export const hydrateAppData = (data: AppData): AppData => {
     post.authorUsername !== "conte_negroni" &&
     post.authorName !== "Conte Negroni"
   );
+  if (!hasStoredSocialProfileAvatars) {
+    socialPosts.forEach(post => {
+      const username = post.authorUsername as SocialProfileUsername | undefined;
+      if (username && username in socialProfileAvatars && post.authorAvatar && !post.id.startsWith("post_contact_")) {
+        socialProfileAvatars[username] = post.authorAvatar;
+      }
+    });
+  }
   const existingPostIds = new Set(socialPosts.map(post => post.id));
   const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
   const aldoContacts = appendMissingInitialContacts(
@@ -1371,11 +1392,13 @@ export const hydrateAppData = (data: AppData): AppData => {
     !aldoContactsChanged &&
     !annaContactsChanged &&
     !chatsAldoChanged &&
-    !chatsAnnaChanged
+    !chatsAnnaChanged &&
+    JSON.stringify(socialProfileAvatars) === JSON.stringify(data.socialProfileAvatars)
   ) return data;
 
   return {
     ...data,
+    socialProfileAvatars,
     posts: [...missingInitialPosts, ...socialPosts],
     aldoContacts,
     annaContacts,
