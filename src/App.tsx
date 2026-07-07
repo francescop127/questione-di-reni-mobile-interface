@@ -1702,12 +1702,14 @@ export default function App() {
                       <p className="text-xs font-black text-zinc-900">{post.likes} Mi piace</p>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="leading-relaxed">
-                        <strong className="text-zinc-900 mr-1.5 font-bold">{author.username}</strong>
-                        {post.caption || 'Descrizione da inserire'}
-                      </p>
-                    </div>
+                    {post.caption && (
+                      <div className="space-y-1">
+                        <p className="leading-relaxed">
+                          <strong className="text-zinc-900 mr-1.5 font-bold">{author.username}</strong>
+                          {post.caption}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Comments preview */}
                     <div className="pt-2 border-t border-zinc-100 space-y-1 text-[11px] text-zinc-500">
@@ -2038,9 +2040,11 @@ export default function App() {
                             <Camera className="w-6 h-6" />
                           </div>
                         )}
-                        <div className="p-4 text-xs">
-                          <p>{post.caption || 'Descrizione da inserire'}</p>
-                        </div>
+                        {post.caption && (
+                          <div className="p-4 text-xs">
+                            <p>{post.caption}</p>
+                          </div>
+                        )}
                       </div>
                       );
                     })}

@@ -217,7 +217,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_flashmob",
       image: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg",
-      caption: "🔴 STOP VIVISEZIONE! Non possiamo più restare in silenzio di fronte a questa crudeltà. Domani scendiamo in piazza per dare voce a chi non ce l'ha. Vi aspetto numerosi, portate cartelli e tanta energia positiva. Condividete il più possibile!",
+      caption: "",
       date: "Oggi, 12:30",
       likes: 47,
       commentsCount: 9,
@@ -244,7 +244,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_bicycle",
       image: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
-      caption: "Libertà è una strada sterrata, il vento in faccia e zero emissioni. 🚴‍♀️ Oggi ho fatto 45km scoprendo sentieri dimenticati. La terra non ci appartiene, ne siamo solo custodi temporanei.",
+      caption: "",
       date: "2 giorni fa",
       likes: 38,
       commentsCount: 4,
@@ -257,7 +257,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_eco_quote",
       image: "/img/Foto Anna (Ronchi)/post_eco_quote.jpeg",
-      caption: "Spesso camminiamo nella natura selvaggia sognando spiagge esotiche, ma dimentichiamo che la bellezza più pura è proprio dietro casa. Impariamo a viaggiare leggeri, a piedi o su due ruote. 🌍💚",
+      caption: "",
       date: "5 giorni fa",
       likes: 51,
       commentsCount: 2,
@@ -269,7 +269,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_dog_rescue",
       image: "/img/Foto Anna (Ronchi)/post_dog_rescue.jpeg",
-      caption: "Incontri speciali durante la ronda mattutina al rifugio locale. 🐾 Ogni sguardo recuperato dice più di mille parole. Adottate, non comprate, date a queste anime una seconda possibilità!",
+      caption: "",
       date: "1 settimana fa",
       likes: 64,
       commentsCount: 6,
@@ -282,7 +282,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_vegan_picnic",
       image: "/img/Foto Anna (Ronchi)/post_vegan_picnic.jpeg",
-      caption: "Alimentazione consapevole, cruelty-free e a impatto zero. Un delizioso picnic vegano autoprodotto all'ombra degli ulivi secolari. Mangiare sano fa bene a noi e al pianeta! 🍇🥗",
+      caption: "",
       date: "2 settimane fa",
       likes: 59,
       commentsCount: 5,
@@ -295,7 +295,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_solar_panels",
       image: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
-      caption: "Finalmente è arrivata l'energia pulita! ☀️ Installati i nuovi pannelli solari sul tetto della sede. Da oggi produciamo elettricità green al 100% per alimentare i nostri progetti e le assemblee.",
+      caption: "",
       date: "3 settimane fa",
       likes: 85,
       commentsCount: 7,
@@ -308,7 +308,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_bee_rescue",
       image: "/img/Foto Anna (Ronchi)/post_bee_rescue.jpeg",
-      caption: "Salviamo le api! Oggi abbiamo seminato fiori nettariferi biologici in tutta l'area urbana dismessa vicino alla ferrovia. Un corridoio ecologico fondamentale per preservare la biodiversità nel cemento. 🐝🌻",
+      caption: "",
       date: "1 mese fa",
       likes: 110,
       commentsCount: 8,
@@ -321,7 +321,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_hiking",
       image: "/img/Foto Anna (Ronchi)/post_hiking.jpeg",
-      caption: "Respirare a pieni polmoni quassù, sopra le nuvole e lontano dal baccano della città. 🏔️ Un cammino stancante ma che ti riconnette con la grandezza ancestrale della natura incontaminata. Rispettiamo i sentieri!",
+      caption: "",
       date: "1 mese fa",
       likes: 125,
       commentsCount: 5,
@@ -334,7 +334,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_wind_energy",
       image: "/img/Foto Anna (Ronchi)/post_wind_energy.jpeg",
-      caption: "Il vento del cambiamento profuma di aria pulita. 💨 Le nostre pale eoliche comunitarie producono energia sostenibile senza sosta. Questa è la vera transizione energetica dal basso!",
+      caption: "",
       date: "2 mesi fa",
       likes: 98,
       commentsCount: 3,
@@ -346,7 +346,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_river_clean",
       image: "/img/Foto Anna (Ronchi)/post_river_clean.jpeg",
-      caption: "Operazione fiume pulito completata! Oggi con gli stivali nell'acqua abbiamo rimosso decine di pneumatici e plastica depositati dalle correnti. Un fiume sano è la sorgente della vita. 💧🐟",
+      caption: "",
       date: "2 mesi fa",
       likes: 142,
       commentsCount: 9,
@@ -359,7 +359,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_organic_market",
       image: "/img/Foto Anna (Ronchi)/post_organic_market.jpeg",
-      caption: "Cibo vero, persone vere. 🍏 Sosteniamo i piccoli produttori locali della nostra terra. Comprare direttamente da chi coltiva rispetta il lavoro, riduce i trasporti km-zero e nutre la salute.",
+      caption: "",
       date: "3 mesi fa",
       likes: 79,
       commentsCount: 4,
@@ -371,7 +371,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_marco_bici",
       image: "/img/Foto Anna (Ronchi)/post_bicycle.jpeg",
-      caption: "In giro per la città con la mia single speed. Non c'è niente di meglio che pedalare sotto il sole! 🚴‍♂️ #fixedgear #urbancycling",
+      caption: "",
       date: "3 mesi fa",
       likes: 203,
       commentsCount: 12,
@@ -384,7 +384,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_sara_yoga",
       image: "/img/Foto Anna (Ronchi)/post_hiking.jpeg",
-      caption: "Meditazione mattutina in montagna. Lasciare andare tutto per trovare se stessi. 🧘‍♀️🌄 #mindfulness #naturelover",
+      caption: "",
       date: "4 mesi fa",
       likes: 145,
       commentsCount: 8,
@@ -396,7 +396,7 @@ export const INITIAL_DATA: AppData = {
     {
       id: "post_giancarlo_gastronomia",
       image: "/img/Foto Anna (Ronchi)/post_vegan_picnic.jpeg",
-      caption: "Cucina consapevole: piatti a km zero con ingredienti bio dal nostro orto. La sostenibilità ha un sapore meraviglioso! 🍽️✨ #slowfood #biodinamico",
+      caption: "",
       date: "6 mesi fa",
       likes: 156,
       commentsCount: 9,
@@ -1275,6 +1275,12 @@ export const hydrateAppData = (data: AppData): AppData => {
   const removedPostIds = new Set(["post_forest_cleanup", "post_zerowaste", "post_organic_orchard", "post_luigi_foto", "post_lorenzo_mare_spagna"]);
   const hasStoredSocialProfileAvatars = Boolean(data.socialProfileAvatars);
   const socialProfileAvatars = { ...DEFAULT_SOCIAL_PROFILE_AVATARS, ...(data.socialProfileAvatars || {}) };
+  const clearAnnaPostCaption = (post: Post) => {
+    const username = post.authorUsername || INITIAL_DATA.annaProfile.username;
+    return username === INITIAL_DATA.annaProfile.username && post.caption
+      ? { ...post, caption: "" }
+      : post;
+  };
   const orderAnnaAfterFourthPost = (posts: Post[]) => {
     const postIndex = posts.findIndex(post => post.id === annaAfterFourthPostId);
     const flashmobIndex = posts.findIndex(post => post.id === "post_flashmob");
@@ -1293,12 +1299,14 @@ export const hydrateAppData = (data: AppData): AppData => {
       ...initialContacts.filter(contact => !contactIds.has(contact.id))
     ];
   };
-  const socialPosts = data.posts.filter(post =>
-    !removedPostIds.has(post.id) &&
-    post.id !== "post_contact_conte_negroni_empty" &&
-    post.authorUsername !== "conte_negroni" &&
-    post.authorName !== "Conte Negroni"
-  );
+  const socialPosts = data.posts
+    .filter(post =>
+      !removedPostIds.has(post.id) &&
+      post.id !== "post_contact_conte_negroni_empty" &&
+      post.authorUsername !== "conte_negroni" &&
+      post.authorName !== "Conte Negroni"
+    )
+    .map(clearAnnaPostCaption);
   if (!hasStoredSocialProfileAvatars) {
     socialPosts.forEach(post => {
       const username = post.authorUsername as SocialProfileUsername | undefined;
@@ -1308,7 +1316,9 @@ export const hydrateAppData = (data: AppData): AppData => {
     });
   }
   const existingPostIds = new Set(socialPosts.map(post => post.id));
-  const missingInitialPosts = INITIAL_DATA.posts.filter(post => !existingPostIds.has(post.id));
+  const missingInitialPosts = INITIAL_DATA.posts
+    .filter(post => !existingPostIds.has(post.id))
+    .map(clearAnnaPostCaption);
   const aldoContacts = appendMissingInitialContacts(
     data.aldoContacts
       .filter(contact =>
