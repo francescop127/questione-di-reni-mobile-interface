@@ -496,21 +496,6 @@ export const INITIAL_DATA: AppData = {
       ]
     },
     {
-      id: "post_lorenzo_mare_spagna",
-      authorName: "Lorenzo Vidal",
-      authorUsername: "lorenzo_vidal",
-      authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
-      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=900",
-      caption: "La famiglia di Ines vive vicino al mare. Ogni volta torno con piu sale addosso e meno parole.",
-      date: "1 mese fa",
-      likes: 58,
-      commentsCount: 5,
-      location: "Costa Brava",
-      comments: [
-        { user: "anna_calligaris_eco", text: "Che luce!" }
-      ]
-    },
-    {
       id: "post_lorenzo_cucina",
       authorName: "Lorenzo Vidal",
       authorUsername: "lorenzo_vidal",
@@ -1273,7 +1258,7 @@ export const INITIAL_DATA: AppData = {
 
 export const hydrateAppData = (data: AppData): AppData => {
   const conteAvatar = CONTACT_PLACEHOLDER_AVATAR;
-  const removedPostIds = new Set(["post_forest_cleanup", "post_zerowaste", "post_organic_orchard", "post_luigi_foto"]);
+  const removedPostIds = new Set(["post_forest_cleanup", "post_zerowaste", "post_organic_orchard", "post_luigi_foto", "post_lorenzo_mare_spagna"]);
   const hasStoredSocialProfileAvatars = Boolean(data.socialProfileAvatars);
   const socialProfileAvatars = { ...DEFAULT_SOCIAL_PROFILE_AVATARS, ...(data.socialProfileAvatars || {}) };
   const appendMissingInitialContacts = (contacts: Contact[], initialContacts: Contact[]) => {

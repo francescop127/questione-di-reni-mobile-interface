@@ -128,7 +128,7 @@ export default function App() {
       bio: 'Vivo a Roma con Ines, che viene dalla Spagna e corregge il mio modo di salare tutto.\nCase, mercati, strade lente.',
       followers: 86,
       following: 144,
-      postsCount: 7,
+      postsCount: 6,
       isVerified: false,
       linkLabel: '',
       linkScreen: '',
