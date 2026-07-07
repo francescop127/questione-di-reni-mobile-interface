@@ -1643,7 +1643,7 @@ export default function DirectorDrawer({
                 <div className="space-y-3 pt-2">
                   {/* Real-time live thumbnail preview */}
                   <div className="flex gap-3 items-center p-2.5 bg-slate-950 rounded-lg border border-slate-850">
-                    <div className="w-14 h-14 rounded-lg bg-slate-800 overflow-hidden shrink-0 border border-slate-700">
+                    <div className="w-14 aspect-[4/5] rounded-lg bg-slate-800 overflow-hidden shrink-0 border border-slate-700">
                       {selectedPost.image ? (
                         <img 
                           src={selectedPost.image} 
@@ -1730,7 +1730,7 @@ export default function DirectorDrawer({
                           <button
                             key={pIdx}
                             onClick={() => handlePostChange(selectedPostId, 'image', preset.url)}
-                            className={`group relative aspect-video rounded overflow-hidden border text-left cursor-pointer transition ${
+                            className={`group relative aspect-[4/5] rounded overflow-hidden border text-left cursor-pointer transition ${
                               isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/25' : 'border-slate-800 hover:border-slate-700'
                             }`}
                             title={preset.label}

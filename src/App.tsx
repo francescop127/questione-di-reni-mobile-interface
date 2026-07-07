@@ -1664,7 +1664,7 @@ export default function App() {
                       setPostImageSettingsOpen(false);
                       setPostImageUploadError(null);
                     }}
-                    className="aspect-square bg-zinc-50 border-y border-zinc-150 relative cursor-pointer group"
+                    className="aspect-[4/5] bg-zinc-50 border-y border-zinc-150 relative cursor-pointer group"
                   >
                     {post.image ? (
                       <img src={post.image} alt="Feed Post visual" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -1983,7 +1983,7 @@ export default function App() {
                           setProfileViewMode('feed');
                           playInteractionBeep(1100, 0.1);
                         }}
-                        className="aspect-square bg-zinc-100 rounded-2xl overflow-hidden cursor-pointer border border-zinc-200 hover:border-emerald-600 transition group relative"
+                        className="aspect-[4/5] bg-zinc-100 rounded-2xl overflow-hidden cursor-pointer border border-zinc-200 hover:border-emerald-600 transition group relative"
                       >
                         {post.image ? (
                           <img
@@ -2024,7 +2024,7 @@ export default function App() {
                               setPostImageSettingsOpen(false);
                               setPostImageUploadError(null);
                             }}
-                            className="w-full h-64 object-cover cursor-zoom-in"
+                            className="w-full aspect-[4/5] object-cover cursor-zoom-in"
                           />
                         ) : (
                           <div
@@ -2033,7 +2033,7 @@ export default function App() {
                               setPostImageSettingsOpen(false);
                               setPostImageUploadError(null);
                             }}
-                            className="w-full h-64 flex items-center justify-center bg-zinc-100 text-zinc-400 cursor-zoom-in"
+                            className="w-full aspect-[4/5] flex items-center justify-center bg-zinc-100 text-zinc-400 cursor-zoom-in"
                           >
                             <Camera className="w-6 h-6" />
                           </div>
@@ -2532,14 +2532,16 @@ export default function App() {
                     className="h-full w-full flex items-center justify-center"
                   >
                     {activePost.image ? (
-                      <img
-                        src={activePost.image}
-                        alt="Post fullscreen"
-                        className="max-h-full max-w-full object-contain"
-                        referrerPolicy="no-referrer"
-                      />
+                      <div className="w-[min(100vw,80vh)] aspect-[4/5] overflow-hidden">
+                        <img
+                          src={activePost.image}
+                          alt="Post fullscreen"
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center gap-2 text-zinc-500">
+                      <div className="w-[min(100vw,80vh)] aspect-[4/5] flex flex-col items-center justify-center gap-2 text-zinc-500">
                         <Camera className="w-8 h-8" />
                       </div>
                     )}
