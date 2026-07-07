@@ -118,7 +118,7 @@ export const INITIAL_DATA: AppData = {
     bio: "🚴‍♀️ In sella alla mia bici verso un futuro sostenibile.\n🌿 Attivista per la difesa degli animali e dell'ambiente.\n📍 Spostarsi senza inquinare è una scelta quotidiana.",
     followers: 124,
     following: 89,
-    postsCount: 23,
+    postsCount: 24,
     isVerified: true
   },
   socialProfileAvatars: DEFAULT_SOCIAL_PROFILE_AVATARS,
@@ -227,6 +227,19 @@ export const INITIAL_DATA: AppData = {
         { user: "green_margherita", text: "Porto altri 3 amici con me. Fermiamo questo scempio!" },
         { user: "claudio_valle", text: "Finalmente qualcuno che si muove a Piazza Celli. Ci vediamo lì." }
       ]
+    },
+    {
+      id: "post_anna_empty_after_4",
+      authorName: "Anna Calligaris",
+      authorUsername: "anna_calligaris_eco",
+      authorAvatar: "/img/Foto Anna (Ronchi)/profilo.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
     },
     {
       id: "post_bicycle",
@@ -1258,9 +1271,21 @@ export const INITIAL_DATA: AppData = {
 
 export const hydrateAppData = (data: AppData): AppData => {
   const conteAvatar = CONTACT_PLACEHOLDER_AVATAR;
+  const annaAfterFourthPostId = "post_anna_empty_after_4";
   const removedPostIds = new Set(["post_forest_cleanup", "post_zerowaste", "post_organic_orchard", "post_luigi_foto", "post_lorenzo_mare_spagna"]);
   const hasStoredSocialProfileAvatars = Boolean(data.socialProfileAvatars);
   const socialProfileAvatars = { ...DEFAULT_SOCIAL_PROFILE_AVATARS, ...(data.socialProfileAvatars || {}) };
+  const orderAnnaAfterFourthPost = (posts: Post[]) => {
+    const postIndex = posts.findIndex(post => post.id === annaAfterFourthPostId);
+    const flashmobIndex = posts.findIndex(post => post.id === "post_flashmob");
+    if (postIndex === -1 || flashmobIndex === -1 || postIndex === flashmobIndex + 1) return posts;
+
+    const nextPosts = [...posts];
+    const [post] = nextPosts.splice(postIndex, 1);
+    const targetIndex = nextPosts.findIndex(item => item.id === "post_flashmob");
+    nextPosts.splice(targetIndex + 1, 0, post);
+    return nextPosts;
+  };
   const appendMissingInitialContacts = (contacts: Contact[], initialContacts: Contact[]) => {
     const contactIds = new Set(contacts.map(contact => contact.id));
     return [
@@ -1355,6 +1380,8 @@ export const hydrateAppData = (data: AppData): AppData => {
     postsCount: INITIAL_DATA.annaProfile.postsCount
   };
   const annaProfileChanged = annaProfile.postsCount !== data.annaProfile.postsCount;
+  const hydratedPosts = orderAnnaAfterFourthPost([...missingInitialPosts, ...socialPosts]);
+  const postsChanged = JSON.stringify(hydratedPosts) !== JSON.stringify(data.posts);
   const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
     const possibleRow = row as Partial<CalendarShift>;
     return typeof possibleRow.label === 'string' && Array.isArray(possibleRow.values);
@@ -1366,9 +1393,8 @@ export const hydrateAppData = (data: AppData): AppData => {
     : INITIAL_DATA.mauroCalendar;
 
   if (
-    !missingInitialPosts.length &&
+    !postsChanged &&
     mauroCalendar === data.mauroCalendar &&
-    socialPosts.length === data.posts.length &&
     !annaProfileChanged &&
     !aldoContactsChanged &&
     !annaContactsChanged &&
@@ -1381,7 +1407,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     ...data,
     annaProfile,
     socialProfileAvatars,
-    posts: [...missingInitialPosts, ...socialPosts],
+    posts: hydratedPosts,
     aldoContacts,
     annaContacts,
     chatsAldo,
