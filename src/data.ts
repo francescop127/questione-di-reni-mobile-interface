@@ -118,7 +118,7 @@ export const INITIAL_DATA: AppData = {
     bio: "🚴‍♀️ In sella alla mia bici verso un futuro sostenibile.\n🌿 Attivista per la difesa degli animali e dell'ambiente.\n📍 Spostarsi senza inquinare è una scelta quotidiana.",
     followers: 124,
     following: 89,
-    postsCount: 24,
+    postsCount: 23,
     isVerified: true
   },
   socialProfileAvatars: DEFAULT_SOCIAL_PROFILE_AVATARS,
@@ -167,6 +167,45 @@ export const INITIAL_DATA: AppData = {
       authorName: "Tommaso (Attivista Milano)",
       authorUsername: "tommaso_attivista",
       authorAvatar: "/img/Foto Anna (Ronchi)/post_flashmob.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_anna_empty_recent_1",
+      authorName: "Anna Calligaris",
+      authorUsername: "anna_calligaris_eco",
+      authorAvatar: "/img/Foto Anna (Ronchi)/profilo.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_anna_empty_recent_2",
+      authorName: "Anna Calligaris",
+      authorUsername: "anna_calligaris_eco",
+      authorAvatar: "/img/Foto Anna (Ronchi)/profilo.jpeg",
+      image: "",
+      caption: "",
+      date: "Adesso",
+      likes: 0,
+      commentsCount: 0,
+      location: "",
+      comments: []
+    },
+    {
+      id: "post_anna_empty_recent_3",
+      authorName: "Anna Calligaris",
+      authorUsername: "anna_calligaris_eco",
+      authorAvatar: "/img/Foto Anna (Ronchi)/profilo.jpeg",
       image: "",
       caption: "",
       date: "Adesso",
@@ -228,18 +267,6 @@ export const INITIAL_DATA: AppData = {
       ]
     },
     {
-      id: "post_forest_cleanup",
-      image: "/img/Foto Anna (Ronchi)/post_forest_cleanup.jpeg",
-      caption: "Oggi con il gruppo locale abbiamo riempito ben 15 sacchi di plastica abbandonata nei boschi della Costiera. Un piccolo gesto collettivo per guarire la nostra terra ferita. 🌳🎒",
-      date: "10 giorni fa",
-      likes: 42,
-      commentsCount: 3,
-      location: "Macchia Grande di Focene",
-      comments: [
-        { user: "eco_brian", text: "Grazie a tutti per la straordinaria partecipazione attiva!" }
-      ]
-    },
-    {
       id: "post_vegan_picnic",
       image: "/img/Foto Anna (Ronchi)/post_vegan_picnic.jpeg",
       caption: "Alimentazione consapevole, cruelty-free e a impatto zero. Un delizioso picnic vegano autoprodotto all'ombra degli ulivi secolari. Mangiare sano fa bene a noi e al pianeta! 🍇🥗",
@@ -253,19 +280,6 @@ export const INITIAL_DATA: AppData = {
       ]
     },
     {
-      id: "post_zerowaste",
-      image: "/img/Foto Anna (Ronchi)/post_zerowaste.jpeg",
-      caption: "Rispettare l'ambiente significa anche ridurre gli imballaggi al minimo. Oggi spesa sfusa e barattoli riutilizzabili per azzerare la plastica monouso. 🫙🌾 Ogni piccolo passo conta infinitamente!",
-      date: "2 settimane fa",
-      likes: 72,
-      commentsCount: 4,
-      location: "Mercato Biologico Trullo",
-      comments: [
-        { user: "eco_brian", text: "Bellissima iniziativa! Dove si trova esattamente questo negozio sfuso?" },
-        { user: "lucia_nature", text: "Anch'io compro solo sfuso ormai! È liberatorio." }
-      ]
-    },
-    {
       id: "post_solar_panels",
       image: "/img/Foto Anna (Ronchi)/post_solar_panels.jpeg",
       caption: "Finalmente è arrivata l'energia pulita! ☀️ Installati i nuovi pannelli solari sul tetto della sede. Da oggi produciamo elettricità green al 100% per alimentare i nostri progetti e le assemblee.",
@@ -276,19 +290,6 @@ export const INITIAL_DATA: AppData = {
       comments: [
         { user: "claudio_valle", text: "Un passo concreto gigantesco! Congratulazioni team!" },
         { user: "amici_animali", text: "Potere al sole! Che meraviglia di installazione." }
-      ]
-    },
-    {
-      id: "post_organic_orchard",
-      image: "/img/Foto Anna (Ronchi)/post_organic_orchard.jpeg",
-      caption: "Raccolto del giorno dall'orto biologico comunitario coltivato a permacultura. 🌱 Pomodori profumatissimi, zucchine giganti e tanta soddisfazione di mangiare cibo vero, libero da pesticidi e chimica estrema.",
-      date: "1 mese fa",
-      likes: 93,
-      commentsCount: 11,
-      location: "Orti Didattici San Lorenzo",
-      comments: [
-        { user: "green_margherita", text: "Che colori splendidi! La permacultura rigenera davvero il terreno." },
-        { user: "martina_p", text: "Ci organizzate un workshop? Vorrei imparare le basi." }
       ]
     },
     {
@@ -377,19 +378,6 @@ export const INITIAL_DATA: AppData = {
       location: "Monti Lucretili",
       comments: [
         { user: "eco_brian", text: "Bellissimo video, mi hai ispirato!" }
-      ]
-    },
-    {
-      id: "post_luigi_foto",
-      image: "/img/Foto Anna (Ronchi)/post_forest_cleanup.jpeg",
-      caption: "Reportage fotografico dal bosco sacro. Quando la natura parla, il fotografo ascolta. 📸🌲 #landscape #reportage",
-      date: "5 mesi fa",
-      likes: 289,
-      commentsCount: 15,
-      location: "Foresta di Castelporziano",
-      comments: [
-        { user: "green_margherita", text: "Composizione perfetta Luigi!" },
-        { user: "stefano_run", text: "Questi colori sono surreali, bravissimo!" }
       ]
     },
     {
@@ -1285,6 +1273,7 @@ export const INITIAL_DATA: AppData = {
 
 export const hydrateAppData = (data: AppData): AppData => {
   const conteAvatar = CONTACT_PLACEHOLDER_AVATAR;
+  const removedPostIds = new Set(["post_forest_cleanup", "post_zerowaste", "post_organic_orchard", "post_luigi_foto"]);
   const hasStoredSocialProfileAvatars = Boolean(data.socialProfileAvatars);
   const socialProfileAvatars = { ...DEFAULT_SOCIAL_PROFILE_AVATARS, ...(data.socialProfileAvatars || {}) };
   const appendMissingInitialContacts = (contacts: Contact[], initialContacts: Contact[]) => {
@@ -1295,6 +1284,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     ];
   };
   const socialPosts = data.posts.filter(post =>
+    !removedPostIds.has(post.id) &&
     post.id !== "post_contact_conte_negroni_empty" &&
     post.authorUsername !== "conte_negroni" &&
     post.authorName !== "Conte Negroni"
@@ -1375,6 +1365,11 @@ export const hydrateAppData = (data: AppData): AppData => {
   const annaContactsChanged = JSON.stringify(annaContacts) !== JSON.stringify(data.annaContacts);
   const chatsAldoChanged = JSON.stringify(chatsAldo) !== JSON.stringify(data.chatsAldo);
   const chatsAnnaChanged = JSON.stringify(chatsAnna) !== JSON.stringify(data.chatsAnna);
+  const annaProfile = {
+    ...data.annaProfile,
+    postsCount: INITIAL_DATA.annaProfile.postsCount
+  };
+  const annaProfileChanged = annaProfile.postsCount !== data.annaProfile.postsCount;
   const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
     const possibleRow = row as Partial<CalendarShift>;
     return typeof possibleRow.label === 'string' && Array.isArray(possibleRow.values);
@@ -1389,6 +1384,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     !missingInitialPosts.length &&
     mauroCalendar === data.mauroCalendar &&
     socialPosts.length === data.posts.length &&
+    !annaProfileChanged &&
     !aldoContactsChanged &&
     !annaContactsChanged &&
     !chatsAldoChanged &&
@@ -1398,6 +1394,7 @@ export const hydrateAppData = (data: AppData): AppData => {
 
   return {
     ...data,
+    annaProfile,
     socialProfileAvatars,
     posts: [...missingInitialPosts, ...socialPosts],
     aldoContacts,
