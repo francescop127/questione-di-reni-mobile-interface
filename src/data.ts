@@ -110,6 +110,14 @@ export interface AppData {
   voiceNotification: VoiceNotification;
 }
 
+const SVEVA_SOFIA_PHOTO: SvevaPhoto = {
+  id: "sveva_sofia_cavallo",
+  url: "/img/sofia-cavallo.jpeg",
+  caption: "Sofia a cavallo.",
+  likes: 12,
+  commentsCount: 2
+};
+
 export const INITIAL_DATA: AppData = {
   annaProfile: {
     username: "anna_calligaris_eco",
@@ -1239,27 +1247,7 @@ export const INITIAL_DATA: AppData = {
     }
   ],
   svevaGallery: [
-    {
-      id: "sveva_p1",
-      url: "https://images.unsplash.com/photo-1519689680058-324335c77eb6?auto=format&fit=crop&q=80&w=400",
-      caption: "Sofia che gioca nel parco quest'oggi 🌸 Cresce così in fretta Anna!",
-      likes: 12,
-      commentsCount: 2
-    },
-    {
-      id: "sveva_p2",
-      url: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&q=80&w=400",
-      caption: "I suoi primi sorrisi stampati sul viso. Un raggio di sole!",
-      likes: 18,
-      commentsCount: 1
-    },
-    {
-      id: "sveva_p3",
-      url: "https://images.unsplash.com/photo-1471286174241-d6a59bc88a87?auto=format&fit=crop&q=80&w=400",
-      caption: "Passi incerti sulla sabbia. La nostra piccola esploratrice.",
-      likes: 24,
-      commentsCount: 4
-    }
+    SVEVA_SOFIA_PHOTO
   ],
   voiceNotification: {
     senderName: "Anna Calligaris",
@@ -1385,6 +1373,8 @@ export const hydrateAppData = (data: AppData): AppData => {
   const annaContactsChanged = JSON.stringify(annaContacts) !== JSON.stringify(data.annaContacts);
   const chatsAldoChanged = JSON.stringify(chatsAldo) !== JSON.stringify(data.chatsAldo);
   const chatsAnnaChanged = JSON.stringify(chatsAnna) !== JSON.stringify(data.chatsAnna);
+  const svevaGallery = [SVEVA_SOFIA_PHOTO];
+  const svevaGalleryChanged = JSON.stringify(svevaGallery) !== JSON.stringify(data.svevaGallery);
   const annaProfile = {
     ...data.annaProfile,
     postsCount: INITIAL_DATA.annaProfile.postsCount
@@ -1410,6 +1400,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     !annaContactsChanged &&
     !chatsAldoChanged &&
     !chatsAnnaChanged &&
+    !svevaGalleryChanged &&
     JSON.stringify(socialProfileAvatars) === JSON.stringify(data.socialProfileAvatars)
   ) return data;
 
@@ -1422,6 +1413,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     annaContacts,
     chatsAldo,
     chatsAnna,
-    mauroCalendar
+    mauroCalendar,
+    svevaGallery
   };
 };
