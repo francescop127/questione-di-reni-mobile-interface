@@ -809,14 +809,16 @@ export default function DirectorDrawer({
                       setWakeConfig(prev => ({
                         ...prev,
                         senderName: 'Anna',
-                        messagePreview: '🎤 Messaggio Vocale (0:42)',
+                        messagePreview: '🎤 Messaggio Vocale (0:39)',
                         timestamp: 'Adesso',
-                        voiceDuration: '0:42',
+                        voiceDuration: '0:39',
+                        notificationBehavior: 'inapp',
                         phoneOwnerTarget: 'Aldo',
                         targetChatId: 'chat_anna',
                         notificationTitle: 'Messaggio Vocale',
                         actionLabel: 'TOCCA PER ASCOLTARE ➔'
                       }));
+                      setPhoneOwner('Aldo');
                     }}
                     className={`p-2 rounded-lg border text-[8.5px] font-mono font-black uppercase transition ${
                       wakeConfig.phoneOwnerTarget === 'Aldo' && wakeConfig.targetChatId === 'chat_anna'

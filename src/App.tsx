@@ -65,6 +65,7 @@ export default function App() {
   const [chatImageSettingsOpen, setChatImageSettingsOpen] = useState<boolean>(false);
   const [chatImageUploading, setChatImageUploading] = useState<boolean>(false);
   const [chatImageUploadError, setChatImageUploadError] = useState<string | null>(null);
+  const [voiceMessageOverlayOpen, setVoiceMessageOverlayOpen] = useState<boolean>(false);
   const [activeProfileUsername, setActiveProfileUsername] = useState<string>('anna_calligaris_eco');
   const [profileListOpen, setProfileListOpen] = useState<'followers' | 'following' | null>(null);
 
@@ -365,11 +366,11 @@ export default function App() {
 
   const defaultWakeConfig = {
     senderName: 'Anna',
-    messagePreview: '🎤 Messaggio Vocale (0:42)',
+    messagePreview: '🎤 Messaggio Vocale (0:39)',
     timestamp: 'Adesso',
-    voiceDuration: '0:42',
+    voiceDuration: '0:39',
     useVibratingPulse: true,
-    notificationBehavior: 'lockscreen' as 'lockscreen' | 'inapp',
+    notificationBehavior: 'inapp' as 'lockscreen' | 'inapp',
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     targetChatId: 'chat_anna',
     notificationTitle: 'Messaggio Vocale',
@@ -386,6 +387,12 @@ export default function App() {
         return {
           ...defaultWakeConfig,
           ...parsedWakeConfig,
+          messagePreview: parsedWakeConfig.messagePreview === '🎤 Messaggio Vocale (0:42)'
+            ? defaultWakeConfig.messagePreview
+            : parsedWakeConfig.messagePreview,
+          voiceDuration: parsedWakeConfig.voiceDuration === '0:42'
+            ? defaultWakeConfig.voiceDuration
+            : parsedWakeConfig.voiceDuration,
           targetChatId: parsedWakeConfig.targetChatId === 'chat_aldo_anna'
             ? 'chat_negroni_anna'
             : parsedWakeConfig.targetChatId
@@ -469,10 +476,10 @@ export default function App() {
     }));
   }, [standbyTotalSeconds, lockScreenWallpaper, callTotalSeconds, callConfig, ringerEnabled, currentTime]);
 
-  // Voice message player simulated progression
+  // Voice message player
   const [voiceIsPlaying, setVoiceIsPlaying] = useState<boolean>(false);
   const [voiceProgress, setVoiceProgress] = useState<number>(0);
-  const voiceProgressIntervalRef = useRef<number | null>(null);
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const voiceNotificationDelayRef = useRef<number | null>(null);
 
   // Audio Context for beeps and simulated dial rings
@@ -753,11 +760,10 @@ export default function App() {
     setCallTimerRunning(false);
     setCallState(prev => ({ ...prev, type: null }));
     setPhoneOwner(wakeConfig.phoneOwnerTarget);
-    setActiveScreen('chat');
-    setActiveChatId(wakeConfig.targetChatId);
-    setMobileShowActiveChat(true);
     setStandbyActive(false);
     setStandbyTimerRunning(false);
+    setActiveScreen('feed');
+    setMobileShowActiveChat(false);
 
     if (wakeConfig.notificationBehavior === 'lockscreen') {
       setLockScreenActive(false);
@@ -777,38 +783,57 @@ export default function App() {
     }, standbyTotalSeconds * 1000);
   };
 
-  // Voice message simulation progression
-  const handlePlayVoiceSimulated = () => {
-    if (voiceIsPlaying) {
-      // Pause
-      setVoiceIsPlaying(false);
-      if (voiceProgressIntervalRef.current) {
-        clearInterval(voiceProgressIntervalRef.current);
-        voiceProgressIntervalRef.current = null;
-      }
-    } else {
-      // Play
-      setVoiceIsPlaying(true);
-      playInteractionBeep(850, 0.2);
-      
-      voiceProgressIntervalRef.current = window.setInterval(() => {
-        setVoiceProgress(prev => {
-          if (prev >= 100) {
-            setVoiceIsPlaying(false);
-            if (voiceProgressIntervalRef.current) clearInterval(voiceProgressIntervalRef.current);
-            voiceProgressIntervalRef.current = null;
-            playInteractionBeep(1200, 0.45); // complete sound
-            return 100;
-          }
-          return prev + 1.2;
-        });
-      }, 100);
+  const getVoiceAudio = () => {
+    if (!voiceAudioRef.current) {
+      const audio = new Audio('/audio/vocale-anna-sc-86.mp3');
+      audio.preload = 'auto';
+      audio.addEventListener('timeupdate', () => {
+        setVoiceProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
+      });
+      audio.addEventListener('play', () => setVoiceIsPlaying(true));
+      audio.addEventListener('pause', () => setVoiceIsPlaying(false));
+      audio.addEventListener('ended', () => {
+        setVoiceIsPlaying(false);
+        setVoiceProgress(100);
+      });
+      voiceAudioRef.current = audio;
     }
+    return voiceAudioRef.current;
+  };
+
+  const handlePlayVoiceMessage = (restart = false) => {
+    const audio = getVoiceAudio();
+    if (restart) {
+      audio.pause();
+      audio.currentTime = 0;
+      setVoiceProgress(0);
+      void audio.play().catch(() => setVoiceIsPlaying(false));
+      return;
+    }
+    if (!audio.paused) {
+      audio.pause();
+      return;
+    }
+    if (audio.ended || audio.currentTime >= audio.duration) {
+      audio.currentTime = 0;
+      setVoiceProgress(0);
+    }
+    void audio.play().catch(() => setVoiceIsPlaying(false));
+  };
+
+  const openVoiceMessageOverlay = () => {
+    setVoiceMessageOverlayOpen(true);
+    handlePlayVoiceMessage(true);
+  };
+
+  const closeVoiceMessageOverlay = () => {
+    voiceAudioRef.current?.pause();
+    setVoiceMessageOverlayOpen(false);
   };
 
   useEffect(() => {
     return () => {
-      if (voiceProgressIntervalRef.current) clearInterval(voiceProgressIntervalRef.current);
+      voiceAudioRef.current?.pause();
       if (voiceNotificationDelayRef.current) clearTimeout(voiceNotificationDelayRef.current);
     };
   }, []);
@@ -876,10 +901,7 @@ export default function App() {
         setActiveChatId('chat_anna');
         setVoiceProgress(0);
         setVoiceIsPlaying(false);
-        // Instant play trigger
-        setTimeout(() => {
-          handlePlayVoiceSimulated();
-        }, 500);
+        handlePlayVoiceMessage(true);
         break;
 
       case 'scena_chiama_aldo_da_anna':
@@ -1195,14 +1217,12 @@ export default function App() {
                 animate={{ transform: 'scale(1)', opacity: 1, y: 0 }}
                 transition={{ type: 'spring', damping: 20, delay: 0.15 }}
                 onClick={() => {
-                  // Direct unlock and navigate straight to chat message thread
-                  playInteractionBeep(1100, 0.15);
+                  // Keep the current screen visible and enlarge the voice message.
+                  if (!wakeConfig.voiceDuration) playInteractionBeep(1100, 0.15);
                   setLockScreenActive(false);
                   setBannerNotificationActive(false);
                   setPhoneOwner(wakeConfig.phoneOwnerTarget);
-                  setActiveScreen('chat');
-                  setActiveChatId(wakeConfig.targetChatId);
-                  setMobileShowActiveChat(true); // Open details panel on mobile reactively
+                  if (wakeConfig.voiceDuration) openVoiceMessageOverlay();
                 }}
                 className="bg-white/15 backdrop-blur-[24px] border border-white/20 rounded-2xl p-4 shadow-2xl hover:scale-102 hover:bg-white/20 transition duration-300 cursor-pointer active:scale-98 relative overflow-hidden group select-none"
               >
@@ -1283,13 +1303,14 @@ export default function App() {
             } : { y: 12, x: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             onClick={() => {
-              // Clicking the WhatsApp banner routes to the configured target chat.
+              // The voice notification expands without leaving the social feed.
               setPhoneOwner(wakeConfig.phoneOwnerTarget);
-              setActiveScreen('chat');
-              setActiveChatId(wakeConfig.targetChatId);
-              setMobileShowActiveChat(true); // show the chat thread on mobile
               setBannerNotificationActive(false);
-              playInteractionBeep(1000, 0.15);
+              if (wakeConfig.voiceDuration) {
+                openVoiceMessageOverlay();
+              } else {
+                playInteractionBeep(1000, 0.15);
+              }
             }}
             className={`fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border border-zinc-200/90 rounded-2xl p-4 shadow-xl z-[999] cursor-pointer ${
               standbyPulseActive ? 'ring-4 ring-emerald-500/40 shadow-emerald-500/20' : ''
@@ -2206,9 +2227,15 @@ export default function App() {
 
                                   {/* Simulated Voice Message waveform */}
                                   {msg.voiceDuration && (
-                                    <div className="flex items-center gap-2.5 py-1 min-w-[200px]">
+                                    <div
+                                      onClick={openVoiceMessageOverlay}
+                                      className="flex items-center gap-2.5 py-1 min-w-[200px] cursor-zoom-in"
+                                    >
                                       <button
-                                        onClick={handlePlayVoiceSimulated}
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          handlePlayVoiceMessage();
+                                        }}
                                         className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition ${
                                           isMe 
                                             ? 'bg-white text-emerald-800 hover:bg-zinc-100' 
@@ -2243,7 +2270,7 @@ export default function App() {
                                         </div>
 
                                         <div className="flex justify-between text-[8px] font-mono tracking-wider">
-                                          <span>0:42</span>
+                                          <span>{msg.voiceDuration}</span>
                                           <span className="font-extrabold uppercase uppercase">Vocale Anna</span>
                                         </div>
                                       </div>
@@ -2419,6 +2446,84 @@ export default function App() {
 
         </main>
       </div>
+
+      {/* ENLARGED VOICE MESSAGE — opens above the current social screen */}
+      <AnimatePresence>
+        {voiceMessageOverlayOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeVoiceMessageOverlay}
+            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/65 px-5 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.72, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.82, y: 16, opacity: 0 }}
+              transition={{ type: 'spring', damping: 22, stiffness: 260 }}
+              onClick={(event) => event.stopPropagation()}
+              className="relative w-full max-w-[390px] rounded-[28px] border border-white/70 bg-white p-5 shadow-2xl"
+            >
+              <button
+                type="button"
+                onClick={closeVoiceMessageOverlay}
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-900"
+                title="Chiudi messaggio vocale"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="mb-6 flex items-center gap-3 pr-10">
+                <img
+                  src={ANNA_CONTACT_AVATAR}
+                  alt="Anna"
+                  className="h-12 w-12 rounded-full border border-zinc-200 object-cover"
+                />
+                <div>
+                  <p className="text-sm font-black text-zinc-900">Anna</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Messaggio vocale</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 rounded-2xl bg-emerald-50 p-4">
+                <button
+                  type="button"
+                  onClick={() => handlePlayVoiceMessage()}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg shadow-emerald-900/20 transition active:scale-95"
+                  title={voiceIsPlaying ? 'Pausa' : 'Riproduci'}
+                >
+                  {voiceIsPlaying ? (
+                    <Pause className="h-5 w-5 fill-current" />
+                  ) : (
+                    <Play className="h-5 w-5 translate-x-0.5 fill-current" />
+                  )}
+                </button>
+
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex h-10 items-center gap-[3px]">
+                    {Array.from({ length: 26 }).map((_, waveIdx) => (
+                      <span
+                        key={waveIdx}
+                        className="w-[3px] rounded-full transition-colors duration-100"
+                        style={{
+                          height: `${Math.floor(Math.sin((waveIdx + 1) * 0.62) * 17) + 19}px`,
+                          backgroundColor: voiceProgress > (waveIdx * (100 / 26)) ? '#047857' : '#a7f3d0'
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-between font-mono text-[10px] font-bold text-zinc-500">
+                    <span>{`0:${String(Math.min(39, Math.floor((voiceProgress / 100) * 39))).padStart(2, '0')}`}</span>
+                    <span>0:39</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* FULLSCREEN LIGHTBOX FOR SOCIAL POST IMAGES */}
       <AnimatePresence>
         {focusedPostId !== null && focusedPostId !== 'selfie_zoom' && (

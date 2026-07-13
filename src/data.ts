@@ -41,7 +41,8 @@ export interface Message {
   sender: 'me' | 'other';
   text?: string;
   image?: string;
-  voiceDuration?: string; // e.g. "0:42" if it is a voice message
+  voiceDuration?: string; // e.g. "0:39" if it is a voice message
+  voiceAudio?: string;
   voicePlayed?: boolean;
   timestamp: string;
 }
@@ -1091,7 +1092,8 @@ export const INITIAL_DATA: AppData = {
     {
       id: "msg_8",
       sender: "other",
-      voiceDuration: "0:42",
+      voiceDuration: "0:39",
+      voiceAudio: "/audio/vocale-anna-sc-86.mp3",
       voicePlayed: false,
       timestamp: "10:23"
     }
@@ -1143,7 +1145,8 @@ export const INITIAL_DATA: AppData = {
         {
           id: "msg_7",
           sender: "other",
-          voiceDuration: "0:42",
+          voiceDuration: "0:39",
+          voiceAudio: "/audio/vocale-anna-sc-86.mp3",
           voicePlayed: false,
           timestamp: "10:23"
         }
@@ -1251,9 +1254,9 @@ export const INITIAL_DATA: AppData = {
   ],
   voiceNotification: {
     senderName: "Anna Calligaris",
-    messagePreview: "🎤 Messaggio Vocale ricevuto (0:42)",
+    messagePreview: "🎤 Messaggio Vocale ricevuto (0:39)",
     timeStr: "Adesso",
-    durationStr: "0:42"
+    durationStr: "0:39"
   }
 };
 
@@ -1346,10 +1349,21 @@ export const hydrateAppData = (data: AppData): AppData => {
       })),
     INITIAL_DATA.annaContacts
   );
-  const chatsAldo = data.chatsAldo.map(chat => chat.id === "chat_negroni"
-    ? { ...chat, avatar: conteAvatar }
-    : chat
-  );
+  const chatsAldo = data.chatsAldo.map(chat => {
+    if (chat.id === "chat_negroni") return { ...chat, avatar: conteAvatar };
+    if (chat.id !== "chat_anna") return chat;
+
+    return {
+      ...chat,
+      messages: chat.messages.map(message => message.voiceDuration
+        ? {
+          ...message,
+          voiceDuration: "0:39",
+          voiceAudio: "/audio/vocale-anna-sc-86.mp3"
+        }
+        : message)
+    };
+  });
   const hydratedAnnaChats = data.chatsAnna.filter(chat => chat.id !== "chat_aldo_anna").map(chat => {
     if (chat.id !== "chat_negroni_anna") return chat;
 
@@ -1382,6 +1396,12 @@ export const hydrateAppData = (data: AppData): AppData => {
   const annaProfileChanged = annaProfile.postsCount !== data.annaProfile.postsCount;
   const hydratedPosts = orderAnnaAfterFourthPost([...missingInitialPosts, ...socialPosts]);
   const postsChanged = JSON.stringify(hydratedPosts) !== JSON.stringify(data.posts);
+  const voiceNotification = {
+    ...data.voiceNotification,
+    messagePreview: "🎤 Messaggio Vocale ricevuto (0:39)",
+    durationStr: "0:39"
+  };
+  const voiceNotificationChanged = JSON.stringify(voiceNotification) !== JSON.stringify(data.voiceNotification);
   const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
     const possibleRow = row as Partial<CalendarShift>;
     return typeof possibleRow.label === 'string' && Array.isArray(possibleRow.values);
@@ -1400,6 +1420,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     !annaContactsChanged &&
     !chatsAldoChanged &&
     !chatsAnnaChanged &&
+    !voiceNotificationChanged &&
     !svevaGalleryChanged &&
     JSON.stringify(socialProfileAvatars) === JSON.stringify(data.socialProfileAvatars)
   ) return data;
@@ -1413,6 +1434,7 @@ export const hydrateAppData = (data: AppData): AppData => {
     annaContacts,
     chatsAldo,
     chatsAnna,
+    voiceNotification,
     mauroCalendar,
     svevaGallery
   };
