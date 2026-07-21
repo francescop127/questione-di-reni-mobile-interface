@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sliders, X, Sparkles, Phone, MessageSquare, Volume2, VolumeX, RefreshCw, Layers, Edit, UploadCloud, Bell } from 'lucide-react';
-import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, SocialProfileAvatars, SocialProfileUsername } from '../data';
+import { AppData, Post, Contact, Message, INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, VOICE_MESSAGE_DURATION, VOICE_MESSAGE_PREVIEW, VOICE_MESSAGE_TITLE, VOICE_MESSAGE_ACTION_LABEL, SocialProfileAvatars, SocialProfileUsername } from '../data';
 
 interface UploadImageControlProps {
   enabled: boolean;
@@ -809,14 +809,14 @@ export default function DirectorDrawer({
                       setWakeConfig(prev => ({
                         ...prev,
                         senderName: 'Anna',
-                        messagePreview: '🎤 Messaggio Vocale (0:39)',
+                        messagePreview: VOICE_MESSAGE_PREVIEW,
                         timestamp: 'Adesso',
-                        voiceDuration: '0:39',
+                        voiceDuration: VOICE_MESSAGE_DURATION,
                         notificationBehavior: 'inapp',
                         phoneOwnerTarget: 'Aldo',
                         targetChatId: 'chat_anna',
-                        notificationTitle: 'Messaggio Vocale',
-                        actionLabel: 'TOCCA PER ASCOLTARE ➔'
+                        notificationTitle: VOICE_MESSAGE_TITLE,
+                        actionLabel: VOICE_MESSAGE_ACTION_LABEL
                       }));
                       setPhoneOwner('Aldo');
                     }}

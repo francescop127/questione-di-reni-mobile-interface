@@ -15,7 +15,7 @@ import SvevaGalleryView from './components/SvevaGalleryView';
 import DirectorDrawer from './components/DirectorDrawer';
 
 // State and types
-import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, AppData, Post, Contact, Message, ChatThread, CalendarShift, SocialProfileAvatars, hydrateAppData } from './data';
+import { INITIAL_DATA, CONTACT_PLACEHOLDER_AVATAR, ANNA_CONTACT_AVATAR, VOICE_MESSAGE_AUDIO, VOICE_MESSAGE_AUDIO_FALLBACK, VOICE_MESSAGE_DURATION, VOICE_MESSAGE_DURATION_SECONDS, VOICE_MESSAGE_PREVIEW, VOICE_MESSAGE_NOTIFICATION_PREVIEW, VOICE_MESSAGE_TITLE, VOICE_MESSAGE_ACTION_LABEL, AppData, Post, Contact, Message, ChatThread, CalendarShift, SocialProfileAvatars, hydrateAppData } from './data';
 import { useSupabaseAppData } from './hooks/useSupabaseAppData';
 
 export default function App() {
@@ -366,15 +366,15 @@ export default function App() {
 
   const defaultWakeConfig = {
     senderName: 'Anna',
-    messagePreview: '🎤 Messaggio Vocale (0:39)',
+    messagePreview: VOICE_MESSAGE_PREVIEW,
     timestamp: 'Adesso',
-    voiceDuration: '0:39',
+    voiceDuration: VOICE_MESSAGE_DURATION,
     useVibratingPulse: true,
     notificationBehavior: 'inapp' as 'lockscreen' | 'inapp',
     phoneOwnerTarget: 'Aldo' as 'Aldo' | 'Anna',
     targetChatId: 'chat_anna',
-    notificationTitle: 'Messaggio Vocale',
-    actionLabel: 'TOCCA PER ASCOLTARE ➔',
+    notificationTitle: VOICE_MESSAGE_TITLE,
+    actionLabel: VOICE_MESSAGE_ACTION_LABEL,
     showLockDateTime: true,
     lockScreenTime: '15:10',
     lockScreenDate: '25 giugno 2026'
@@ -387,10 +387,10 @@ export default function App() {
         return {
           ...defaultWakeConfig,
           ...parsedWakeConfig,
-          messagePreview: parsedWakeConfig.messagePreview === '🎤 Messaggio Vocale (0:42)'
+          messagePreview: ['🎤 Messaggio Vocale (0:42)', '🎤 Messaggio Vocale (0:39)'].includes(parsedWakeConfig.messagePreview)
             ? defaultWakeConfig.messagePreview
             : parsedWakeConfig.messagePreview,
-          voiceDuration: parsedWakeConfig.voiceDuration === '0:42'
+          voiceDuration: ['0:42', '0:39'].includes(parsedWakeConfig.voiceDuration)
             ? defaultWakeConfig.voiceDuration
             : parsedWakeConfig.voiceDuration,
           targetChatId: parsedWakeConfig.targetChatId === 'chat_aldo_anna'
@@ -479,8 +479,20 @@ export default function App() {
   // Voice message player
   const [voiceIsPlaying, setVoiceIsPlaying] = useState<boolean>(false);
   const [voiceProgress, setVoiceProgress] = useState<number>(0);
+  const [voiceAudioDuration, setVoiceAudioDuration] = useState<number>(VOICE_MESSAGE_DURATION_SECONDS);
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
+  const voicePlaybackRequestRef = useRef(0);
+  const voicePlaybackRequestedRef = useRef(false);
   const voiceNotificationDelayRef = useRef<number | null>(null);
+
+  const formatVoiceDuration = (seconds: number) => {
+    const rounded = Math.max(0, Math.round(seconds));
+    const minutes = Math.floor(rounded / 60);
+    const secs = rounded % 60;
+    return `${minutes}:${String(secs).padStart(2, '0')}`;
+  };
+
+  const voiceProgressLabel = formatVoiceDuration((voiceAudioDuration * voiceProgress) / 100);
 
   // Audio Context for beeps and simulated dial rings
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -784,41 +796,99 @@ export default function App() {
   };
 
   const getVoiceAudio = () => {
+    const expectedSrc = new URL(VOICE_MESSAGE_AUDIO, window.location.href).href;
+    if (voiceAudioRef.current && voiceAudioRef.current.currentSrc !== expectedSrc) {
+      voiceAudioRef.current.pause();
+      voiceAudioRef.current = null;
+    }
     if (!voiceAudioRef.current) {
-      const audio = new Audio('/audio/vocale-anna-sc-86.mp3');
+      const audio = new Audio(VOICE_MESSAGE_AUDIO);
       audio.preload = 'auto';
+      audio.addEventListener('loadedmetadata', () => {
+        if (audio.duration && !Number.isNaN(audio.duration)) {
+          setVoiceAudioDuration(audio.duration);
+        }
+      });
       audio.addEventListener('timeupdate', () => {
         setVoiceProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
       });
       audio.addEventListener('play', () => setVoiceIsPlaying(true));
       audio.addEventListener('pause', () => setVoiceIsPlaying(false));
       audio.addEventListener('ended', () => {
+        voicePlaybackRequestedRef.current = false;
         setVoiceIsPlaying(false);
         setVoiceProgress(100);
+      });
+      audio.addEventListener('error', () => {
+        if (audio.src !== new URL(VOICE_MESSAGE_AUDIO_FALLBACK, window.location.href).href) {
+          const requestId = voicePlaybackRequestRef.current;
+          audio.src = VOICE_MESSAGE_AUDIO_FALLBACK;
+          audio.load();
+          audio.addEventListener('canplay', () => {
+            if (voicePlaybackRequestedRef.current && voicePlaybackRequestRef.current === requestId) {
+              void audio.play().catch(() => setVoiceIsPlaying(false));
+            }
+          }, { once: true });
+        } else {
+          voicePlaybackRequestedRef.current = false;
+          setVoiceIsPlaying(false);
+          console.warn('Impossibile riprodurre il messaggio vocale:', audio.src);
+        }
       });
       voiceAudioRef.current = audio;
     }
     return voiceAudioRef.current;
   };
 
-  const handlePlayVoiceMessage = (restart = false) => {
-    const audio = getVoiceAudio();
+  const pauseVoiceMessage = (reset = false) => {
+    // Invalidates a pending play() promise, which otherwise could restart audio after a stop.
+    voicePlaybackRequestRef.current += 1;
+    voicePlaybackRequestedRef.current = false;
+    const audio = voiceAudioRef.current;
+    audio?.pause();
+    if (reset && audio) {
+      audio.currentTime = 0;
+      setVoiceProgress(0);
+    }
+    setVoiceIsPlaying(false);
+  };
+
+  const playVoiceMessage = (audio: HTMLAudioElement, restart = false) => {
+    const requestId = voicePlaybackRequestRef.current + 1;
+    voicePlaybackRequestRef.current = requestId;
+    voicePlaybackRequestedRef.current = true;
+
     if (restart) {
       audio.pause();
       audio.currentTime = 0;
       setVoiceProgress(0);
-      void audio.play().catch(() => setVoiceIsPlaying(false));
-      return;
-    }
-    if (!audio.paused) {
-      audio.pause();
-      return;
-    }
-    if (audio.ended || audio.currentTime >= audio.duration) {
+    } else if (audio.ended || (Number.isFinite(audio.duration) && audio.currentTime >= audio.duration)) {
       audio.currentTime = 0;
       setVoiceProgress(0);
     }
-    void audio.play().catch(() => setVoiceIsPlaying(false));
+
+    // Update immediately so the button always reflects the user's last tap.
+    setVoiceIsPlaying(true);
+    void audio.play().then(() => {
+      if (voicePlaybackRequestRef.current === requestId) setVoiceIsPlaying(true);
+    }).catch(() => {
+      if (voicePlaybackRequestRef.current === requestId) setVoiceIsPlaying(false);
+    });
+  };
+
+  const handlePlayVoiceMessage = (restart = false) => {
+    const audio = getVoiceAudio();
+    if (restart) {
+      playVoiceMessage(audio, true);
+      return;
+    }
+    // `audio.paused` can still be true for a moment while play() is starting.
+    // The requested state instead always matches the icon the user just tapped.
+    if (voicePlaybackRequestedRef.current) {
+      pauseVoiceMessage();
+      return;
+    }
+    playVoiceMessage(audio);
   };
 
   const openVoiceMessageOverlay = () => {
@@ -827,13 +897,13 @@ export default function App() {
   };
 
   const closeVoiceMessageOverlay = () => {
-    voiceAudioRef.current?.pause();
+    pauseVoiceMessage();
     setVoiceMessageOverlayOpen(false);
   };
 
   useEffect(() => {
     return () => {
-      voiceAudioRef.current?.pause();
+      pauseVoiceMessage();
       if (voiceNotificationDelayRef.current) clearTimeout(voiceNotificationDelayRef.current);
     };
   }, []);
@@ -2514,8 +2584,8 @@ export default function App() {
                     ))}
                   </div>
                   <div className="flex justify-between font-mono text-[10px] font-bold text-zinc-500">
-                    <span>{`0:${String(Math.min(39, Math.floor((voiceProgress / 100) * 39))).padStart(2, '0')}`}</span>
-                    <span>0:39</span>
+                    <span>{voiceProgressLabel}</span>
+                    <span>{formatVoiceDuration(voiceAudioDuration)}</span>
                   </div>
                 </div>
               </div>

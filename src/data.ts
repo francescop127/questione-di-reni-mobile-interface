@@ -16,6 +16,14 @@ export interface Post {
 
 export const CONTACT_PLACEHOLDER_AVATAR = "/img/conte-negroni-profile.svg";
 export const ANNA_CONTACT_AVATAR = "/img/Foto Anna (Ronchi)/chiamata.jpeg";
+export const VOICE_MESSAGE_AUDIO = "/audio/vocale-anna-sc-86.m4a";
+export const VOICE_MESSAGE_AUDIO_FALLBACK = "/audio/vocale-anna-sc-86.mp3";
+export const VOICE_MESSAGE_DURATION = "0:56";
+export const VOICE_MESSAGE_DURATION_SECONDS = 56;
+export const VOICE_MESSAGE_PREVIEW = "🎤 Messaggio Vocale (0:56)";
+export const VOICE_MESSAGE_NOTIFICATION_PREVIEW = "🎤 Messaggio Vocale ricevuto (0:56)";
+export const VOICE_MESSAGE_TITLE = "Messaggio Vocale";
+export const VOICE_MESSAGE_ACTION_LABEL = "TOCCA PER ASCOLTARE ➔";
 
 export type SocialProfileUsername = 'aldo_reni' | 'lorenzo_vidal' | 'bar_appennino';
 export type SocialProfileAvatars = Record<SocialProfileUsername, string>;
@@ -41,7 +49,7 @@ export interface Message {
   sender: 'me' | 'other';
   text?: string;
   image?: string;
-  voiceDuration?: string; // e.g. "0:39" if it is a voice message
+  voiceDuration?: string; // e.g. "0:56" if it is a voice message
   voiceAudio?: string;
   voicePlayed?: boolean;
   timestamp: string;
@@ -1092,8 +1100,8 @@ export const INITIAL_DATA: AppData = {
     {
       id: "msg_8",
       sender: "other",
-      voiceDuration: "0:39",
-      voiceAudio: "/audio/vocale-anna-sc-86.mp3",
+      voiceDuration: VOICE_MESSAGE_DURATION,
+      voiceAudio: VOICE_MESSAGE_AUDIO,
       voicePlayed: false,
       timestamp: "10:23"
     }
@@ -1145,8 +1153,8 @@ export const INITIAL_DATA: AppData = {
         {
           id: "msg_7",
           sender: "other",
-          voiceDuration: "0:39",
-          voiceAudio: "/audio/vocale-anna-sc-86.mp3",
+          voiceDuration: VOICE_MESSAGE_DURATION,
+          voiceAudio: VOICE_MESSAGE_AUDIO,
           voicePlayed: false,
           timestamp: "10:23"
         }
@@ -1254,9 +1262,9 @@ export const INITIAL_DATA: AppData = {
   ],
   voiceNotification: {
     senderName: "Anna Calligaris",
-    messagePreview: "🎤 Messaggio Vocale ricevuto (0:39)",
+    messagePreview: VOICE_MESSAGE_NOTIFICATION_PREVIEW,
     timeStr: "Adesso",
-    durationStr: "0:39"
+    durationStr: VOICE_MESSAGE_DURATION
   }
 };
 
@@ -1358,8 +1366,8 @@ export const hydrateAppData = (data: AppData): AppData => {
       messages: chat.messages.map(message => message.voiceDuration
         ? {
           ...message,
-          voiceDuration: "0:39",
-          voiceAudio: "/audio/vocale-anna-sc-86.mp3"
+          voiceDuration: VOICE_MESSAGE_DURATION,
+          voiceAudio: VOICE_MESSAGE_AUDIO
         }
         : message)
     };
@@ -1398,8 +1406,8 @@ export const hydrateAppData = (data: AppData): AppData => {
   const postsChanged = JSON.stringify(hydratedPosts) !== JSON.stringify(data.posts);
   const voiceNotification = {
     ...data.voiceNotification,
-    messagePreview: "🎤 Messaggio Vocale ricevuto (0:39)",
-    durationStr: "0:39"
+    messagePreview: VOICE_MESSAGE_NOTIFICATION_PREVIEW,
+    durationStr: VOICE_MESSAGE_DURATION
   };
   const voiceNotificationChanged = JSON.stringify(voiceNotification) !== JSON.stringify(data.voiceNotification);
   const mauroCalendar = Array.isArray(data.mauroCalendar) && data.mauroCalendar.every(row => {
